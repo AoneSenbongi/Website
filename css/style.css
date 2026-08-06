@@ -217,12 +217,41 @@ nav a.current::after{
 /* ===================================================== */
 /* humburger menu */
 /* ===================================================== */
+
+.hamburger{
+
+    border:none;
+    background:none;
+
+    font-size:28px;
+
+    cursor:pointer;
+
+}
+
+
 .hamburger-menu{
 
     position:absolute;
 
     top:70px;
     right:0;
+
+    display:none;
+
+}
+
+
+.hamburger-menu.active{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.hamburger-menu{
 
     display:none;
 
