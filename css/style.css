@@ -749,3 +749,214 @@ footer{
     }
 
 }
+
+/* ===================================================== */
+/* Research Page */
+/* ===================================================== */
+
+.research-page{
+
+    background:#ffffff;
+
+}
+
+
+/* Research Header */
+
+.research-header{
+
+    max-width:900px;
+
+    margin:0 auto;
+
+    text-align:center;
+
+    padding-bottom:60px;
+
+}
+
+
+.research-header h1{
+
+    font-size:3rem;
+
+    margin-bottom:20px;
+
+}
+
+
+.research-header p{
+
+    color:#666;
+
+    font-size:1.1rem;
+
+}
+
+
+
+/* Research List */
+
+.research-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:30px;
+
+    max-width:1000px;
+
+    margin:0 auto;
+
+}
+
+
+
+/* Research Item */
+
+.research-item{
+
+    padding:35px 40px;
+
+    background:#fafafa;
+
+    border-radius:18px;
+
+    border:1px solid #eeeeee;
+
+    transition:.25s;
+
+}
+
+
+.research-item:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+}
+
+
+
+/* Year / Place */
+
+.research-meta{
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+    color:#666;
+
+    font-size:.95rem;
+
+}
+
+
+.research-year{
+
+    font-weight:600;
+
+    color:#111;
+
+}
+
+
+.research-place{
+
+    color:#666;
+
+}
+
+
+
+/* Title */
+
+.research-item h2{
+
+    font-size:1.5rem;
+
+    margin-bottom:15px;
+
+    line-height:1.5;
+
+}
+
+
+
+/* Description */
+
+.research-item p{
+
+    color:#555;
+
+    margin-bottom:25px;
+
+}
+
+
+
+/* Button */
+
+.research-link{
+
+    display:inline-block;
+
+    color:#0b6cff;
+
+    font-weight:600;
+
+}
+
+
+.research-link:hover{
+
+    text-decoration:underline;
+
+}
+
+
+
+/* Responsive */
+
+@media(max-width:700px){
+
+
+    .research-header h1{
+
+        font-size:2.2rem;
+
+    }
+
+
+    .research-item{
+
+        padding:25px;
+
+    }
+
+
+    .research-item h2{
+
+        font-size:1.2rem;
+
+    }
+
+
+    .research-meta{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:3px;
+
+    }
+
+}
