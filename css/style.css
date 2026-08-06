@@ -105,9 +105,7 @@ header{
     padding:5px 40px;
 }
 
-.header.scrolled .logo{
-    font-size:1.3rem;
-}
+
 
 .header.scrolled .hamburger{
     font-size:26px;
@@ -162,7 +160,7 @@ header{
 }
 
 .header.scrolled .logo{
-    font-size:1.2rem;
+    font-size:1.4rem;
 }
 
 .header.scrolled .hamburger{
