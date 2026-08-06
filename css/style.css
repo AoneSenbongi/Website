@@ -150,6 +150,10 @@ header{
 
 }
 
+.logo,
+.hamburger{
+    transition:0.3s;
+}
 
 .header.scrolled .header-inner{
 
