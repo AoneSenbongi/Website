@@ -230,7 +230,7 @@ nav a.current::after{
 
 }
 
-.furigana{
+.research-placea{
     display:block;
     font-size:0.35em;
     font-weight:normal;
@@ -870,6 +870,7 @@ footer{
 
 .research-place{
 
+    font-size:3rem;
     color:#666;
 
 }
@@ -880,7 +881,7 @@ footer{
 
 .research-item h2{
 
-    font-size:1.5rem;
+    font-size:2rem;
 
     margin-bottom:15px;
 
