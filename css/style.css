@@ -333,17 +333,13 @@ nav a.current::after{
 }
 
 .hamburger{
-    display:none;
+    display:block;
 }
 
 @media(max-width:768px){
 
     .pc-nav{
         display:none;
-    }
-
-    .hamburger{
-        display:block;
     }
 
 }
