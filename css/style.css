@@ -249,6 +249,18 @@ nav a.current::after{
 
 }
 
+@media(max-width:768px){
+
+    .pc-nav{
+        display:none !important;
+    }
+
+    .hamburger{
+        display:block;
+    }
+
+}
+
 
 /* ===================================================== */
 /* Language */
@@ -331,12 +343,16 @@ nav a.current::after{
 
     padding:100px 40px;
 
-    gap:30px;
+    gap:35px;
 
     transition:0.3s;
 
     z-index:999;
 
+}
+
+.close-menu{
+    font-size:42px;
 }
 
 @media(max-width:768px){
