@@ -446,11 +446,17 @@ section h3{
 
 .about-image img{
 
-    width:100%;
+    width:200px;
+    height:200px;
 
-    border-radius:18px;
+    object-fit:cover;
+
+    border-radius:50%;
 
     box-shadow:0 10px 30px rgba(0,0,0,.08);
+    
+    display:flex;
+    justify-content:center;
 
 }
 
