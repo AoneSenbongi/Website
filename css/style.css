@@ -108,7 +108,7 @@ header{
 }
 
 .header-inner{
-    padding:10px 20px;
+    padding:10px 40px;
 }
 
 }
@@ -283,6 +283,20 @@ nav a.current::after{
 
 }
 
+
+
+
+@media(max-width:768px){
+
+    .pc-nav{
+        display:none;
+    }
+
+    .hamburger{
+        display:block;
+    }
+
+}
 
 .hamburger-menu{
 
