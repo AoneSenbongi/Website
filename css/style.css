@@ -345,14 +345,6 @@ nav a.current::after{
 }
 
 
-.hamburger-menu.active{
-
- 
-
-    flex-direction:column;
-
-}
-
 .close-menu{
 
     position:absolute;
