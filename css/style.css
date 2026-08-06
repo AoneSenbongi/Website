@@ -260,7 +260,21 @@ nav a.current::after{
     }
 
 }
+@media(max-width:768px){
 
+    .header.scrolled .header-inner{
+        padding:8px 20px;
+    }
+
+    .header.scrolled .logo{
+        font-size:1.4rem;
+    }
+
+    .header.scrolled .hamburger{
+        font-size:28px;
+    }
+
+}
 
 /* ===================================================== */
 /* Language */
