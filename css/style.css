@@ -382,8 +382,6 @@ nav a.current::after{
 
     font-weight:normal;
 
-    letter-spacing:0.1em;
-
     margin-top:5px;
 
     color:#64748b;
