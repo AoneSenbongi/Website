@@ -888,6 +888,8 @@ footer{
 
     display:block;
 
+    margin-bottom:15px;
+
 }
 
 /* Title */
@@ -895,8 +897,6 @@ footer{
 .research-item h2{
 
     font-size:2rem;
-
-    margin-bottom:15px;
 
     line-height:1.5;
 
