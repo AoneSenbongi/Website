@@ -101,6 +101,19 @@ header{
 
 }
 
+.header.scrolled .header-inner{
+    padding:5px 40px;
+}
+
+.header.scrolled .logo{
+    font-size:1.3rem;
+}
+
+.header.scrolled .hamburger{
+    font-size:26px;
+}
+
+
 @media(max-width:768px){
 
 header{
@@ -115,7 +128,7 @@ header{
 
 
 .logo{
-    font-size:1.4rem;
+    font-size:1.6rem;
     font-weight:700;
     letter-spacing:.03em;
 }
@@ -131,7 +144,7 @@ header{
 
     width:100%;
 
-    padding:15px 40px;
+    padding:25px 40px;
 
     transition:0.3s;
 
@@ -274,7 +287,7 @@ nav a.current::after{
     border:none;
     background:none;
 
-    font-size:28px;
+    font-size:32px;
 
     cursor:pointer;
 }
