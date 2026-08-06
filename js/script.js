@@ -21,6 +21,23 @@ window.addEventListener("scroll", () => {
 
 const hamburger = document.querySelector(".hamburger");
 const menu = document.querySelector(".hamburger-menu");
+const closeMenu = document.querySelector(".close-menu");
+
+if(hamburger && menu){
+
+    hamburger.addEventListener("click",()=>{
+        menu.classList.toggle("active");
+    });
+
+}
+
+if(closeMenu && menu){
+
+    closeMenu.addEventListener("click",()=>{
+        menu.classList.remove("active");
+    });
+
+}
 
 
 hamburger.addEventListener("click",()=>{
