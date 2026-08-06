@@ -159,6 +159,10 @@ header{
 
 }
 
+.hamburger-menu a{
+    font-size:1.3rem;
+}
+
 .header.scrolled .logo{
     font-size:1.4rem;
 }
