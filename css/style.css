@@ -157,10 +157,17 @@ header{
 
 .header.scrolled .header-inner{
 
-    padding:5px 40px;
+    padding:10px 40px;
 
 }
 
+.header.scrolled .logo{
+    font-size:1.2rem;
+}
+
+.header.scrolled .hamburger{
+    font-size:24px;
+}
 
 .header.scrolled .pc-nav{
 
