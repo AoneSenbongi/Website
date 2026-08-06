@@ -63,7 +63,7 @@ window.addEventListener("scroll", () => {
 
 });
 
-const closeMenu = document.querySelector(".close-menu");
+
 
 
 closeMenu.addEventListener("click",()=>{
