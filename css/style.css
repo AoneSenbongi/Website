@@ -110,6 +110,8 @@ header{
     font-weight:700;
 
     letter-spacing:.03em;
+    
+    margin-right: auto;
 
 }
 
@@ -117,6 +119,8 @@ header{
 
     display:flex;
     align-items:center;
+
+    padding:20px 40px;
 
 }
 
@@ -127,6 +131,17 @@ header{
 .header.scrolled .pc-nav{
 
     display:none;
+
+}
+
+
+.pc-nav{
+
+    display:flex;
+
+    gap:35px;
+
+    margin-left:auto;
 
 }
 
@@ -246,7 +261,7 @@ nav a.current::after{
 
     cursor:pointer;
 
-    margin-left:auto;
+    margin-left:40px;
 
 }
 
