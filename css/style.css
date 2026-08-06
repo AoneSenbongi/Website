@@ -108,21 +108,16 @@ header{
 }
 
 .header-inner{
-    padding:10px 40px;
+    padding:10px 20px;
 }
 
 }
+
 
 .logo{
-
     font-size:1.4rem;
-
     font-weight:700;
-
     letter-spacing:.03em;
-    
-    margin-right: auto;
-
 }
 
 .header-inner{
@@ -141,7 +136,7 @@ header{
 
 .header.scrolled .header-inner{
 
-    padding:1px 1px;
+    padding:5px 40px;
 
 }
 
@@ -170,7 +165,7 @@ header{
 /* Navigation */
 /* ===================================================== */
 
-nav{
+nav:not(.hamburger-menu){
 
     display:flex;
 
@@ -286,26 +281,16 @@ nav a.current::after{
 
 
 
-@media(max-width:768px){
 
-    .pc-nav{
-        display:none;
-    }
-
-    .hamburger{
-        display:block;
-    }
-
-}
 
 .hamburger-menu{
 
     position:fixed;
 
     top:0;
-    right:-350px;
+    right:-320px;
 
-    width:350px;
+    width:320px;
     height:100vh;
 
     background:white;
@@ -903,13 +888,6 @@ footer{
 
 @media(max-width:700px){
 
-    header{
-
-        flex-direction:column;
-
-        gap:18px;
-
-    }
 
     nav{
 
