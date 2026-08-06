@@ -229,27 +229,37 @@ nav a.current::after{
 
 }
 
-
 .hamburger-menu{
 
-    position:absolute;
+    position:fixed;
 
-    top:70px;
+    top:0;
+    right:-350px;
+
+    width:350px;
+    height:100vh;
+
+    background:white;
+
+    display:flex;
+    flex-direction:column;
+
+    padding:100px 40px;
+
+    gap:30px;
+
+    transition:0.3s;
+
+    z-index:999;
+
+}
+
+
+.hamburger-menu.active{
+
     right:0;
 
-    display:none;
-
 }
-
-
-.hamburger-menu.active{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
 
 .hamburger-menu{
 
@@ -266,6 +276,30 @@ nav a.current::after{
 
 }
 
+
+.header.scrolled .pc-nav{
+
+    display:none;
+
+}
+
+@media(max-width:768px){
+
+    .hamburger-menu{
+
+        width:100%;
+        right:-100%;
+
+    }
+
+
+    .hamburger-menu.active{
+
+        right:0;
+
+    }
+
+}
 
 /* ===================================================== */
 /* Hero */
