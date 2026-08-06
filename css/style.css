@@ -961,3 +961,154 @@ footer{
     }
 
 }
+
+/* ===================================================== */
+/* Research Card */
+/* ===================================================== */
+
+
+.research-list{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(320px,1fr));
+
+    gap:35px;
+
+}
+
+
+
+.research-item{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:35px;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.08);
+
+    transition:0.3s;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+
+.research-item:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,0.12);
+
+}
+
+
+
+/* 年・学会 */
+
+.research-meta{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.research-year,
+.research-place{
+
+    background:#f1f5f9;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:0.85rem;
+
+    color:#475569;
+
+}
+
+
+
+.research-year{
+
+    font-weight:bold;
+
+}
+
+
+
+/* タイトル */
+
+.research-item h2{
+
+    font-size:1.35rem;
+
+    line-height:1.6;
+
+    margin-bottom:18px;
+
+    color:#111827;
+
+    display:-webkit-box;
+
+    -webkit-box-orient:vertical;
+
+    -webkit-line-clamp:3;
+
+    overflow:hidden;
+
+}
+
+
+
+/* 説明 */
+
+.research-item p{
+
+    line-height:1.8;
+
+    color:#475569;
+
+    flex-grow:1;
+
+}
+
+
+
+/* More */
+
+.research-link{
+
+    margin-top:25px;
+
+    color:#2563eb;
+
+    font-weight:bold;
+
+    text-decoration:none;
+
+}
+
+
+
+.research-link:hover{
+
+    text-decoration:underline;
+
+}
