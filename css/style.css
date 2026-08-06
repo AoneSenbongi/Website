@@ -113,6 +113,25 @@ header{
 
 }
 
+.header-inner{
+
+    display:flex;
+    align-items:center;
+
+}
+
+
+
+
+
+.header.scrolled .pc-nav{
+
+    display:none;
+
+}
+
+
+
 
 /* ===================================================== */
 /* Navigation */
@@ -227,7 +246,10 @@ nav a.current::after{
 
     cursor:pointer;
 
+    margin-left:auto;
+
 }
+
 
 .hamburger-menu{
 
@@ -254,6 +276,23 @@ nav a.current::after{
 
 }
 
+@media(max-width:768px){
+
+    .hamburger-menu{
+
+        width:100%;
+        right:-100%;
+
+    }
+
+
+    .hamburger-menu.active{
+
+        right:0;
+
+    }
+
+}
 
 .hamburger-menu.active{
 
@@ -276,30 +315,22 @@ nav a.current::after{
 
 }
 
+.close-menu{
 
-.header.scrolled .pc-nav{
+    position:absolute;
 
-    display:none;
+    top:25px;
+    right:30px;
 
-}
+    border:none;
+    background:none;
 
-@media(max-width:768px){
+    font-size:40px;
 
-    .hamburger-menu{
-
-        width:100%;
-        right:-100%;
-
-    }
-
-
-    .hamburger-menu.active{
-
-        right:0;
-
-    }
+    cursor:pointer;
 
 }
+
 
 /* ===================================================== */
 /* Hero */
