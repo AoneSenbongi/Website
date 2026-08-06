@@ -230,6 +230,15 @@ nav a.current::after{
 
 }
 
+.furigana{
+    display:block;
+    font-size:0.35em;
+    font-weight:normal;
+    margin-top:8px;
+    letter-spacing:0.1em;
+    opacity:0.7;
+}
+
 .hero img{
 
     width:100%;
