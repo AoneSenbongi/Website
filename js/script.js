@@ -40,12 +40,6 @@ if(closeMenu && menu){
 }
 
 
-hamburger.addEventListener("click",()=>{
-
-    menu.classList.toggle("active");
-
-});
-
 const header = document.querySelector(".header");
 
 
@@ -64,10 +58,3 @@ window.addEventListener("scroll", () => {
 });
 
 
-
-
-closeMenu.addEventListener("click",()=>{
-
-    menu.classList.remove("active");
-
-});
