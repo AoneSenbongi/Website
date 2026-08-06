@@ -378,13 +378,13 @@ nav a.current::after{
 
     display:block;
 
-    font-size:0.45em;
+    font-size:0.35em;
 
     font-weight:normal;
 
     letter-spacing:0.15em;
 
-    margin-top:4px;
+    margin-top:5px;
 
     color:#64748b;
 
