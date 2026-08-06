@@ -120,6 +120,10 @@ header{
     letter-spacing:.03em;
 }
 
+.hamburger{
+    margin-left:auto;
+}
+
 .header-inner{
 
     display:flex;
@@ -273,9 +277,6 @@ nav a.current::after{
     font-size:28px;
 
     cursor:pointer;
-
-    margin-left:40px;
-
 }
 
 
