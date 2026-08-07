@@ -1372,7 +1372,7 @@ footer{
     display:flex;
     align-items:center;
     box-sizing:border-box;
-    padding:140px 40px 100px;
+    padding:100px 40px 100px;
     background:#fff;
 }
 
@@ -1406,7 +1406,7 @@ footer{
 
 .vrsj-title{
     margin:42px 0 0;
-    max-width:720px;
+    max-width:840px;
     font-size:20px;
     line-height:1.9;
     color:#555;
@@ -1516,7 +1516,7 @@ footer{
 
 
 .vrsj-overview p{
-    max-width:100%;
+    max-width:800%;
     margin:0;
     font-size:16px;
     line-height:2;
