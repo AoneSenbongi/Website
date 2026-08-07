@@ -57,4 +57,20 @@ window.addEventListener("scroll", () => {
 
 });
 
+window.addEventListener("scroll",()=>{
+
+    const construction = document.querySelector(".construction");
+
+    if(window.scrollY > 50){
+
+        construction.style.display="none";
+
+    }else{
+
+        construction.style.display="block";
+
+    }
+
+});
+
 
