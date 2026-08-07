@@ -1747,3 +1747,42 @@ footer{
 .vrsj-info-card:first-child strong{
     white-space:nowrap;
 }
+
+@media(max-width:768px){
+
+    .vrsj-info-card:first-child strong{
+        white-space:normal;
+    }
+
+}
+
+.vrsj-info-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    overflow:hidden;
+    border:1px solid #ddd;
+    border-radius:18px;
+    background:#ddd;
+}
+
+
+.vrsj-info-card{
+    min-width:0;
+    min-height:150px;
+    padding:32px;
+    box-sizing:border-box;
+    background:#fff;
+}
+
+
+.vrsj-info-card:first-child{
+    grid-column:1 / -1;
+}
+
+
+.vrsj-info-card:first-child strong{
+    display:block;
+    white-space:nowrap;
+    font-size:20px;
+}
