@@ -1787,3 +1787,12 @@ footer{
     white-space:nowrap;
     font-size:20px;
 }
+
+
+@media(min-width:769px){
+
+    .vrsj-hero h1{
+        white-space:nowrap;
+    }
+
+}
