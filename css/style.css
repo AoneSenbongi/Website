@@ -33,7 +33,7 @@ html,
 body {
 
     overflow-x: hidden;
-    
+
 }
 
 img{
@@ -88,9 +88,12 @@ ul{
 
 header{
 
-    position:sticky;
+    position:fixed;
 
     top:0;
+    left:0;
+
+    width:100%;
 
     z-index:1000;
 
@@ -98,20 +101,9 @@ header{
 
     backdrop-filter:blur(10px);
 
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
     border-bottom:1px solid #ececec;
 
 }
-
-.header.scrolled .header-inner{
-    padding:5px 40px;
-}
-
 
 
 .header.scrolled .hamburger{
@@ -138,14 +130,13 @@ header{
     letter-spacing:.03em;
 }
 
-.hamburger{
-    margin-left:auto;
-}
-
 .header-inner{
 
     display:flex;
+
     align-items:center;
+
+    justify-content:space-between;
 
     width:100%;
 
@@ -191,9 +182,7 @@ header{
 
 .pc-nav{
 
-    display:flex;
-
-    gap:35px;
+    
 
     margin-left:auto;
 
