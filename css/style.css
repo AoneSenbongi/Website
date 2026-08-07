@@ -1516,12 +1516,12 @@ footer{
 
 
 .vrsj-overview p{
+    max-width:100%;
     margin:0;
     font-size:16px;
     line-height:2;
     color:#555;
 }
-
 
 
 /* Presentation Information */
@@ -1721,7 +1721,8 @@ footer{
 }
 
 .vrsj-overview{
-    max-width:850px;
+    width:100%;
+    max-width:none;
     padding:0;
     border:none;
     border-radius:0;
