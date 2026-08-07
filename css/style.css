@@ -1354,3 +1354,353 @@ footer{
     text-decoration:underline;
 
 }
+
+/* =====================================================
+   VRSJ 2026
+===================================================== */
+
+.vrsj-page{
+    background:#fff;
+    color:#111;
+}
+
+
+/* Hero */
+
+.vrsj-hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    box-sizing:border-box;
+    padding:140px 40px 100px;
+    background:#fff;
+}
+
+
+.vrsj-hero-inner{
+    width:100%;
+    max-width:1100px;
+    margin:0 auto;
+}
+
+
+.vrsj-label{
+    margin:0 0 28px;
+    color:#1769ff;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:.08em;
+}
+
+
+.vrsj-hero h1{
+    margin:0;
+    max-width:850px;
+    font-size:clamp(42px,6vw,78px);
+    line-height:1.08;
+    letter-spacing:-.04em;
+    font-weight:700;
+}
+
+
+.vrsj-title{
+    margin:42px 0 0;
+    max-width:720px;
+    font-size:20px;
+    line-height:1.9;
+    color:#555;
+}
+
+
+.vrsj-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 30px;
+    margin-top:38px;
+    font-size:14px;
+    color:#777;
+}
+
+
+.vrsj-buttons{
+    display:flex;
+    gap:14px;
+    margin-top:42px;
+}
+
+
+.vrsj-button{
+    display:inline-block;
+    padding:14px 28px;
+    border:1px solid #111;
+    border-radius:999px;
+    color:#111;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    transition:.25s;
+}
+
+
+.vrsj-button:hover{
+    background:#111;
+    color:#fff;
+}
+
+
+.vrsj-button-dark{
+    background:#111;
+    color:#fff;
+}
+
+
+.vrsj-button-dark:hover{
+    background:#333;
+}
+
+
+
+/* Sections */
+
+.vrsj-section{
+    padding:110px 40px;
+}
+
+
+.vrsj-section-gray{
+    background:#f7f7f7;
+}
+
+
+.vrsj-container{
+    max-width:1100px;
+    margin:0 auto;
+}
+
+
+.vrsj-section-label{
+    margin:0 0 14px;
+    color:#1769ff;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.12em;
+}
+
+
+.vrsj-section h2{
+    margin:0 0 55px;
+    font-size:42px;
+    line-height:1.2;
+    letter-spacing:-.03em;
+}
+
+
+
+/* Overview */
+
+.vrsj-overview{
+    max-width:850px;
+    padding:45px;
+    border:1px solid #e8e8e8;
+    border-radius:18px;
+    background:#fff;
+}
+
+
+.vrsj-overview h3{
+    margin:0 0 28px;
+    font-size:24px;
+    line-height:1.6;
+}
+
+
+.vrsj-overview p{
+    margin:0;
+    font-size:16px;
+    line-height:2;
+    color:#555;
+}
+
+
+
+/* Presentation Information */
+
+.vrsj-info-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1px;
+    overflow:hidden;
+    border:1px solid #ddd;
+    border-radius:18px;
+    background:#ddd;
+}
+
+
+.vrsj-info-card{
+    min-height:150px;
+    padding:32px;
+    box-sizing:border-box;
+    background:#fff;
+}
+
+
+.vrsj-info-card span{
+    display:block;
+    margin-bottom:15px;
+    font-size:12px;
+    color:#888;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+}
+
+
+.vrsj-info-card strong{
+    display:block;
+    font-size:18px;
+    line-height:1.6;
+}
+
+
+
+/* Links */
+
+.vrsj-link-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+
+.vrsj-link-card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:30px;
+    padding:30px;
+    border:1px solid #ddd;
+    border-radius:18px;
+    background:#fff;
+    color:#111;
+    text-decoration:none;
+    transition:.25s;
+}
+
+
+.vrsj-link-card:hover{
+    transform:translateY(-3px);
+    border-color:#111;
+}
+
+
+.vrsj-link-card span{
+    display:block;
+    margin-bottom:8px;
+    font-size:12px;
+    color:#888;
+    letter-spacing:.08em;
+}
+
+
+.vrsj-link-card strong{
+    font-size:18px;
+}
+
+
+.vrsj-arrow{
+    flex-shrink:0;
+    margin:0 !important;
+    font-size:24px !important;
+    color:#111 !important;
+}
+
+
+
+/* Mobile */
+
+@media(max-width:768px){
+
+    .vrsj-hero{
+        min-height:auto;
+        padding:130px 24px 80px;
+    }
+
+
+    .vrsj-label{
+        margin-bottom:22px;
+    }
+
+
+    .vrsj-hero h1{
+        font-size:42px;
+    }
+
+
+    .vrsj-title{
+        margin-top:30px;
+        font-size:16px;
+        line-height:1.8;
+    }
+
+
+    .vrsj-meta{
+        flex-direction:column;
+        gap:8px;
+        margin-top:28px;
+    }
+
+
+    .vrsj-buttons{
+        margin-top:32px;
+    }
+
+
+    .vrsj-button{
+        padding:12px 22px;
+    }
+
+
+    .vrsj-section{
+        padding:80px 24px;
+    }
+
+
+    .vrsj-section h2{
+        margin-bottom:35px;
+        font-size:32px;
+    }
+
+
+    .vrsj-overview{
+        padding:28px;
+        border-radius:14px;
+    }
+
+
+    .vrsj-overview h3{
+        font-size:20px;
+    }
+
+
+    .vrsj-info-grid{
+        grid-template-columns:1fr;
+        border-radius:14px;
+    }
+
+
+    .vrsj-info-card{
+        min-height:auto;
+        padding:26px;
+    }
+
+
+    .vrsj-link-grid{
+        grid-template-columns:1fr;
+    }
+
+
+    .vrsj-link-card{
+        padding:25px;
+        border-radius:14px;
+    }
+
+}
