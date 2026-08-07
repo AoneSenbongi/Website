@@ -69,6 +69,12 @@ ul{
 
     padding:14px 20px;
 
+    height:60px;
+
+    overflow:hidden;
+
+    transition:.3s;
+
     text-align:center;
 
     background:#fff4cc;
@@ -92,7 +98,7 @@ ul{
 header{
     position:fixed;
 
-    top:60px; /* Constructionの高さ分 */
+    top:0px; /* Constructionの高さ分 */
     left:0;
     width:100%;
 
@@ -114,9 +120,7 @@ header.scrolled{
     top:0;
 }
 
-.header.scrolled .header-inner{
-    padding:5px 40px;
-}
+
 
 
 
