@@ -131,26 +131,17 @@ header{
 }
 
 
+
 .header-inner{
+
     display:flex;
+    
     align-items:center;
+    
     justify-content:center;
+    
     position:relative;
-}
 
-.logo{
-    position:absolute;
-    left:20px;
-}
-
-.pc-nav{
-    display:flex;
-    gap:35px;
-}
-
-.hamburger{
-    position:absolute;
-    right:20px;
 }
 
 .hero{
@@ -161,13 +152,6 @@ header{
 .hamburger{
     transition:0.3s;
 }
-
-
-
-.construction{
-    margin-top:70px;
-}
-
 
 .header.scrolled .header-inner{
 
