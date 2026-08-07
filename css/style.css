@@ -130,20 +130,27 @@ header{
     letter-spacing:.03em;
 }
 
+
 .header-inner{
-
     display:flex;
-
     align-items:center;
+    justify-content:center;
+    position:relative;
+}
 
-    justify-content:space-between;
+.logo{
+    position:absolute;
+    left:20px;
+}
 
-    width:100%;
+.pc-nav{
+    display:flex;
+    gap:35px;
+}
 
-    padding:25px 40px;
-
-    transition:0.3s;
-
+.hamburger{
+    position:absolute;
+    right:20px;
 }
 
 .hero{
@@ -154,6 +161,15 @@ header{
 .hamburger{
     transition:0.3s;
 }
+
+header{
+    height:70px;
+}
+
+.construction{
+    margin-top:70px;
+}
+
 
 .header.scrolled .header-inner{
 
