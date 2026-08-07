@@ -95,11 +95,13 @@ ul{
 /* ===================================================== */
 /* Header */
 /* ===================================================== */
+
 header{
     position:fixed;
 
-    top:0px; /* Constructionの高さ分 */
+    top:0;
     left:0;
+
     width:100%;
 
     z-index:1000;
@@ -113,11 +115,13 @@ header{
 
     border-bottom:1px solid #ececec;
 
-    transition:.3s;
+    transform:translateY(60px);
+
+    transition:transform .3s ease;
 }
 
 header.scrolled{
-    top:0;
+    transform:translateY(0);
 }
 
 
