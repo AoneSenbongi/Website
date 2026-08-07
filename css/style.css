@@ -16,7 +16,7 @@ html{
 
 body{
 
-    padding-top:90px;
+    padding-top:0px;
 
     font-family:
         "Inter",
@@ -67,6 +67,9 @@ ul{
 
 .construction{
     width:100%;
+
+    margin-top:90px;
+
     padding:14px 20px;
 
     text-align:center;
