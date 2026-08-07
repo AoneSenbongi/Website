@@ -33,7 +33,7 @@ html,
 body {
 
     overflow-x: hidden;
-
+    
 }
 
 img{
@@ -88,12 +88,9 @@ ul{
 
 header{
 
-    position:fixed;
+    position:sticky;
 
     top:0;
-    left:0;
-
-    width:100%;
 
     z-index:1000;
 
@@ -101,9 +98,20 @@ header{
 
     backdrop-filter:blur(10px);
 
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
     border-bottom:1px solid #ececec;
 
 }
+
+.header.scrolled .header-inner{
+    padding:5px 40px;
+}
+
 
 
 .header.scrolled .hamburger{
@@ -130,27 +138,21 @@ header{
     letter-spacing:.03em;
 }
 
+.hamburger{
+    margin-left:auto;
+}
 
 .header-inner{
+
     display:flex;
     align-items:center;
-    justify-content:center;
-    position:relative;
-}
 
-.logo{
-    position:absolute;
-    left:20px;
-}
+    width:100%;
 
-.pc-nav{
-    display:flex;
-    gap:35px;
-}
+    padding:25px 40px;
 
-.hamburger{
-    position:absolute;
-    right:20px;
+    transition:0.3s;
+
 }
 
 .hero{
@@ -189,7 +191,9 @@ header{
 
 .pc-nav{
 
-    
+    display:flex;
+
+    gap:35px;
 
     margin-left:auto;
 
