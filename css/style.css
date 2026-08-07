@@ -1704,3 +1704,17 @@ footer{
     }
 
 }
+
+.vrsj-info-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    overflow:hidden;
+    border:1px solid #ddd;
+    border-radius:18px;
+    background:#ddd;
+}
+
+.vrsj-info-card:first-child{
+    grid-column:1 / -1;
+}
