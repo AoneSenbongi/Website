@@ -88,3 +88,22 @@ window.addEventListener("scroll",()=>{
     }
 
 });
+
+
+window.addEventListener("scroll",()=>{
+
+    const construction = document.querySelector(".construction");
+
+    if(window.scrollY > 50){
+
+        construction.style.height="0";
+        construction.style.padding="0";
+
+    }else{
+
+        construction.style.height="60px";
+        construction.style.padding="14px 20px";
+
+    }
+
+});
