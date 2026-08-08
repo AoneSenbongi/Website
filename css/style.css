@@ -1806,3 +1806,26 @@ footer{
     }
 
 }
+
+@media(max-width:768px){
+
+    .vrsj-info-grid{
+        grid-template-columns:1fr;
+    }
+
+    .vrsj-info-card{
+        min-height:auto;
+        padding:24px;
+    }
+
+    .vrsj-info-card:first-child{
+        grid-column:auto;
+    }
+
+    .vrsj-info-card strong{
+        display:block;
+        margin-top:10px;
+        white-space:normal;
+    }
+
+}
