@@ -1368,7 +1368,7 @@ footer{
 /* Hero */
 
 .vrsj-hero{
-    min-height:100vh;
+    min-height:(100vh - 80px);
     display:flex;
     align-items:center;
     box-sizing:border-box;
