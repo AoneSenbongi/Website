@@ -1836,8 +1836,16 @@ footer{
 
 .i2-hero .i2-logo-text{
     text-shadow:
-         2px  2px #fff,
-        -2px  2px #fff,
-         2px -2px #fff,
-        -2px -2px #fff !important;
+         4px  4px #fff,
+        -4px  4px #fff,
+         4px -4px #fff,
+        -4px -4px #fff !important;
+}
+
+.i2-hero .i2-label-text{
+    text-shadow:
+         1px  1px #fff,
+        -1px  1px #fff,
+         1px -1px #fff,
+        -1px -1px #fff !important;
 }
