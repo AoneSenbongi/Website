@@ -1835,9 +1835,7 @@ footer{
 }
 
 .i2-hero .vrsj-label
-.i2-hero h1,
-.i2-hero .vrsj-title,
-.i2-hero .vrsj-meta{
+{
     color:#1a1a1a;
-    -webkit-text-stroke:1px #fff;
+    -webkit-text-stroke:5px #fff;
 }
