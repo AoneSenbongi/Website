@@ -1474,8 +1474,17 @@ footer{
 
 
 .vrsj-container{
+    whidth:calc(100% - 80px);
     max-width:1100px;
     margin:0 auto;
+}
+
+@media(max-width:768px){
+
+    .vrsj-container{
+        width:100%;
+    }
+    
 }
 
 
