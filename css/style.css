@@ -1841,11 +1841,3 @@ footer{
          4px -4px #fff,
         -4px -4px #fff !important;
 }
-
-.i2-hero .i2-label-text{
-    text-shadow:
-         0.5px  0.5px #fff,
-        -0.5px  0.5px #fff,
-         0.5px -0.5px #fff,
-        -0.5px -0.5px #fff !important;
-}
