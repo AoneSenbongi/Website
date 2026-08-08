@@ -1834,8 +1834,8 @@ footer{
     background-image: url("../research/files/i2-hero.png");
 }
 
-.i2-hero .i2
-{
-    color:#1a1a1a;
-    -webkit-text-stroke:10px #fff;
+.i2-hero .i2-logo-text{
+    color:#111 !important;
+    -webkit-text-stroke:2px #fff !important;
+    text-shadow:none !important;
 }
