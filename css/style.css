@@ -1226,6 +1226,8 @@ footer{
 
     background:white;
 
+    position:relative;
+
     border-radius:18px;
 
     padding:35px;
@@ -1344,6 +1346,16 @@ footer{
     font-weight:bold;
 
     text-decoration:none;
+
+}
+
+.research-link::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
 
 }
 
