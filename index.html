@@ -1,266 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <meta charset="UTF-8">
+    <meta
+      name="description"
+      content="山近 晴也の研究ポートフォリオサイト．バーチャルリアリティ，身体所有感，認知科学などに関する研究を紹介しています．"
+    />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      name="keywords"
+      content="Seiya Yamachika, 山近晴也, VR, Virtual Reality, HCI, Body Ownership, Rubber Hand Illusion"
+    />
 
-    <meta name="description"
-        content="山近 晴也の研究ポートフォリオサイト．バーチャルリアリティ，身体所有感，認知科学などに関する研究を紹介しています．">
+    <meta name="author" content="Seiya Yamachika" />
 
-    <meta name="keywords"
-        content="Seiya Yamachika, 山近晴也, VR, Virtual Reality, HCI, Body Ownership, Rubber Hand Illusion">
+    <title>Seiya Yamachika</title>
 
-    <meta name="author"
-        content="Seiya Yamachika">
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-    <title>
-        Seiya Yamachika
-    </title>
-
-    <link rel="stylesheet" href="css/style.css">
-
-</head>
-
-<body>
-
+  <body>
     <!-- ===================================================== -->
     <!-- Construction Notice -->
     <!-- ===================================================== -->
 
     <div class="construction">
-
-         このWebサイトは現在構築中です．
-        研究成果・制作物・発表資料などを順次公開予定です．
-
+      このWebサイトは現在構築中です． 研究成果・制作物・発表資料などを順次公開予定です．
     </div>
 
     <!-- ===================================================== -->
     <!-- Header -->
     <!-- ===================================================== -->
 
-<header class="header">
-
-    <div class="header-inner">
-
+    <header class="header">
+      <div class="header-inner">
         <div class="logo">
-            <a href="/">山近 晴也</a>
+          <a href="/">山近 晴也</a>
         </div>
 
         <nav class="pc-nav">
-            <a href="/">Home</a>
-            <a href="/research/">Research</a>
-            <a href="/project/">Project</a>
-            <a href="/contact/">Contact</a>
+          <a href="/">Home</a>
+          <a href="/research/">Research</a>
+          <a href="/project/">Project</a>
+          <a href="/contact/">Contact</a>
         </nav>
 
-        <button class="hamburger">
-            ☰
-        </button>
+        <button class="hamburger">☰</button>
+      </div>
 
-    </div>
+      <nav class="hamburger-menu">
+        <button class="close-menu">×</button>
 
-<nav class="hamburger-menu">
-
-    <button class="close-menu">
-        ×
-    </button>
-
-    <a href="/">Home</a>
-    <a href="/research/">Research</a>
-    <a href="/project/">Project</a>
-    <a href="/contact/">Contact</a>
-
-</nav>
-</header>
+        <a href="/">Home</a>
+        <a href="/research/">Research</a>
+        <a href="/project/">Project</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </header>
 
     <!-- ===================================================== -->
     <!-- Hero -->
     <!-- ===================================================== -->
 
-<section class="hero">
+    <section class="hero">
+      <img src="images/hero.jpg" alt="Research Background" />
 
-    <img src="images/hero.jpg" alt="Research Background">
-
-    <div class="hero-overlay">
-
+      <div class="hero-overlay">
         <div class="hero-content">
+          <p class="hero-tag"></p>
 
-            <p class="hero-tag">
-
-                
-
-            </p>
-
-            <h1>
+          <h1>
             山近 晴也
 
-                <span class="furigana">
-                    やまちか  せいや
-                </span>
+            <span class="furigana"> やまちか せいや </span>
+          </h1>
 
-            </h1>
+          <p class="hero-subtitle">東京大学教育学部附属中等教育学校６年</p>
 
-            <p class="hero-subtitle">
+          <p class="hero-description">
+            身体所有感・運動主体感・知覚に関する研究を行っています．<br />
+            特にラバーハンド錯覚（Rubber Hand Illusion）や<br />
+            バーチャルリアリティ環境における身体認知を対象としています．
+          </p>
 
-                東京大学教育学部附属中等教育学校６年
+          <div class="hero-buttons">
+            <a href="research/" class="primary-button"> 研究成果 </a>
 
-            </p>
-
-            <p class="hero-description">
-
-                身体所有感・運動主体感・知覚に関する研究を行っています．<br>
-                特にラバーハンド錯覚（Rubber Hand Illusion）や<br>
-                バーチャルリアリティ環境における身体認知を対象としています．
-
-            </p>
-
-            <div class="hero-buttons">
-
-                <a href="research/" class="primary-button">
-
-                    研究成果
-
-                </a>
-
-                <a href="#about" class="secondary-button">
-
-                    About Me
-
-                </a>
-
-            </div>
-
+            <a href="#about" class="secondary-button"> About Me </a>
+          </div>
         </div>
+      </div>
+    </section>
 
-    </div>
+    <!-- ===================================================== -->
+    <!-- Research Summary -->
+    <!-- ===================================================== -->
 
-</section>
-
-
-<!-- ===================================================== -->
-<!-- Research Summary -->
-<!-- ===================================================== -->
-
-<section class="summary">
-
-    <div class="container">
-
-        <h2>
-
-            研究概要
-
-        </h2>
+    <section class="summary">
+      <div class="container">
+        <h2>研究概要</h2>
 
         <p class="summary-text">
-
-            現在は，ラバーハンド錯覚による身体所有感の転移が<br>
-            身体位置を参照するような運動へ与える影響について<br>
-            研究を行っています．<br>
-            <br>
-            また，Phantom Touch Illusionや，VR環境下における<br>
-            身体所有感や，その転移が人間の行動，運動へ与える<br>
-            影響などの知覚・認知の研究を行っています．
-
+          現在は，ラバーハンド錯覚による身体所有感の転移が<br />
+          身体位置を参照するような運動へ与える影響について<br />
+          研究を行っています．<br />
+          <br />
+          また，Phantom Touch Illusionや，VR環境下における<br />
+          身体所有感や，その転移が人間の行動，運動へ与える<br />
+          影響などの知覚・認知の研究を行っています．
         </p>
+      </div>
+    </section>
 
-    </div>
+    <!-- ===================================================== -->
+    <!-- About -->
+    <!-- ===================================================== -->
 
-</section>
-
-<!-- ===================================================== -->
-<!-- About -->
-<!-- ===================================================== -->
-
-<section class="about" id="about">
-
-    <div class="container about-container">
-
+    <section class="about" id="about">
+      <div class="container about-container">
         <div class="about-image">
-
-            <img src="images/profile.jpg" alt="Seiya Yamachika">
-
+          <img src="images/profile.jpg" alt="Seiya Yamachika" />
         </div>
 
         <div class="about-text">
+          <h2>About Me</h2>
 
-            <h2>
+          <p>山近 晴也</p>
 
-                About Me
+          <p>Student Researcher</p>
 
-            </h2>
+          <p>
+            バーチャルリアリティ（VR），<br />
+            Body Schema，プロテウス効果<br />
+            身体所有感（Body Ownership），<br />
+            知覚・認知科学に関心があります．
+          </p>
 
-            <p>
+          <h3>Research Interests</h3>
 
-                山近 晴也
+          <ul>
+            <li>VR</li>
 
-            </p>
+            <li>身体所有感</li>
 
-            <p>
+            <li>Rubber Hand Illusion</li>
 
-                Student Researcher
-
-            </p>
-
-            <p>
-
-                バーチャルリアリティ（VR），<br>
-                Body Schema，プロテウス効果<br>
-                身体所有感（Body Ownership），<br>
-                知覚・認知科学に関心があります．
-
-            </p>
-
-            <h3>
-
-                Research Interests
-
-            </h3>
-
-            <ul>
-
-                <li>VR</li>
-
-                <li>身体所有感</li>
-
-                <li>Rubber Hand Illusion</li>
-
-                <li>認知科学</li>
-
-            </ul>
-
+            <li>認知科学</li>
+          </ul>
         </div>
+      </div>
+    </section>
 
-    </div>
+    <footer>
+      <p>Contact</p>
 
-</section>
+      <p>seiyaro0704@gmail.com</p>
 
-<footer>
+      <br />
 
+      <p>© 2026 Seiya Yamachikaseiya</p>
+    </footer>
 
-<p>
-Contact
-</p>
-
-
-<p>
-seiyaro0704@gmail.com
-</p>
-
-<br>
-
-<p>
-© 2026 Seiya Yamachikaseiya
-</p>
-
-
-</footer>
-
-<script src="/js/script.js"></script>
-
-</body>
-
-
+    <script src="/js/script.js"></script>
+  </body>
 </html>
