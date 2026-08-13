@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131a">
+  <title>Rubik's Net Lab — 展開図で回す 3×3×3</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d12;
+      --panel: #141821;
+      --panel-2: #1a202b;
+      --line: #2c3443;
+      --text: #f4f1e8;
+      --muted: #9ba6b6;
+      --accent: #b9ff66;
+      --accent-ink: #142006;
+      --danger: #ff716a;
+      --gap: clamp(2px, .45vw, 5px);
+      --face-gap: clamp(7px, 1.1vw, 15px);
+      --sticker: clamp(27px, 5.2vw, 64px);
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, #25301d 0, transparent 28rem),
+        radial-gradient(circle at 88% 88%, #17283a 0, transparent 32rem),
+        var(--bg);
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: min(1440px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 42px);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 28px;
+    }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 20px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 52px);
+      line-height: .98;
+      letter-spacing: -.055em;
+      font-weight: 760;
+    }
+
+    .header-note {
+      max-width: 28rem;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: right;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: clamp(22px, 4vw, 58px);
+      align-items: center;
+    }
+
+    .stage {
+      min-width: 0;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      padding: 10px;
+    }
+
+    .net {
+      display: grid;
+      grid-template-columns: repeat(4, max-content);
+      grid-template-rows: repeat(3, max-content);
+      gap: var(--face-gap);
+      padding: 8px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .face {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, var(--sticker));
+      grid-template-rows: repeat(3, var(--sticker));
+      gap: var(--gap);
+      padding: var(--gap);
+      border: 1px solid #384150;
+      border-radius: 9px;
+      background: #080a0e;
+      box-shadow: 0 10px 30px #0005;
+      transition: border-color .18s, box-shadow .18s, transform .18s;
+    }
+
+    .face[data-face="U"] { grid-column: 2; grid-row: 1; }
+    .face[data-face="L"] { grid-column: 1; grid-row: 2; }
+    .face[data-face="F"] { grid-column: 2; grid-row: 2; }
+    .face[data-face="R"] { grid-column: 3; grid-row: 2; }
+    .face[data-face="B"] { grid-column: 4; grid-row: 2; }
+    .face[data-face="D"] { grid-column: 2; grid-row: 3; }
+
+    .face.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px #b9ff6630, 0 16px 40px #0008;
+      transform: translateY(-2px);
+    }
+
+    .face::before {
+      content: attr(data-face);
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      z-index: 3;
+      color: #080a0e;
+      font: 900 10px/1 ui-monospace, monospace;
+      text-shadow: 0 1px 2px #fff8;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+    }
+
+    .sticker {
+      position: relative;
+      appearance: none;
+      width: var(--sticker);
+      height: var(--sticker);
+      padding: 0;
+      border: 0;
+      border-radius: clamp(4px, .65vw, 8px);
+      background: var(--c);
+      box-shadow:
+        inset 0 1px 0 #fff7,
+        inset 0 -3px 0 #0002;
+      cursor: grab;
+      transition: transform .11s ease, filter .11s ease, opacity .18s;
+    }
+
+    .sticker:hover { filter: brightness(1.11); transform: scale(.965); }
+    .sticker:active { cursor: grabbing; transform: scale(.91); }
+    .sticker:focus-visible { outline: 3px solid white; outline-offset: -4px; }
+
+    .net.hide-centers .sticker.center {
+      opacity: .07;
+      background: transparent;
+      box-shadow: inset 0 0 0 1px #ffffff30;
+    }
+
+    .drag-guide {
+      position: fixed;
+      z-index: 20;
+      width: 52px;
+      height: 4px;
+      border-radius: 99px;
+      background: var(--accent);
+      box-shadow: 0 0 14px #b9ff66;
+      pointer-events: none;
+      transform-origin: left center;
+      opacity: 0;
+    }
+
+    aside { display: grid; gap: 14px; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      box-shadow: 0 18px 60px #0003;
+      padding: 18px;
+      backdrop-filter: blur(16px);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      min-height: 66px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: var(--panel-2);
+      border: 1px solid #293140;
+    }
+
+    .stat small { display: block; color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+    .stat strong { display: block; margin-top: 4px; font: 700 23px/1 ui-monospace, monospace; }
+
+    .section-label {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .selected-move {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    #selectedFace {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #0b0d12;
+      background: var(--selected-color, #fff);
+      font: 900 16px/1 ui-monospace, monospace;
+      box-shadow: inset 0 -3px 0 #0002;
+    }
+
+    .move-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .btn {
+      min-height: 42px;
+      border: 1px solid #384150;
+      border-radius: 11px;
+      color: var(--text);
+      background: #1c222e;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .12s, border-color .12s, background .12s;
+    }
+    .btn:hover { border-color: #667287; background: #252d3b; }
+    .btn:active { transform: translateY(1px) scale(.98); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn.primary { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+    .btn.danger { color: #ffaaa5; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+    }
+    .toggle-row span { font-size: 13px; font-weight: 650; }
+    .toggle-row small { display: block; color: var(--muted); font-weight: 400; margin-top: 3px; }
+    .switch { position: relative; width: 44px; height: 25px; flex: 0 0 auto; }
+    .switch input { position: absolute; opacity: 0; }
+    .switch i { position: absolute; inset: 0; border-radius: 99px; background: #303846; transition: .2s; }
+    .switch i::after { content: ""; position: absolute; width: 19px; height: 19px; top: 3px; left: 3px; border-radius: 50%; background: #dce2e9; transition: .2s; }
+    .switch input:checked + i { background: var(--accent); }
+    .switch input:checked + i::after { transform: translateX(19px); background: #19220e; }
+    .switch input:focus-visible + i { outline: 2px solid white; outline-offset: 2px; }
+
+    .history {
+      min-height: 33px;
+      margin: 0;
+      color: #c7d0dc;
+      font: 600 12px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    kbd { border: 1px solid #465164; border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; color: var(--text); background: #202734; font: 10px ui-monospace, monospace; }
+    #message { min-height: 18px; margin: 0 0 10px; color: var(--accent); font-size: 12px; font-weight: 700; }
+
+    @media (max-width: 940px) {
+      main { grid-template-columns: 1fr; align-items: start; }
+      aside { grid-template-columns: repeat(2, 1fr); align-items: start; }
+      aside .card:first-child { grid-row: span 2; }
+      .header-note { display: none; }
+    }
+
+    @media (max-width: 680px) {
+      :root { --sticker: clamp(23px, 7vw, 42px); --face-gap: 5px; --gap: 2px; }
+      .app { padding: 16px 10px 28px; gap: 18px; }
+      header { padding-inline: 7px; }
+      main { gap: 18px; }
+      .stage { padding: 2px 0; }
+      aside { grid-template-columns: 1fr; padding: 0 6px; }
+      aside .card:first-child { grid-row: auto; }
+      .face { border-radius: 6px; }
+      .face::before { top: 4px; left: 5px; font-size: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <p class="eyebrow">3×3×3 / 2D interaction study</p>
+        <h1>RUBIK'S NET LAB</h1>
+      </div>
+      <p class="header-note">立体の状態を、切れ目のある展開図へ写す。<br>ドラッグは面だけでなく中層にも作用します。</p>
+    </header>
+
+    <main>
+      <section class="stage" aria-label="ルービックキューブの展開図">
+        <div id="net" class="net"></div>
+      </section>
+
+      <aside>
+        <section class="card" aria-label="操作パネル">
+          <div class="status-row">
+            <div class="stat"><small>MOVES</small><strong id="moveCount">0</strong></div>
+            <div class="stat"><small>TIME</small><strong id="timer">00:00</strong></div>
+          </div>
+          <p id="message" role="status" aria-live="polite">準備完了</p>
+          <p class="section-label">選択中の面</p>
+          <div class="selected-move">
+            <span id="selectedFace" aria-label="選択中の面">F</span>
+            <span class="help">面をクリックして選択</span>
+          </div>
+          <div class="move-buttons">
+            <button class="btn" id="ccw" type="button" aria-label="反時計回り">↶ 90°</button>
+            <button class="btn primary" id="cw" type="button" aria-label="時計回り">↷ 90°</button>
+            <button class="btn" id="half" type="button" aria-label="180度回転">180°</button>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+          <div class="action-grid">
+            <button class="btn" id="scramble" type="button">Scramble</button>
+            <button class="btn" id="undo" type="button" disabled>Undo</button>
+            <button class="btn danger" id="reset" type="button">Reset</button>
+            <button class="btn" id="copy" type="button">手順をコピー</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <label class="toggle-row">
+            <span>中心セルを省略<small>表示密度の比較用</small></span>
+            <span class="switch"><input id="hideCenters" type="checkbox"><i></i></span>
+          </label>
+        </section>
+
+        <section class="card">
+          <p class="section-label">Move log</p>
+          <p id="history" class="history">—</p>
+          <p class="help" style="margin-top:12px">中心セルは左クリックで反時計回り、右クリックで時計回り。ステッカーを縦・横にスワイプすると、その行／列を回転します。<br><br><kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> で時計回り、<kbd>Shift</kbd> 併用で逆回転。</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+  <div id="dragGuide" class="drag-guide" aria-hidden="true"></div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const COLORS = {
+      U: '#f4f3e8', D: '#ffd83d', F: '#38bd6b', B: '#4d78ff',
+      R: '#f14545', L: '#ff8a32'
+    };
+
+    // right/down are each face's screen axes expressed in cube coordinates.
+    const FACES = {
+      U: { axis: 1, sign:  1, normal:[0, 1, 0], right:[ 1, 0, 0], down:[0, 0, 1] },
+      D: { axis: 1, sign: -1, normal:[0,-1, 0], right:[ 1, 0, 0], down:[0, 0,-1] },
+      F: { axis: 2, sign:  1, normal:[0, 0, 1], right:[ 1, 0, 0], down:[0,-1, 0] },
+      B: { axis: 2, sign: -1, normal:[0, 0,-1], right:[-1, 0, 0], down:[0,-1, 0] },
+      R: { axis: 0, sign:  1, normal:[1, 0, 0], right:[ 0, 0,-1], down:[0,-1, 0] },
+      L: { axis: 0, sign: -1, normal:[-1,0, 0], right:[ 0, 0, 1], down:[0,-1, 0] }
+    };
+    const FACE_ORDER = ['U','L','F','R','B','D'];
+    const AXIS_NAMES = ['x','y','z'];
+    const FACE_AT = { '0,1':'R', '0,-1':'L', '1,1':'U', '1,-1':'D', '2,1':'F', '2,-1':'B' };
+
+    let stickers = [];
+    let selected = 'F';
+    let history = [];
+    let moveCount = 0;
+    let timerStart = null;
+    let timerId = null;
+    let pointer = null;
+    let messageTimer = null;
+
+    const $ = id => document.getElementById(id);
+    const net = $('net');
+
+    function dot(a, b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+    function same(a, b) { return a[0]===b[0] && a[1]===b[1] && a[2]===b[2]; }
+
+    function rotateVector(v, axis, quarterTurns) {
+      let k = ((quarterTurns % 4) + 4) % 4;
+      let out = [...v];
+      while (k--) {
+        const [x,y,z] = out;
+        if (axis === 0) out = [x, -z, y];
+        if (axis === 1) out = [z, y, -x];
+        if (axis === 2) out = [-y, x, z];
+      }
+      return out.map(n => Object.is(n, -0) ? 0 : n);
+    }
+
+    function makeSolved() {
+      const result = [];
+      for (const face of Object.keys(FACES)) {
+        const f = FACES[face];
+        for (let row=0; row<3; row++) for (let col=0; col<3; col++) {
+          const pos = f.normal.map(n => n);
+          const horizontal = col - 1;
+          const vertical = row - 1;
+          for (let i=0; i<3; i++) pos[i] += f.right[i]*horizontal + f.down[i]*vertical;
+          result.push({ id: `${face}${row}${col}`, color: COLORS[face], home: face, pos, normal:[...f.normal] });
+        }
+      }
+      return result;
+    }
+
+    function getSticker(face, row, col) {
+      const f = FACES[face];
+      return stickers.find(s => same(s.normal, f.normal) &&
+        dot(s.pos, f.right) === col-1 && dot(s.pos, f.down) === row-1);
+    }
+
+    function render() {
+      net.innerHTML = '';
+      for (const faceName of FACE_ORDER) {
+        const face = document.createElement('div');
+        face.className = 'face' + (faceName === selected ? ' selected' : '');
+        face.dataset.face = faceName;
+        face.setAttribute('role', 'group');
+        face.setAttribute('aria-label', `${faceName}面`);
+        for (let row=0; row<3; row++) for (let col=0; col<3; col++) {
+          const sticker = getSticker(faceName, row, col);
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.className = 'sticker' + (row===1 && col===1 ? ' center' : '');
+          cell.style.setProperty('--c', sticker.color);
+          cell.dataset.face = faceName;
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.dataset.stickerId = sticker.id;
+          const isCenter = row === 1 && col === 1;
+          cell.setAttribute('aria-label', isCenter
+            ? `${faceName}面の中心。左クリックで反時計回り、右クリックで時計回り`
+            : `${faceName}面 ${row+1}行 ${col+1}列`);
+          if (isCenter) cell.title = '左クリック：反時計回り ／ 右クリック：時計回り';
+          face.appendChild(cell);
+        }
+        net.appendChild(face);
+      }
+      $('moveCount').textContent = moveCount;
+      $('history').textContent = history.length ? history.slice(-20).map(h => h.label).join(' ') : '—';
+      $('undo').disabled = history.length === 0;
+      $('selectedFace').textContent = selected;
+      $('selectedFace').style.setProperty('--selected-color', COLORS[selected]);
+    }
+
+    function labelFor(axis, layer, k) {
+      const face = FACE_AT[`${axis},${layer}`];
+      if (face) {
+        const clockwise = ((-k * layer) % 4 + 4) % 4;
+        return face + (clockwise === 2 ? '2' : clockwise === 3 ? "'" : '');
+      }
+      const middle = ['M','E','S'][axis];
+      return middle + (k === 2 || k === -2 ? '2' : k < 0 ? "'" : '');
+    }
+
+    function applyLayer(axis, layer, k, options={}) {
+      stickers.forEach(s => {
+        if (s.pos[axis] === layer) {
+          s.pos = rotateVector(s.pos, axis, k);
+          s.normal = rotateVector(s.normal, axis, k);
+        }
+      });
+      if (options.record !== false) {
+        history.push({ axis, layer, k, label: options.label || labelFor(axis, layer, k) });
+        moveCount++;
+        startTimer();
+      }
+      render();
+      checkSolved();
+    }
+
+    function moveFace(face, clockwise=1) {
+      const f = FACES[face];
+      applyLayer(f.axis, f.sign, -clockwise * f.sign);
+    }
+
+    function startTimer() {
+      if (timerStart !== null) return;
+      timerStart = Date.now();
+      timerId = setInterval(updateTimer, 500);
+      updateTimer();
+    }
+
+    function updateTimer() {
+      if (timerStart === null) { $('timer').textContent = '00:00'; return; }
+      const seconds = Math.floor((Date.now()-timerStart)/1000);
+      $('timer').textContent = `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
+    }
+
+    function isSolved() {
+      return FACE_ORDER.every(face => {
+        const colors = Array.from({length:9}, (_,i) => getSticker(face, Math.floor(i/3), i%3).color);
+        return colors.every(c => c === colors[0]);
+      });
+    }
+
+    function checkSolved() {
+      if (moveCount > 0 && isSolved()) {
+        clearInterval(timerId);
+        timerId = null;
+        say('SOLVED — 完成！');
+      }
+    }
+
+    function say(text) {
+      $('message').textContent = text;
+      clearTimeout(messageTimer);
+      messageTimer = setTimeout(() => $('message').textContent = 'ドラッグまたはキーで操作', 2600);
+    }
+
+    function reset() {
+      stickers = makeSolved();
+      history = [];
+      moveCount = 0;
+      timerStart = null;
+      clearInterval(timerId);
+      timerId = null;
+      updateTimer();
+      render();
+      say('初期状態に戻しました');
+    }
+
+    function scramble() {
+      const faces = ['U','D','L','R','F','B'];
+      let previous = '';
+      const sequence = [];
+      for (let i=0; i<24; i++) {
+        let face;
+        do face = faces[Math.floor(Math.random()*faces.length)]; while (face === previous);
+        previous = face;
+        const clockwise = Math.random() < .22 ? 2 : Math.random() < .5 ? 1 : -1;
+        const f = FACES[face];
+        const k = -clockwise * f.sign;
+        stickers.forEach(s => {
+          if (s.pos[f.axis] === f.sign) {
+            s.pos = rotateVector(s.pos, f.axis, k);
+            s.normal = rotateVector(s.normal, f.axis, k);
+          }
+        });
+        sequence.push({ axis:f.axis, layer:f.sign, k, label:labelFor(f.axis, f.sign, k) });
+      }
+      history = sequence;
+      moveCount = 0;
+      timerStart = null;
+      clearInterval(timerId);
+      timerId = null;
+      updateTimer();
+      render();
+      say('24手でスクランブルしました');
+    }
+
+    function undo() {
+      const last = history.pop();
+      if (!last) return;
+      applyLayer(last.axis, last.layer, -last.k, {record:false});
+      moveCount = Math.max(0, moveCount-1);
+      render();
+      say(`${last.label} を取り消しました`);
+    }
+
+    function axisIndex(v) { return v.findIndex(n => n !== 0); }
+
+    function finishSwipe(target, dx, dy) {
+      const distance = Math.hypot(dx,dy);
+      const faceName = target.dataset.face;
+      selected = faceName;
+      if (distance < 18) {
+        if (target.dataset.row === '1' && target.dataset.col === '1') {
+          moveFace(faceName, -1);
+        } else {
+          render();
+        }
+        return;
+      }
+
+      const f = FACES[faceName];
+      const sticker = stickers.find(s => s.id === target.dataset.stickerId);
+      const horizontal = Math.abs(dx) >= Math.abs(dy);
+      const desired = horizontal
+        ? f.right.map(n => n * Math.sign(dx))
+        : f.down.map(n => n * Math.sign(dy));
+      const axisVector = horizontal ? f.down : f.right;
+      const axis = axisIndex(axisVector);
+      const layer = sticker.pos[axis];
+
+      // Pick the ±90° rotation whose instantaneous displacement follows the swipe.
+      const plus = rotateVector(sticker.pos, axis, 1).map((n,i) => n-sticker.pos[i]);
+      const minus = rotateVector(sticker.pos, axis, -1).map((n,i) => n-sticker.pos[i]);
+      let k = dot(plus, desired) >= dot(minus, desired) ? 1 : -1;
+      // At a rotation-axis endpoint, position alone has no displacement; use the face normal.
+      if (dot(plus, desired) === dot(minus, desired)) {
+        const np = rotateVector(sticker.normal, axis, 1).map((n,i) => n-sticker.normal[i]);
+        const nm = rotateVector(sticker.normal, axis, -1).map((n,i) => n-sticker.normal[i]);
+        k = dot(np, desired) >= dot(nm, desired) ? 1 : -1;
+      }
+      applyLayer(axis, layer, k);
+    }
+
+    net.addEventListener('pointerdown', e => {
+      const target = e.target.closest('.sticker');
+      if (!target || e.button !== 0) return;
+      target.setPointerCapture(e.pointerId);
+      pointer = { id:e.pointerId, target, x:e.clientX, y:e.clientY };
+      const guide = $('dragGuide');
+      guide.style.left = `${e.clientX}px`;
+      guide.style.top = `${e.clientY}px`;
+      guide.style.opacity = '0';
+    });
+
+    net.addEventListener('pointermove', e => {
+      if (!pointer || pointer.id !== e.pointerId) return;
+      const dx = e.clientX-pointer.x, dy=e.clientY-pointer.y;
+      const length = Math.min(70, Math.hypot(dx,dy));
+      const guide = $('dragGuide');
+      guide.style.width = `${length}px`;
+      guide.style.transform = `rotate(${Math.atan2(dy,dx)}rad)`;
+      guide.style.opacity = length > 8 ? '.9' : '0';
+    });
+
+    function endPointer(e) {
+      if (!pointer || pointer.id !== e.pointerId) return;
+      const p = pointer;
+      pointer = null;
+      $('dragGuide').style.opacity = '0';
+      finishSwipe(p.target, e.clientX-p.x, e.clientY-p.y);
+    }
+    net.addEventListener('pointerup', endPointer);
+    net.addEventListener('pointercancel', () => { pointer=null; $('dragGuide').style.opacity='0'; });
+
+    net.addEventListener('contextmenu', e => {
+      const target = e.target.closest('.sticker.center');
+      if (!target) return;
+      e.preventDefault();
+      selected = target.dataset.face;
+      moveFace(selected, 1);
+    });
+
+    $('cw').addEventListener('click', () => moveFace(selected, 1));
+    $('ccw').addEventListener('click', () => moveFace(selected, -1));
+    $('half').addEventListener('click', () => moveFace(selected, 2));
+    $('scramble').addEventListener('click', scramble);
+    $('undo').addEventListener('click', undo);
+    $('reset').addEventListener('click', reset);
+    $('hideCenters').addEventListener('change', e => net.classList.toggle('hide-centers', e.target.checked));
+    $('copy').addEventListener('click', async () => {
+      const text = history.map(h=>h.label).join(' ');
+      if (!text) { say('コピーする手順がありません'); return; }
+      try { await navigator.clipboard.writeText(text); say('手順をコピーしました'); }
+      catch { say('コピーできませんでした'); }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.repeat || !'udlrfb'.includes(e.key.toLowerCase())) return;
+      const face = e.key.toUpperCase();
+      selected = face;
+      moveFace(face, e.shiftKey ? -1 : 1);
+    });
+
+    // Small public hook for console experiments toward higher-dimensional models.
+    window.RubiksNetLab = {
+      getState: () => structuredClone(stickers),
+      move: (face, turns=1) => { if (FACES[face]) moveFace(face, turns); },
+      reset
+    };
+
+    stickers = makeSolved();
+    render();
+  })();
+  </script>
+</body>
+</html>
