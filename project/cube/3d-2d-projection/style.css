@@ -54,7 +54,7 @@ button, input { font: inherit; }
   border-radius: 18px;
   background: #fff;
   overflow: hidden;
-  touch-action: pan-y;
+  touch-action: none;
 }
 
 canvas {
