@@ -155,6 +155,27 @@ function roundedPolygon(points, radius) {
   ctx.closePath();
 }
 
+function pointInPolygon(x, y, points) {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const xi = points[i].x, yi = points[i].y;
+    const xj = points[j].x, yj = points[j].y;
+    const intersect = ((yi > y) !== (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function projectBasisVector(origin, basis, cam, width, height) {
+  const a = projectPoint(origin, cam, width, height);
+  const b = projectPoint(add(origin, basis), cam, width, height);
+  if (!a || !b) return null;
+  return { x: b.x - a.x, y: b.y - a.y };
+}
+
+let lastRenderPieces = [];
+
 function drawCube() {
   resizeCanvas();
   const width = canvas.width / devicePixelRatio;
@@ -172,20 +193,28 @@ function drawCube() {
   const faces = ['U', 'D', 'F', 'B', 'R', 'L'];
   for (const face of faces) {
     if (!faceNormalTowardCamera(face, cam)) continue;
+    const f = FACE_DEFS[face];
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 3; c++) {
         const verts3 = faceStickerQuad(face, r, c);
         const verts2 = verts3.map(v => projectPoint(v, cam, width, height));
         if (verts2.some(v => !v)) continue;
         const depth = verts2.reduce((sum, v) => sum + v.z, 0) / verts2.length;
-        const color = COLORS[cube[face][r*3 + c]];
-        pieces.push({ face, verts2, depth, color });
+        const color = COLORS[cube[face][r * 3 + c]];
+        const center3 = add(
+          add(scale(f.u, c - 1), scale(f.v, r - 1)),
+          f.n
+        );
+        const center2 = projectPoint(center3, cam, width, height);
+        const basisU = projectBasisVector(center3, f.u, cam, width, height);
+        const basisV = projectBasisVector(center3, f.v, cam, width, height);
+        pieces.push({ face, row: r, col: c, verts2, depth, color, center3, center2, basisU, basisV });
       }
     }
   }
 
-  // Painter's algorithm: far stickers first.
   pieces.sort((a, b) => b.depth - a.depth);
+  lastRenderPieces = pieces;
 
   for (const piece of pieces) {
     roundedPolygon(piece.verts2);
@@ -197,8 +226,7 @@ function drawCube() {
     ctx.stroke();
   }
 
-  // Add a little central glint so the perspective reads as a physical object.
-  const center = projectPoint([0,0,0], cam, width, height);
+  const center = projectPoint([0, 0, 0], cam, width, height);
   if (center) {
     ctx.beginPath();
     ctx.arc(center.x, center.y, 2.2, 0, Math.PI * 2);
@@ -355,23 +383,93 @@ function resetCube() {
   drawCube();
 }
 
+function canvasPointFromEvent(e) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function pickSticker(x, y) {
+  // lastRenderPieces is already painter-sorted: the later hit is visually on top.
+  for (let i = lastRenderPieces.length - 1; i >= 0; i--) {
+    const piece = lastRenderPieces[i];
+    if (pointInPolygon(x, y, piece.verts2)) return piece;
+  }
+  return null;
+}
+
+let pointerMode = null; // 'view' or 'cube'
+let activePiece = null;
+let pointerStart = null;
+let lastPointer = null;
+let movedEnough = false;
+
 function pointerDown(e) {
+  const pt = canvasPointFromEvent(e);
+  const hit = pickSticker(pt.x, pt.y);
+
+  pointerMode = hit ? 'cube' : 'view';
+  activePiece = hit;
+  pointerStart = pt;
+  lastPointer = pt;
+  movedEnough = false;
   dragging = true;
-  lastX = e.clientX;
-  dragStartAngle = angleDeg;
+
   canvas.setPointerCapture(e.pointerId);
+  e.preventDefault();
 }
 
 function pointerMove(e) {
   if (!dragging) return;
-  const dx = e.clientX - lastX;
-  lastX = e.clientX;
-  // Exactly one input dimension: only horizontal movement changes theta.
-  setAngle(angleDeg + dx * 0.45);
+
+  const pt = canvasPointFromEvent(e);
+  const dx = pt.x - lastPointer.x;
+  const dy = pt.y - lastPointer.y;
+  const totalDx = pt.x - pointerStart.x;
+  const totalDy = pt.y - pointerStart.y;
+  lastPointer = pt;
+
+  if (!movedEnough && Math.hypot(totalDx, totalDy) >= 8) movedEnough = true;
+  if (!movedEnough) return;
+
+  if (pointerMode === 'view') {
+    // View control intentionally remains 1D: only horizontal movement changes theta.
+    if (Math.abs(dx) >= 0.01) setAngle(angleDeg + dx * 0.45);
+    return;
+  }
+
+  // Cube control: determine rotation direction from the touched face's local 2D axes.
+  // The dominant local direction of the swipe selects clockwise/counter-clockwise.
+  if (!activePiece || Math.hypot(dx, dy) < 1.5) return;
+
+  const bu = activePiece.basisU;
+  const bv = activePiece.basisV;
+  if (!bu || !bv) return;
+
+  const uLen2 = bu.x * bu.x + bu.y * bu.y;
+  const vLen2 = bv.x * bv.x + bv.y * bv.y;
+  if (uLen2 < 1e-6 || vLen2 < 1e-6) return;
+
+  // Normalize projected basis vectors, then measure the swipe in face-local coordinates.
+  const u = { x: bu.x / Math.sqrt(uLen2), y: bu.y / Math.sqrt(uLen2) };
+  const v = { x: bv.x / Math.sqrt(vLen2), y: bv.y / Math.sqrt(vLen2) };
+  const localU = dx * u.x + dy * u.y;
+  const localV = dx * v.x + dy * v.y;
+
+  // Wait until one face-local axis clearly dominates. A single gesture produces one 90° turn.
+  if (Math.max(Math.abs(localU), Math.abs(localV)) < 5) return;
+  const clockwise = (Math.abs(localU) >= Math.abs(localV)) ? (localU > 0) : (localV < 0);
+
+  dragging = false;
+  try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  applyMove(activePiece.face, !clockwise);
+  pointerMode = null;
+  activePiece = null;
 }
 
 function pointerUp(e) {
   dragging = false;
+  pointerMode = null;
+  activePiece = null;
   try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
 }
 
@@ -379,7 +477,6 @@ canvas.addEventListener('pointerdown', pointerDown);
 canvas.addEventListener('pointermove', pointerMove);
 canvas.addEventListener('pointerup', pointerUp);
 canvas.addEventListener('pointercancel', pointerUp);
-canvas.addEventListener('pointerleave', () => { /* keep capture-based drag alive */ });
 
 angleSlider.addEventListener('input', () => setAngle(Number(angleSlider.value)));
 resetView.addEventListener('click', resetViewState);
