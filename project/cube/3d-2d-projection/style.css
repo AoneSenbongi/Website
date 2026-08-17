@@ -48,7 +48,8 @@ button, input { font: inherit; }
 
 .stage {
   position: relative;
-  min-height: min(72vh, 760px);
+  height: min(72vh, 760px);
+  min-height: 0;
   border: 1px solid #ddd;
   border-radius: 18px;
   background: #fff;
@@ -57,10 +58,13 @@ button, input { font: inherit; }
 }
 
 canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  min-height: inherit;
+  min-width: 0;
+  min-height: 0;
   cursor: ew-resize;
   user-select: none;
 }
@@ -166,7 +170,7 @@ button.secondary { white-space: nowrap; }
 
 @media (max-width: 860px) {
   .stage-wrap { grid-template-columns: 1fr; }
-  .stage { min-height: 68vh; }
+  .stage { height: 68vh; min-height: 0; }
   .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .panel-block + .panel-block { margin-top: 0; padding-top: 0; border-top: 0; }
 }
@@ -176,6 +180,6 @@ button.secondary { white-space: nowrap; }
   .header { align-items: center; }
   .header p { font-size: 12px; }
   .panel { grid-template-columns: 1fr; }
-  .stage { min-height: 62vh; border-radius: 14px; }
+  .stage { height: 62vh; min-height: 0; border-radius: 14px; }
   .footer { flex-direction: column; }
 }

@@ -156,9 +156,9 @@ function roundedPolygon(points, radius) {
 }
 
 function drawCube() {
-  resizeCanvas();
-  const width = canvas.width / devicePixelRatio;
-  const height = canvas.height / devicePixelRatio;
+  const size = resizeCanvas();
+  const width = size.width;
+  const height = size.height;
   const theta = angleDeg * Math.PI / 180;
   const cam = cameraForAngle(theta);
 
@@ -208,19 +208,21 @@ function drawCube() {
 }
 
 function resizeCanvas() {
-  const rect = stage.getBoundingClientRect();
+  // The stage has a fixed CSS height. Keep the canvas absolutely positioned
+  // inside it so repeated redraws can never change the page height.
+  const w = Math.max(320, Math.floor(stage.clientWidth));
+  const h = Math.max(320, Math.floor(stage.clientHeight));
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  const w = Math.max(320, Math.floor(rect.width));
-  const h = Math.max(320, Math.floor(rect.height));
   const targetW = Math.floor(w * ratio);
   const targetH = Math.floor(h * ratio);
+
   if (canvas.width !== targetW || canvas.height !== targetH) {
     canvas.width = targetW;
     canvas.height = targetH;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
   }
+
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  return { width: w, height: h };
 }
 
 function setAngle(deg) {
