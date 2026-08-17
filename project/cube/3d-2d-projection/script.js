@@ -379,14 +379,25 @@ document.querySelectorAll('.move').forEach(btn => {
     applyMove(move, e.shiftKey);
   });
 });
+const keyMap = {
+  S: 'L',
+  D: 'F',
+  F: 'R',
+  J: 'B',
+  K: 'D',
+  L: 'U'
+};
 
 document.addEventListener('keydown', e => {
   if (e.target.matches('input, textarea, select')) return;
+
   const key = e.key.toUpperCase();
-  if ('UDLRFB'.includes(key)) {
+
+  if (keyMap[key]) {
     e.preventDefault();
-    applyMove(key, e.shiftKey);
+    applyMove(keyMap[key], e.shiftKey);
   }
+
   if (e.key === '0') resetViewState();
 });
 
