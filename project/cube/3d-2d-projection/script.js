@@ -256,17 +256,23 @@ const stickers = [];
 
 function makeStickerState() {
   stickers.length = 0;
+
+  // Integer lattice: each sticker center uses {-1,0,1} on the two face axes,
+  // and +/-1 on the face normal. This makes 90° rotations exact and stable.
   for (const face of Object.keys(FACE_DEFS)) {
     const f = FACE_DEFS[face];
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 3; c++) {
-        const center = add(
-          scale(f.u, -1 + (c + 0.5) * (2 / 3)),
-          scale(f.v, -1 + (r + 0.5) * (2 / 3))
+        const coordU = c - 1;
+        const coordV = r - 1;
+        const pos = add(
+          add(scale(f.u, coordU), scale(f.v, coordV)),
+          f.n
         );
+
         stickers.push({
           color: face,
-          pos: add(center, scale(f.n, 1)),
+          pos: [...pos],
           normal: [...f.n],
         });
       }
@@ -289,25 +295,29 @@ function nearestFaceFromNormal(n) {
 
 function positionToStickerIndex(face, pos) {
   const f = FACE_DEFS[face];
-  const cu = dot(pos, f.u);
-  const cv = dot(pos, f.v);
-  const col = Math.max(0, Math.min(2, Math.round((cu + 2 / 3) / (2 / 3))));
-  const row = Math.max(0, Math.min(2, Math.round((cv + 2 / 3) / (2 / 3))));
+  const coordU = Math.round(dot(pos, f.u));
+  const coordV = Math.round(dot(pos, f.v));
+
+  const col = Math.max(0, Math.min(2, coordU + 1));
+  const row = Math.max(0, Math.min(2, coordV + 1));
   return row * 3 + col;
 }
 
 function syncCubeArraysFromStickers() {
-  for (const face of Object.keys(cube)) cube[face].fill('');
+  for (const face of Object.keys(cube)) cube[face].fill(null);
 
   for (const sticker of stickers) {
     const face = nearestFaceFromNormal(sticker.normal);
     const index = positionToStickerIndex(face, sticker.pos);
+
+    if (cube[face][index] !== null) {
+      throw new Error(`Duplicate sticker slot: ${face}[${index}]`);
+    }
     cube[face][index] = sticker.color;
   }
 
-  // Safety check: every visible sticker must map to exactly one slot.
   for (const face of Object.keys(cube)) {
-    if (cube[face].some(v => !v)) {
+    if (cube[face].some(v => v === null)) {
       throw new Error(`Sticker mapping failed on face ${face}`);
     }
   }
@@ -317,16 +327,21 @@ function applyMove(face, inverse = false) {
   const axisVec = MOVE_AXES[face];
   if (!axisVec) return;
 
-  // Looking straight at a face from outside the cube, clockwise is -90°
-  // around that face's outward normal. Inverse is therefore +90°.
+  // Clockwise when looking directly at the named face from outside.
+  // Inverse reverses that direction.
   const theta = (inverse ? 1 : -1) * Math.PI / 2;
 
   for (const sticker of stickers) {
-    const layerCoord = dot(sticker.pos, axisVec);
-    if (Math.abs(layerCoord - 1) > 1e-6) continue;
+    // The moved layer is the outer layer whose coordinate is +1
+    // along the outward face normal. The axis vector already points outward.
+    if (dot(sticker.pos, axisVec) !== 1) continue;
 
-    sticker.pos = rotateAroundAxis(sticker.pos, axisVec, theta);
-    sticker.normal = norm(rotateAroundAxis(sticker.normal, axisVec, theta));
+    const p = rotateAroundAxis(sticker.pos, axisVec, theta);
+    const n = rotateAroundAxis(sticker.normal, axisVec, theta);
+
+    // Snap to exact integer coordinates after the 90° turn.
+    sticker.pos = p.map(v => Math.round(v));
+    sticker.normal = n.map(v => Math.round(v));
   }
 
   syncCubeArraysFromStickers();
@@ -386,23 +401,32 @@ document.querySelectorAll('.move').forEach(btn => {
   });
 });
 
-const keyMap = {
-  S: 'L',
-  D: 'F',
-  F: 'R',
-  J: 'B',
-  K: 'D',
-  L: 'U',
-};
+const keyMap = Object.freeze({
+  s: 'L',
+  d: 'F',
+  f: 'R',
+  j: 'B',
+  k: 'D',
+  l: 'U',
+});
 
 document.addEventListener('keydown', e => {
-  if (e.target.matches('input, textarea, select')) return;
-  const key = e.key.toUpperCase();
-  if (keyMap[key]) {
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.target && e.target.matches('input, textarea, select, button')) return;
+
+  const key = e.key.toLowerCase();
+  const move = keyMap[key];
+
+  if (move) {
     e.preventDefault();
-    applyMove(keyMap[key], e.shiftKey);
+    applyMove(move, e.shiftKey);
+    return;
   }
-  if (e.key === '0') resetViewState();
+
+  if (e.key === '0') {
+    e.preventDefault();
+    resetViewState();
+  }
 });
 
 window.addEventListener('resize', drawCube);
