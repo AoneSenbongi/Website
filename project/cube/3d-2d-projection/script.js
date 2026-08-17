@@ -156,9 +156,9 @@ function roundedPolygon(points, radius) {
 }
 
 function drawCube() {
-  const size = resizeCanvas();
-  const width = size.width;
-  const height = size.height;
+  resizeCanvas();
+  const width = canvas.width / devicePixelRatio;
+  const height = canvas.height / devicePixelRatio;
   const theta = angleDeg * Math.PI / 180;
   const cam = cameraForAngle(theta);
 
@@ -208,21 +208,19 @@ function drawCube() {
 }
 
 function resizeCanvas() {
-  // The stage has a fixed CSS height. Keep the canvas absolutely positioned
-  // inside it so repeated redraws can never change the page height.
-  const w = Math.max(320, Math.floor(stage.clientWidth));
-  const h = Math.max(320, Math.floor(stage.clientHeight));
+  const rect = stage.getBoundingClientRect();
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.max(320, Math.floor(rect.width));
+  const h = Math.max(320, Math.floor(rect.height));
   const targetW = Math.floor(w * ratio);
   const targetH = Math.floor(h * ratio);
-
   if (canvas.width !== targetW || canvas.height !== targetH) {
     canvas.width = targetW;
     canvas.height = targetH;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
   }
-
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  return { width: w, height: h };
 }
 
 function setAngle(deg) {
@@ -236,101 +234,109 @@ function resetViewState() {
   setAngle(0);
 }
 
-function rotateFaceMatrix(face) {
-  const old = cube[face].slice();
-  const next = Array(9);
-  const m = [6,3,0,7,4,1,8,5,2];
-  for (let i = 0; i < 9; i++) next[i] = old[m[i]];
-  cube[face] = next;
+// --- Rubik's Cube state and move engine ---------------------------------
+// Each visible sticker is represented by its 3D position, face normal, and color.
+// A face turn is then a genuine 90° rotation of the affected layer. This avoids
+// hand-written row/column mappings becoming inconsistent for F/B, etc.
+
+function vecKey(v) {
+  return v.map(n => Math.round(n * 1e6) / 1e6).join(',');
 }
 
-function reverseFaceMatrix(face) {
-  rotateFaceMatrix(face);
-  rotateFaceMatrix(face);
-  rotateFaceMatrix(face);
+const MOVE_AXES = {
+  U: [0, 1, 0],
+  D: [0, -1, 0],
+  F: [0, 0, 1],
+  B: [0, 0, -1],
+  R: [1, 0, 0],
+  L: [-1, 0, 0],
+};
+
+const stickers = [];
+
+function makeStickerState() {
+  stickers.length = 0;
+  for (const face of Object.keys(FACE_DEFS)) {
+    const f = FACE_DEFS[face];
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const center = add(
+          scale(f.u, -1 + (c + 0.5) * (2 / 3)),
+          scale(f.v, -1 + (r + 0.5) * (2 / 3))
+        );
+        stickers.push({
+          color: face,
+          pos: add(center, scale(f.n, 1)),
+          normal: [...f.n],
+        });
+      }
+    }
+  }
 }
 
-function cycleStrip(arr, a, b, c, source) {
-  const vals = [cube[source[0]][a], cube[source[0]][b], cube[source[0]][c]];
-  for (let i = 0; i < 3; i++) cube[source[1]][[a,b,c][i]] = vals[i];
+function nearestFaceFromNormal(n) {
+  let bestFace = 'F';
+  let bestDot = -Infinity;
+  for (const [face, def] of Object.entries(FACE_DEFS)) {
+    const d = dot(n, def.n);
+    if (d > bestDot) {
+      bestDot = d;
+      bestFace = face;
+    }
+  }
+  return bestFace;
+}
+
+function positionToStickerIndex(face, pos) {
+  const f = FACE_DEFS[face];
+  const cu = dot(pos, f.u);
+  const cv = dot(pos, f.v);
+  const col = Math.max(0, Math.min(2, Math.round((cu + 2 / 3) / (2 / 3))));
+  const row = Math.max(0, Math.min(2, Math.round((cv + 2 / 3) / (2 / 3))));
+  return row * 3 + col;
+}
+
+function syncCubeArraysFromStickers() {
+  for (const face of Object.keys(cube)) cube[face].fill('');
+
+  for (const sticker of stickers) {
+    const face = nearestFaceFromNormal(sticker.normal);
+    const index = positionToStickerIndex(face, sticker.pos);
+    cube[face][index] = sticker.color;
+  }
+
+  // Safety check: every visible sticker must map to exactly one slot.
+  for (const face of Object.keys(cube)) {
+    if (cube[face].some(v => !v)) {
+      throw new Error(`Sticker mapping failed on face ${face}`);
+    }
+  }
 }
 
 function applyMove(face, inverse = false) {
-  // Face turns are standard 3x3 sticker permutations in face notation.
-  // One clockwise turn is defined while looking directly at that face.
-  if (inverse) {
-    applyMove(face, false);
-    applyMove(face, false);
-    applyMove(face, false);
-    return;
+  const axisVec = MOVE_AXES[face];
+  if (!axisVec) return;
+
+  // Looking straight at a face from outside the cube, clockwise is -90°
+  // around that face's outward normal. Inverse is therefore +90°.
+  const theta = (inverse ? 1 : -1) * Math.PI / 2;
+
+  for (const sticker of stickers) {
+    const layerCoord = dot(sticker.pos, axisVec);
+    if (Math.abs(layerCoord - 1) > 1e-6) continue;
+
+    sticker.pos = rotateAroundAxis(sticker.pos, axisVec, theta);
+    sticker.normal = norm(rotateAroundAxis(sticker.normal, axisVec, theta));
   }
 
-  rotateFaceMatrix(face);
-
-  const x = (f, i) => cube[f][i];
-  const s = (f, i, v) => { cube[f][i] = v; };
-
-  switch (face) {
-    case 'U': {
-      const F = [0,1,2], R=[0,1,2], B=[0,1,2], L=[0,1,2];
-      const tmp = F.map(i => x('F',i));
-      F.forEach((i,j)=>s('F',i,x('L',L[j])));
-      L.forEach((i,j)=>s('L',i,x('B',B[j])));
-      B.forEach((i,j)=>s('B',i,x('R',R[j])));
-      R.forEach((i,j)=>s('R',i,tmp[j]));
-      break;
-    }
-    case 'D': {
-      const F = [6,7,8], R=[6,7,8], B=[6,7,8], L=[6,7,8];
-      const tmp = F.map(i => x('F',i));
-      F.forEach((i,j)=>s('F',i,x('R',R[j])));
-      R.forEach((i,j)=>s('R',i,x('B',B[j])));
-      B.forEach((i,j)=>s('B',i,x('L',L[j])));
-      L.forEach((i,j)=>s('L',i,tmp[j]));
-      break;
-    }
-    case 'F': {
-      const u=[6,7,8], r=[0,3,6], d=[2,1,0], l=[8,5,2];
-      const tmp = u.map(i=>x('U',i));
-      u.forEach((i,j)=>s('U',i,x('L',l[j])));
-      l.forEach((i,j)=>s('L',i,x('D',d[j])));
-      d.forEach((i,j)=>s('D',i,x('R',r[j])));
-      r.forEach((i,j)=>s('R',i,tmp[j]));
-      break;
-    }
-    case 'B': {
-      const u=[0,1,2], r=[2,5,8], d=[8,7,6], l=[6,3,0];
-      const tmp = u.map(i=>x('U',i));
-      u.forEach((i,j)=>s('U',i,x('R',r[j])));
-      r.forEach((i,j)=>s('R',i,x('D',d[j])));
-      d.forEach((i,j)=>s('D',i,x('L',l[j])));
-      l.forEach((i,j)=>s('L',i,tmp[j]));
-      break;
-    }
-    case 'R': {
-      const u=[2,5,8], f=[2,5,8], d=[2,5,8], b=[6,3,0];
-      const tmp = u.map(i=>x('U',i));
-      u.forEach((i,j)=>s('U',i,x('F',f[j])));
-      f.forEach((i,j)=>s('F',i,x('D',d[j])));
-      d.forEach((i,j)=>s('D',i,x('B',b[j])));
-      b.forEach((i,j)=>s('B',i,tmp[j]));
-      break;
-    }
-    case 'L': {
-      const u=[0,3,6], f=[0,3,6], d=[0,3,6], b=[8,5,2];
-      const tmp = u.map(i=>x('U',i));
-      u.forEach((i,j)=>s('U',i,x('B',b[j])));
-      b.forEach((i,j)=>s('B',i,x('D',d[j])));
-      d.forEach((i,j)=>s('D',i,x('F',f[j])));
-      f.forEach((i,j)=>s('F',i,tmp[j]));
-      break;
-    }
-  }
+  syncCubeArraysFromStickers();
   drawCube();
 }
 
 function resetCube() {
   for (const f of Object.keys(cube)) cube[f].fill(f);
+  makeStickerState();
+  syncCubeArraysFromStickers();
   drawCube();
 }
 
@@ -380,12 +386,21 @@ document.querySelectorAll('.move').forEach(btn => {
   });
 });
 
+const keyMap = {
+  S: 'L',
+  D: 'F',
+  F: 'R',
+  J: 'B',
+  K: 'D',
+  L: 'U',
+};
+
 document.addEventListener('keydown', e => {
   if (e.target.matches('input, textarea, select')) return;
   const key = e.key.toUpperCase();
-  if ('UDLRFB'.includes(key)) {
+  if (keyMap[key]) {
     e.preventDefault();
-    applyMove(key, e.shiftKey);
+    applyMove(keyMap[key], e.shiftKey);
   }
   if (e.key === '0') resetViewState();
 });
