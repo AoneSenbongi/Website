@@ -1,21 +1,21 @@
-'use strict';
+"use strict";
 
-const canvas = document.getElementById('cubeCanvas');
-const ctx = canvas.getContext('2d');
-const stage = document.getElementById('stage');
-const angleSlider = document.getElementById('angleSlider');
-const angleReadout = document.getElementById('angleReadout');
-const resetView = document.getElementById('resetView');
-const perspectiveToggle = document.getElementById('perspectiveToggle');
-const axisToggle = document.getElementById('axisToggle');
+const canvas = document.getElementById("cubeCanvas");
+const ctx = canvas.getContext("2d");
+const stage = document.getElementById("stage");
+const angleSlider = document.getElementById("angleSlider");
+const angleReadout = document.getElementById("angleReadout");
+const resetView = document.getElementById("resetView");
+const perspectiveToggle = document.getElementById("perspectiveToggle");
+const axisToggle = document.getElementById("axisToggle");
 
 const COLORS = {
-  U: '#f7d91e',
-  D: '#f5f5f5',
-  F: '#23c54b',
-  B: '#2563eb',
-  R: '#ef3b2d',
-  L: '#ff8a20',
+  U: "#f7d91e",
+  D: "#f5f5f5",
+  F: "#23c54b",
+  B: "#2563eb",
+  R: "#ef3b2d",
+  L: "#ff8a20",
 };
 
 const FACE_DEFS = {
@@ -28,12 +28,12 @@ const FACE_DEFS = {
 };
 
 const cube = {
-  U: Array(9).fill('U'),
-  D: Array(9).fill('D'),
-  F: Array(9).fill('F'),
-  B: Array(9).fill('B'),
-  R: Array(9).fill('R'),
-  L: Array(9).fill('L'),
+  U: Array(9).fill("U"),
+  D: Array(9).fill("D"),
+  F: Array(9).fill("F"),
+  B: Array(9).fill("B"),
+  R: Array(9).fill("R"),
+  L: Array(9).fill("L"),
 };
 
 let angleDeg = 0;
@@ -49,12 +49,24 @@ const distance = 6.4;
 const cameraDistance = scale(initialCamera, distance);
 const initialBasis = makeCameraBasis(cameraDistance);
 
-function add(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
-function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
-function scale(a, s) { return [a[0] * s, a[1] * s, a[2] * s]; }
-function dot(a, b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+function add(a, b) {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+function sub(a, b) {
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+function scale(a, s) {
+  return [a[0] * s, a[1] * s, a[2] * s];
+}
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
 function cross(a, b) {
-  return [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]];
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
 }
 function norm(a) {
   const m = Math.hypot(a[0], a[1], a[2]) || 1;
@@ -109,24 +121,24 @@ function projectPoint(p, cam, width, height) {
 function faceStickerQuad(faceName, row, col, inset = 0.055) {
   const f = FACE_DEFS[faceName];
   const center = add(
-    scale(f.u, -1 + (col + 0.5) * (2/3)),
-    scale(f.v, -1 + (row + 0.5) * (2/3))
+    scale(f.u, -1 + (col + 0.5) * (2 / 3)),
+    scale(f.v, -1 + (row + 0.5) * (2 / 3)),
   );
   const surface = add(center, scale(f.n, 1));
-  const half = 1/3 - inset;
+  const half = 1 / 3 - inset;
   const du = scale(f.u, half);
   const dv = scale(f.v, half);
   const lift = scale(f.n, 0.008);
   return [
     add(add(surface, scale(f.n, 0.004)), add(scale(du, -1), scale(dv, -1))),
-    add(add(surface, lift), add(scale(du,  1), scale(dv, -1))),
-    add(add(surface, lift), add(scale(du,  1), scale(dv,  1))),
-    add(add(surface, lift), add(scale(du, -1), scale(dv,  1))),
+    add(add(surface, lift), add(scale(du, 1), scale(dv, -1))),
+    add(add(surface, lift), add(scale(du, 1), scale(dv, 1))),
+    add(add(surface, lift), add(scale(du, -1), scale(dv, 1))),
   ];
 }
 
 function faceNormalTowardCamera(faceName, cam) {
-  return dot(FACE_DEFS[faceName].n, sub(cam.pos, [0,0,0])) > 0;
+  return dot(FACE_DEFS[faceName].n, sub(cam.pos, [0, 0, 0])) > 0;
 }
 
 function drawAxis(cam, width, height) {
@@ -139,7 +151,7 @@ function drawAxis(cam, width, height) {
   ctx.save();
   ctx.setLineDash([6, 6]);
   ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(0,0,0,.22)';
+  ctx.strokeStyle = "rgba(0,0,0,.22)";
   ctx.beginPath();
   ctx.moveTo(pa.x, pa.y);
   ctx.lineTo(pb.x, pb.y);
@@ -158,10 +170,12 @@ function roundedPolygon(points, radius) {
 function pointInPolygon(x, y, points) {
   let inside = false;
   for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-    const xi = points[i].x, yi = points[i].y;
-    const xj = points[j].x, yj = points[j].y;
-    const intersect = ((yi > y) !== (yj > y)) &&
-      (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi);
+    const xi = points[i].x,
+      yi = points[i].y;
+    const xj = points[j].x,
+      yj = points[j].y;
+    const intersect =
+      yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi || 1e-9) + xi;
     if (intersect) inside = !inside;
   }
   return inside;
@@ -180,35 +194,43 @@ function drawCube() {
   resizeCanvas();
   const width = canvas.width / devicePixelRatio;
   const height = canvas.height / devicePixelRatio;
-  const theta = angleDeg * Math.PI / 180;
+  const theta = (angleDeg * Math.PI) / 180;
   const cam = cameraForAngle(theta);
 
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
 
   drawAxis(cam, width, height);
 
   const pieces = [];
-  const faces = ['U', 'D', 'F', 'B', 'R', 'L'];
+  const faces = ["U", "D", "F", "B", "R", "L"];
   for (const face of faces) {
     if (!faceNormalTowardCamera(face, cam)) continue;
     const f = FACE_DEFS[face];
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 3; c++) {
         const verts3 = faceStickerQuad(face, r, c);
-        const verts2 = verts3.map(v => projectPoint(v, cam, width, height));
-        if (verts2.some(v => !v)) continue;
+        const verts2 = verts3.map((v) => projectPoint(v, cam, width, height));
+        if (verts2.some((v) => !v)) continue;
         const depth = verts2.reduce((sum, v) => sum + v.z, 0) / verts2.length;
         const color = COLORS[cube[face][r * 3 + c]];
-        const center3 = add(
-          add(scale(f.u, c - 1), scale(f.v, r - 1)),
-          f.n
-        );
+        const center3 = add(add(scale(f.u, c - 1), scale(f.v, r - 1)), f.n);
         const center2 = projectPoint(center3, cam, width, height);
         const basisU = projectBasisVector(center3, f.u, cam, width, height);
         const basisV = projectBasisVector(center3, f.v, cam, width, height);
-        pieces.push({ face, row: r, col: c, verts2, depth, color, center3, center2, basisU, basisV });
+        pieces.push({
+          face,
+          row: r,
+          col: c,
+          verts2,
+          depth,
+          color,
+          center3,
+          center2,
+          basisU,
+          basisV,
+        });
       }
     }
   }
@@ -221,8 +243,8 @@ function drawCube() {
     ctx.fillStyle = piece.color;
     ctx.fill();
     ctx.lineWidth = Math.max(1.8, Math.min(width, height) * 0.0032);
-    ctx.strokeStyle = '#111';
-    ctx.lineJoin = 'round';
+    ctx.strokeStyle = "#111";
+    ctx.lineJoin = "round";
     ctx.stroke();
   }
 
@@ -230,7 +252,7 @@ function drawCube() {
   if (center) {
     ctx.beginPath();
     ctx.arc(center.x, center.y, 2.2, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,.16)';
+    ctx.fillStyle = "rgba(0,0,0,.16)";
     ctx.fill();
   }
 }
@@ -268,7 +290,7 @@ function resetViewState() {
 // hand-written row/column mappings becoming inconsistent for F/B, etc.
 
 function vecKey(v) {
-  return v.map(n => Math.round(n * 1e6) / 1e6).join(',');
+  return v.map((n) => Math.round(n * 1e6) / 1e6).join(",");
 }
 
 const MOVE_AXES = {
@@ -293,10 +315,7 @@ function makeStickerState() {
       for (let c = 0; c < 3; c++) {
         const coordU = c - 1;
         const coordV = r - 1;
-        const pos = add(
-          add(scale(f.u, coordU), scale(f.v, coordV)),
-          f.n
-        );
+        const pos = add(add(scale(f.u, coordU), scale(f.v, coordV)), f.n);
 
         stickers.push({
           color: face,
@@ -309,7 +328,7 @@ function makeStickerState() {
 }
 
 function nearestFaceFromNormal(n) {
-  let bestFace = 'F';
+  let bestFace = "F";
   let bestDot = -Infinity;
   for (const [face, def] of Object.entries(FACE_DEFS)) {
     const d = dot(n, def.n);
@@ -345,7 +364,7 @@ function syncCubeArraysFromStickers() {
   }
 
   for (const face of Object.keys(cube)) {
-    if (cube[face].some(v => v === null)) {
+    if (cube[face].some((v) => v === null)) {
       throw new Error(`Sticker mapping failed on face ${face}`);
     }
   }
@@ -357,7 +376,7 @@ function applyMove(face, inverse = false) {
 
   // Clockwise when looking directly at the named face from outside.
   // Inverse reverses that direction.
-  const theta = (inverse ? 1 : -1) * Math.PI / 2;
+  const theta = ((inverse ? 1 : -1) * Math.PI) / 2;
 
   for (const sticker of stickers) {
     // The moved layer is the outer layer whose coordinate is +1
@@ -368,8 +387,8 @@ function applyMove(face, inverse = false) {
     const n = rotateAroundAxis(sticker.normal, axisVec, theta);
 
     // Snap to exact integer coordinates after the 90° turn.
-    sticker.pos = p.map(v => Math.round(v));
-    sticker.normal = n.map(v => Math.round(v));
+    sticker.pos = p.map((v) => Math.round(v));
+    sticker.normal = n.map((v) => Math.round(v));
   }
 
   syncCubeArraysFromStickers();
@@ -407,7 +426,7 @@ function pointerDown(e) {
   const pt = canvasPointFromEvent(e);
   const hit = pickSticker(pt.x, pt.y);
 
-  pointerMode = hit ? 'cube' : 'view';
+  pointerMode = hit ? "cube" : "view";
   activePiece = hit;
   pointerStart = pt;
   lastPointer = pt;
@@ -431,7 +450,7 @@ function pointerMove(e) {
   if (!movedEnough && Math.hypot(totalDx, totalDy) >= 8) movedEnough = true;
   if (!movedEnough) return;
 
-  if (pointerMode === 'view') {
+  if (pointerMode === "view") {
     // View control intentionally remains 1D: only horizontal movement changes theta.
     if (Math.abs(dx) >= 0.01) setAngle(angleDeg + dx * 0.45);
     return;
@@ -457,10 +476,13 @@ function pointerMove(e) {
 
   // Wait until one face-local axis clearly dominates. A single gesture produces one 90° turn.
   if (Math.max(Math.abs(localU), Math.abs(localV)) < 5) return;
-  const clockwise = (Math.abs(localU) >= Math.abs(localV)) ? (localU > 0) : (localV < 0);
+  const clockwise =
+    Math.abs(localU) >= Math.abs(localV) ? localU > 0 : localV < 0;
 
   dragging = false;
-  try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  try {
+    canvas.releasePointerCapture(e.pointerId);
+  } catch (_) {}
   applyMove(activePiece.face, !clockwise);
   pointerMode = null;
   activePiece = null;
@@ -470,46 +492,50 @@ function pointerUp(e) {
   dragging = false;
   pointerMode = null;
   activePiece = null;
-  try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  try {
+    canvas.releasePointerCapture(e.pointerId);
+  } catch (_) {}
 }
 
-canvas.addEventListener('pointerdown', pointerDown);
-canvas.addEventListener('pointermove', pointerMove);
-canvas.addEventListener('pointerup', pointerUp);
-canvas.addEventListener('pointercancel', pointerUp);
+canvas.addEventListener("pointerdown", pointerDown);
+canvas.addEventListener("pointermove", pointerMove);
+canvas.addEventListener("pointerup", pointerUp);
+canvas.addEventListener("pointercancel", pointerUp);
 
-angleSlider.addEventListener('input', () => setAngle(Number(angleSlider.value)));
-resetView.addEventListener('click', resetViewState);
+angleSlider.addEventListener("input", () =>
+  setAngle(Number(angleSlider.value)),
+);
+resetView.addEventListener("click", resetViewState);
 
-perspectiveToggle.addEventListener('change', () => {
+perspectiveToggle.addEventListener("change", () => {
   perspective = perspectiveToggle.checked;
   drawCube();
 });
 
-axisToggle.addEventListener('change', () => {
+axisToggle.addEventListener("change", () => {
   showAxis = axisToggle.checked;
   drawCube();
 });
 
-document.querySelectorAll('.move').forEach(btn => {
-  btn.addEventListener('click', e => {
+document.querySelectorAll(".move").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
     const move = btn.dataset.move;
     applyMove(move, e.shiftKey);
   });
 });
 
 const keyMap = Object.freeze({
-  s: 'L',
-  d: 'F',
-  f: 'R',
-  j: 'B',
-  k: 'D',
-  l: 'U',
+  s: "L",
+  d: "F",
+  f: "R",
+  j: "B",
+  k: "D",
+  l: "U",
 });
 
-document.addEventListener('keydown', e => {
+document.addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.altKey || e.metaKey) return;
-  if (e.target && e.target.matches('input, textarea, select, button')) return;
+  if (e.target && e.target.matches("input, textarea, select, button")) return;
 
   const key = e.key.toLowerCase();
   const move = keyMap[key];
@@ -520,12 +546,12 @@ document.addEventListener('keydown', e => {
     return;
   }
 
-  if (e.key === '0') {
+  if (e.key === "0") {
     e.preventDefault();
     resetViewState();
   }
 });
 
-window.addEventListener('resize', drawCube);
+window.addEventListener("resize", drawCube);
 
 resetCube();
