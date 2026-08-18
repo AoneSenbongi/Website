@@ -191,11 +191,17 @@
 
     // 各「周囲の面」は、中心面との共有辺が画面上の内側を向くようにする。
     if (face === faceFromNormal(up)) {
-      return { right, up: center };
+      return {
+        right,
+        up: mul(center, -1),
+      };
     }
 
     if (face === faceFromNormal(mul(up, -1))) {
-      return { right, up: mul(center, -1) };
+      return {
+        right,
+        up: mul(center, -1),
+      };
     }
 
     if (face === faceFromNormal(right)) {
