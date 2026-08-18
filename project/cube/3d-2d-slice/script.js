@@ -124,7 +124,7 @@
         for (const b of [-1, 0, 1]) {
           const pos = add(
             [...normal],
-            add(unit(tangentAxes[0], a), unit(tangentAxes[1], b))
+            add(unit(tangentAxes[0], a), unit(tangentAxes[1], b)),
           );
 
           stickers.push({
@@ -228,10 +228,7 @@
 
         const pos = add(
           normal,
-          add(
-            mul(basis.right, localRight),
-            mul(basis.up, localUp)
-          )
+          add(mul(basis.right, localRight), mul(basis.up, localUp)),
         );
 
         cells.push(map.get(keyFor(pos, normal)) || face);
