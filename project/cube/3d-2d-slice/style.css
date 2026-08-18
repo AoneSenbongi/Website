@@ -99,25 +99,25 @@ button {
 }
 .face-top {
   grid-area: top;
-  transform: perspective(400px) rotateX(28deg) skewX(-8deg);
+  transform: perspective(700px) rotateX(-28deg) scaleY(0.9);
   transform-origin: center bottom;
 }
 
 .face-bottom {
   grid-area: bottom;
-  transform: perspective(400px) rotateX(-28deg) skewX(8deg);
+  transform: perspective(700px) rotateX(28deg) scaleY(0.9);
   transform-origin: center top;
 }
 
 .face-left {
   grid-area: left;
-  transform: perspective(400px) rotateY(-28deg) skewY(-8deg);
+  transform: perspective(700px) rotateY(28deg) scaleX(0.9);
   transform-origin: right center;
 }
 
 .face-right {
   grid-area: right;
-  transform: perspective(400px) rotateY(28deg) skewY(8deg);
+  transform: perspective(700px) rotateY(-28deg) scaleX(0.9);
   transform-origin: left center;
 }
 
@@ -126,50 +126,6 @@ button {
   box-shadow: 0 0 0 2px #101010;
   position: relative;
   z-index: 2;
-}
-
-.face-center {
-  grid-area: center;
-  box-shadow: 0 0 0 2px #101010;
-  position: relative;
-  z-index: 2;
-}
-.face-top {
-  grid-area: top;
-  clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%);
-  transform: translateY(4px);
-}
-
-.face-bottom {
-  grid-area: bottom;
-  clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
-  transform: translateY(-4px);
-}
-
-.face-left {
-  grid-area: left;
-  clip-path: polygon(100% 0, 100% 100%, 0 88%, 0 12%);
-  transform: translateX(4px);
-}
-
-.face-right {
-  grid-area: right;
-  clip-path: polygon(0 0, 100% 12%, 100% 88%, 0 100%);
-  transform: translateX(-4px);
-}
-
-.face-center {
-  grid-area: center;
-  box-shadow: 0 0 0 2px #101010;
-  position: relative;
-  z-index: 2;
-}
-
-.face-right {
-  grid-area: right;
-}
-.face-bottom {
-  grid-area: bottom;
 }
 .sticker {
   min-width: 0;
