@@ -1,1 +1,60 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>3D→2D Cube / Center Switch</title><link rel="stylesheet" href="style.css"></head><body><main class="app"><header class="header"><div><h1>3D → 2D Cube</h1><p>2次元人の世界を、E / I で「ガコン」と切り替える</p></div><div class="center-status"><span>中心</span><strong id="centerLabel">D</strong></div></header><section class="world-wrap"><div class="world"><div id="face-top" class="face face-top"></div><div id="face-left" class="face face-left"></div><div id="face-center" class="face face-center"></div><div id="face-right" class="face face-right"></div><div id="face-bottom" class="face face-bottom"></div></div></section><section class="controls"><div class="gacon"><button id="prevView">E</button><div><b>ガコン</b><small>2D世界の中心を切り替える</small></div><button id="nextView">I</button></div><div class="help"><span><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd> 左側3面</span><span><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> 右側3面</span><span>Shift + キーで逆回転</span></div></section></main><script src="script.js"></script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>3D → 2D Plane Cube</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>3D → 2D Plane</h1>
+        <p>1本の軸を捨てた「2次元世界」を、ガコンと切り替える</p>
+      </div>
+      <div class="center-badge">
+        <span>中心</span>
+        <strong id="centerLabel">D</strong>
+      </div>
+    </header>
+
+    <section class="stage">
+      <div id="world" class="world" aria-label="2次元的に表示したルービックキューブ">
+        <button class="face face-top" data-face="" aria-label="上面"></button>
+        <button class="face face-left" data-face="" aria-label="左面"></button>
+        <button class="face face-center" data-face="" aria-label="中央面"></button>
+        <button class="face face-right" data-face="" aria-label="右面"></button>
+        <button class="face face-bottom" data-face="" aria-label="下面"></button>
+      </div>
+    </section>
+
+    <section class="control-panel">
+      <div class="gacon-group">
+        <button id="eButton" class="gacon-key" type="button">
+          <kbd>E</kbd>
+          <span>上下を保つ</span>
+        </button>
+
+        <div class="gacon-description">
+          <strong>ガコン</strong>
+          <small>中心となる2D世界を切り替える</small>
+        </div>
+
+        <button id="iButton" class="gacon-key" type="button">
+          <kbd>I</kbd>
+          <span>左右を保つ</span>
+        </button>
+      </div>
+
+      <div class="help">
+        <span><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd> 左側の3面</span>
+        <span><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> 右側の3面</span>
+        <span>面をクリック：90°回転 / Shift+クリック：逆回転</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
