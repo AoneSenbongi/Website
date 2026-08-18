@@ -245,7 +245,7 @@ kbd {
 }
 @media (max-width: 430px) {
   .world {
-    --face: min(28vw, 17vh, 125px);
+    --face: min(28vw, 30vh, 360px);
     gap: 4px;
   }
   .header h1 {
