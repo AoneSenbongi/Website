@@ -200,7 +200,7 @@
     if (face === faceFromNormal(mul(up, -1))) {
       return {
         right,
-        up: mul(center, -1),
+        up: center,
       };
     }
 
