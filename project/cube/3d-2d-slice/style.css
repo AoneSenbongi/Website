@@ -99,25 +99,25 @@ button {
 }
 .face-top {
   grid-area: top;
-  transform: perspective(150px) rotateX(-45deg) scaleY(0.2);
+  transform: perspective(150px) rotateX(-45deg) scaleY(0.4);
   transform-origin: center bottom;
 }
 
 .face-bottom {
   grid-area: bottom;
-  transform: perspective(150px) rotateX(45deg) scaleY(0.2);
+  transform: perspective(150px) rotateX(45deg) scaleY(0.4);
   transform-origin: center top;
 }
 
 .face-left {
   grid-area: left;
-  transform: perspective(150px) rotateY(45deg) scaleX(0.2);
+  transform: perspective(150px) rotateY(45deg) scaleX(0.4);
   transform-origin: right center;
 }
 
 .face-right {
   grid-area: right;
-  transform: perspective(150px) rotateY(-45deg) scaleX(0.2);
+  transform: perspective(150px) rotateY(-45deg) scaleX(0.4);
   transform-origin: left center;
 }
 
