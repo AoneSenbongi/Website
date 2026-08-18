@@ -13,9 +13,65 @@ button{font:inherit}
 .world{--face:min(23vw,27vh,300px);display:grid;grid-template-columns:repeat(3,var(--face));grid-template-rows:repeat(3,var(--face));grid-template-areas:". top ." "left center right" ". bottom .";gap:clamp(5px,.7vw,10px);user-select:none}
 .face{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:clamp(3px,.35vw,5px);padding:clamp(3px,.35vw,5px);border:0;background:#101010;border-radius:5px;min-width:0;min-height:0;cursor:pointer;touch-action:manipulation}
 .face:focus-visible{outline:3px solid #111;outline-offset:3px}
-.face-top{grid-area:top}
-.face-left{grid-area:left}
-.face-center{grid-area:center;box-shadow:0 0 0 2px #111}
+.face-top{
+  grid-area:top;
+  transform:skewX(-12deg) rotate(-1deg) scaleX(1.06);
+  transform-origin:center bottom;
+}
+
+.face-bottom{
+  grid-area:bottom;
+  transform:skewX(12deg) rotate(-1deg) scaleX(1.06);
+  transform-origin:center top;
+}
+
+.face-left{
+  grid-area:left;
+  transform:skewY(-12deg) rotate(-1deg) scaleY(1.06);
+  transform-origin:right center;
+}
+
+.face-right{
+  grid-area:right;
+  transform:skewY(12deg) rotate(1deg) scaleY(1.06);
+  transform-origin:left center;
+}
+
+.face-center{
+  grid-area:center;
+  box-shadow:0 0 0 2px #101010;
+  position:relative;
+  z-index:2;
+}.face-top{
+  grid-area:top;
+  transform:skewX(-12deg) rotate(-1deg) scaleX(1.06);
+  transform-origin:center bottom;
+}
+
+.face-bottom{
+  grid-area:bottom;
+  transform:skewX(12deg) rotate(-1deg) scaleX(1.06);
+  transform-origin:center top;
+}
+
+.face-left{
+  grid-area:left;
+  transform:skewY(-12deg) rotate(-1deg) scaleY(1.06);
+  transform-origin:right center;
+}
+
+.face-right{
+  grid-area:right;
+  transform:skewY(12deg) rotate(1deg) scaleY(1.06);
+  transform-origin:left center;
+}
+
+.face-center{
+  grid-area:center;
+  box-shadow:0 0 0 2px #101010;
+  position:relative;
+  z-index:2;
+}
 .face-right{grid-area:right}
 .face-bottom{grid-area:bottom}
 .sticker{min-width:0;min-height:0;border-radius:2px;border:1px solid #0002;pointer-events:none}
