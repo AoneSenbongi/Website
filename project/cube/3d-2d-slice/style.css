@@ -99,26 +99,33 @@ button {
 }
 .face-top {
   grid-area: top;
-  transform: skewX(-12deg) rotate(-1deg) scaleX(1.06);
+  transform: perspective(700px) rotateX(28deg) skewX(-8deg);
   transform-origin: center bottom;
 }
 
 .face-bottom {
   grid-area: bottom;
-  transform: skewX(12deg) rotate(-1deg) scaleX(1.06);
+  transform: perspective(700px) rotateX(-28deg) skewX(8deg);
   transform-origin: center top;
 }
 
 .face-left {
   grid-area: left;
-  transform: skewY(-12deg) rotate(-1deg) scaleY(1.06);
+  transform: perspective(700px) rotateY(-28deg) skewY(-8deg);
   transform-origin: right center;
 }
 
 .face-right {
   grid-area: right;
-  transform: skewY(12deg) rotate(1deg) scaleY(1.06);
+  transform: perspective(700px) rotateY(28deg) skewY(8deg);
   transform-origin: left center;
+}
+
+.face-center {
+  grid-area: center;
+  box-shadow: 0 0 0 2px #101010;
+  position: relative;
+  z-index: 2;
 }
 
 .face-center {
