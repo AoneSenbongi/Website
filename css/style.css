@@ -108,6 +108,7 @@ header{
     font-size:1.6rem;
     font-weight:700;
     letter-spacing:.03em;
+    line-height:1.25;
 }
 
 .hamburger{
@@ -121,7 +122,8 @@ header{
 
     width:100%;
 
-    padding:25px 40px;
+    /* Keep the fixed header compact so it does not cover page content. */
+    padding:12px 40px;
 
     transition:0.3s;
 
@@ -136,7 +138,7 @@ header{
 
 .header.scrolled .header-inner{
 
-    padding:10px 40px;
+    padding:8px 40px;
 
 }
 
@@ -171,7 +173,9 @@ header{
 
 
 .pc-nav a{
-    font-size:28px;
+    font-size:20px;
+    font-weight:500;
+    line-height:1.25;
 }
 
 
@@ -194,25 +198,11 @@ nav a{
 
     color:#444;
 
-    transition:.25s;
+    transition:color .25s ease, transform .25s ease;
 
 }
 
-nav a:hover{
-
-    color:#000;
-
-}
-
-nav a.current{
-
-    color:#000;
-
-    font-weight:600;
-
-}
-
-nav a.current::after{
+nav a::after{
 
     content:"";
 
@@ -226,7 +216,69 @@ nav a.current::after{
 
     height:2px;
 
-    background:#000;
+    background:currentColor;
+
+    transform:scaleX(0);
+
+    transform-origin:right;
+
+    transition:transform .25s ease;
+
+}
+
+nav a:hover,
+nav a:focus-visible{
+
+    color:#000;
+
+    transform:translateY(-2px);
+
+}
+
+nav a:hover::after,
+nav a:focus-visible::after{
+
+    transform:scaleX(1);
+
+    transform-origin:left;
+
+}
+
+nav a:focus-visible{
+
+    outline:2px solid currentColor;
+
+    outline-offset:7px;
+
+}
+
+nav a.current{
+
+    color:#000;
+
+    font-weight:600;
+
+}
+
+nav a.current::after{
+
+    transform:scaleX(1);
+
+    transform-origin:left;
+
+}
+
+@media (prefers-reduced-motion: reduce){
+
+    nav a,
+    nav a::after{
+        transition:none;
+    }
+
+    nav a:hover,
+    nav a:focus-visible{
+        transform:none;
+    }
 
 }
 
@@ -311,7 +363,8 @@ nav a.current::after{
     border:none;
     background:none;
 
-    font-size:32px;
+    font-size:28px;
+    line-height:1.25;
 
     cursor:pointer;
 }
