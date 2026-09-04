@@ -39,23 +39,33 @@ if (header) {
 const mobileEmailLink = document.querySelector("[data-mobile-mailto]");
 
 if (mobileEmailLink) {
-  const useMobileEmailApp = window.matchMedia(
-    "(hover: none) and (pointer: coarse)",
-  ).matches;
+  const mobileWidth = window.matchMedia("(max-width: 768px)");
+  const label = mobileEmailLink.querySelector(".email-compose-label");
 
-  if (useMobileEmailApp) {
-    const label = mobileEmailLink.querySelector(".email-compose-label");
-    label.textContent = "メールアプリで作成";
+  const updateEmailLinkLabel = () => {
+    const useMobileEmailApp = mobileWidth.matches;
+    label.textContent = useMobileEmailApp
+      ? "メールアプリで作成"
+      : "Gmailでメールを作成";
     mobileEmailLink.setAttribute(
       "aria-label",
-      "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成",
+      useMobileEmailApp
+        ? "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成"
+        : "Gmailを別タブで開き、seiyaro0704@gmail.com 宛てのメールを作成",
     );
+  };
 
-    mobileEmailLink.addEventListener("click", (event) => {
+  updateEmailLinkLabel();
+  if (mobileWidth.addEventListener) {
+    mobileWidth.addEventListener("change", updateEmailLinkLabel);
+  }
+
+  mobileEmailLink.addEventListener("click", (event) => {
+    if (mobileWidth.matches) {
       event.preventDefault();
       window.location.href = mobileEmailLink.dataset.mobileMailto;
-    });
-  }
+    }
+  });
 }
 
 document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {
