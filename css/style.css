@@ -1002,17 +1002,17 @@ footer p,
    ========================================================================== */
 @media (max-width: 62.5rem) {
   .hero {
-    min-height: auto;
+    min-height: calc(100svh - var(--header-height));
   }
 
   .hero > img {
-    position: relative;
-    height: clamp(16rem, 45vw, 25rem);
+    position: absolute;
+    height: 100%;
   }
 
   .hero-overlay {
-    margin-top: -5rem;
-    padding: 0 1.5rem 4rem;
+    margin-top: 0;
+    padding: 3rem 1.5rem 4rem;
   }
 
   .hero-content {
