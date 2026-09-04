@@ -583,47 +583,83 @@ nav a.current::after{
 /* Contact */
 /* ===================================================== */
 
-.twitter-button{
+.contact-intro{
 
-    display:inline-flex;
+    margin-bottom:28px;
+
+    font-size:1.1rem;
+
+}
+
+.contact-affiliation{
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+.contact-response{
+
+    margin-bottom:28px;
+
+    color:#666;
+
+    font-size:.95rem;
+
+}
+
+.contact-links{
+
+    display:grid;
+
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+
+    gap:14px;
+
+    max-width:740px;
+
+}
+
+.contact-button{
+
+    display:flex;
 
     align-items:center;
 
     gap:12px;
 
-    padding:16px 22px;
+    min-width:0;
+
+    padding:16px 18px;
 
     border-radius:12px;
 
-    background:#1d9bf0;
+    background:#111;
 
     color:#fff;
 
-    font-size:1.1rem;
-
-    font-weight:700;
-
     text-decoration:none;
 
-    box-shadow:0 8px 20px rgba(29,155,240,.25);
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
 
     transition:transform .2s, background .2s, box-shadow .2s;
 
 }
 
-.twitter-button:hover{
+.contact-button:hover{
 
-    background:#0c85d0;
+    background:#333;
 
     color:#fff;
 
     transform:translateY(-2px);
 
-    box-shadow:0 12px 24px rgba(29,155,240,.32);
+    box-shadow:0 12px 24px rgba(0,0,0,.18);
 
 }
 
-.twitter-button:focus-visible{
+.contact-button:focus-visible{
 
     outline:3px solid #111;
 
@@ -631,23 +667,85 @@ nav a.current::after{
 
 }
 
-.twitter-button-icon{
+.contact-button-twitter{
+
+    background:#1d9bf0;
+
+    box-shadow:0 8px 20px rgba(29,155,240,.25);
+
+}
+
+.contact-button-twitter:hover{
+
+    background:#0c85d0;
+
+    box-shadow:0 12px 24px rgba(29,155,240,.32);
+
+}
+
+.contact-button-icon{
 
     width:24px;
 
     height:24px;
 
+    flex:none;
+
     fill:currentColor;
 
 }
 
-.twitter-button-arrow{
+.contact-button-text{
 
-    margin-left:8px;
+    display:flex;
+
+    min-width:0;
+
+    flex:1;
+
+    flex-direction:column;
+
+    gap:2px;
+
+}
+
+.contact-button-text span{
+
+    font-size:.75rem;
+
+    font-weight:500;
+
+    opacity:.8;
+
+}
+
+.contact-button-text strong{
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+.contact-button-arrow{
+
+    margin-left:auto;
 
     font-size:1.35em;
 
     line-height:1;
+
+}
+
+@media(max-width:640px){
+
+    .contact-links{
+
+        grid-template-columns:1fr;
+
+    }
 
 }
 
