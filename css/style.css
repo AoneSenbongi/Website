@@ -587,7 +587,7 @@ nav a.current::after{
 
     min-height:calc(100vh - 160px);
 
-    padding:72px 8% 96px;
+    padding:72px 14% 96px;
 
 }
 
