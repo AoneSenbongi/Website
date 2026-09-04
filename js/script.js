@@ -40,16 +40,18 @@ const mobileEmailLink = document.querySelector("[data-mobile-mailto]");
 
 if (mobileEmailLink) {
   const mobileWidth = window.matchMedia("(max-width: 768px)");
+  const mobileUserAgent = /Android|iPhone|iPod/i.test(navigator.userAgent);
   const label = mobileEmailLink.querySelector(".email-compose-label");
+  const useMobileEmailApp = () =>
+    mobileWidth.matches || window.screen.width <= 768 || mobileUserAgent;
 
   const updateEmailLinkLabel = () => {
-    const useMobileEmailApp = mobileWidth.matches;
-    label.textContent = useMobileEmailApp
+    label.textContent = useMobileEmailApp()
       ? "メールアプリで作成"
       : "Gmailでメールを作成";
     mobileEmailLink.setAttribute(
       "aria-label",
-      useMobileEmailApp
+      useMobileEmailApp()
         ? "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成"
         : "Gmailを別タブで開き、seiyaro0704@gmail.com 宛てのメールを作成",
     );
@@ -61,7 +63,7 @@ if (mobileEmailLink) {
   }
 
   mobileEmailLink.addEventListener("click", (event) => {
-    if (mobileWidth.matches) {
+    if (useMobileEmailApp()) {
       event.preventDefault();
       window.location.href = mobileEmailLink.dataset.mobileMailto;
     }
