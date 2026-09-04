@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://yamachikaseiya.com/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://yamachikaseiya.com/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://yamachikaseiya.com/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://yamachikaseiya.com/" />
+  </url>
+  <url>
+    <loc>https://yamachikaseiya.com/en/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://yamachikaseiya.com/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://yamachikaseiya.com/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://yamachikaseiya.com/" />
+  </url>
+  <url><loc>https://yamachikaseiya.com/research/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/research/vrsj2026/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/research/i2/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/project/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/project/cube/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/project/cube/3d-2d/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/project/cube/3d-2d-projection/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/project/cube/3d-2d-slice/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/project/cube/3d-2d-net/</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/contact/</loc><lastmod>2026-09-04</lastmod></url>
+</urlset>
