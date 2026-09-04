@@ -583,6 +583,24 @@ nav a.current::after{
 /* Contact */
 /* ===================================================== */
 
+.contact-page{
+
+    min-height:calc(100vh - 160px);
+
+    padding:72px 8% 96px;
+
+}
+
+.contact-page h1{
+
+    font-size:clamp(2.5rem, 5vw, 4.5rem);
+
+    line-height:1.15;
+
+    margin-bottom:20px;
+
+}
+
 .contact-intro{
 
     margin-bottom:28px;
@@ -640,6 +658,8 @@ nav a.current::after{
     color:#fff;
 
     text-decoration:none;
+
+    cursor:pointer;
 
     box-shadow:0 8px 20px rgba(0,0,0,.12);
 
@@ -740,6 +760,12 @@ nav a.current::after{
 }
 
 @media(max-width:640px){
+
+    .contact-page{
+
+        padding:48px 24px 72px;
+
+    }
 
     .contact-links{
 
