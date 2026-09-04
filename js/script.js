@@ -35,3 +35,28 @@ if (header) {
   updateHeader();
   window.addEventListener("scroll", updateHeader, { passive: true });
 }
+
+const emailCopyButton = document.querySelector("[data-copy-email]");
+
+if (emailCopyButton) {
+  let resetCopyLabel;
+
+  emailCopyButton.addEventListener("click", async () => {
+    const email = emailCopyButton.dataset.copyEmail;
+    const label = emailCopyButton.querySelector(".email-copy-label");
+
+    try {
+      await navigator.clipboard.writeText(email);
+      label.textContent = "コピーしました";
+      emailCopyButton.classList.add("is-copied");
+
+      window.clearTimeout(resetCopyLabel);
+      resetCopyLabel = window.setTimeout(() => {
+        label.textContent = "Email（クリックでコピー）";
+        emailCopyButton.classList.remove("is-copied");
+      }, 2000);
+    } catch {
+      window.prompt("メールアドレスをコピーしてください", email);
+    }
+  });
+}
