@@ -580,6 +580,78 @@ nav a.current::after{
 }
 
 /* ===================================================== */
+/* Contact */
+/* ===================================================== */
+
+.twitter-button{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:16px 22px;
+
+    border-radius:12px;
+
+    background:#1d9bf0;
+
+    color:#fff;
+
+    font-size:1.1rem;
+
+    font-weight:700;
+
+    text-decoration:none;
+
+    box-shadow:0 8px 20px rgba(29,155,240,.25);
+
+    transition:transform .2s, background .2s, box-shadow .2s;
+
+}
+
+.twitter-button:hover{
+
+    background:#0c85d0;
+
+    color:#fff;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 24px rgba(29,155,240,.32);
+
+}
+
+.twitter-button:focus-visible{
+
+    outline:3px solid #111;
+
+    outline-offset:4px;
+
+}
+
+.twitter-button-icon{
+
+    width:24px;
+
+    height:24px;
+
+    fill:currentColor;
+
+}
+
+.twitter-button-arrow{
+
+    margin-left:8px;
+
+    font-size:1.35em;
+
+    line-height:1;
+
+}
+
+/* ===================================================== */
 /* Furigana */
 /* ===================================================== */
 
