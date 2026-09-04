@@ -1,72 +1,37 @@
-// =====================================================
-// Portfolio Website
-// Seiya Yamachika
-// =====================================================
-
-window.addEventListener("scroll", () => {
-  const header = document.querySelector("header");
-
-  if (window.scrollY > 20) {
-    header.style.boxShadow = "0 4px 20px rgba(0,0,0,.08)";
-  } else {
-    header.style.boxShadow = "none";
-  }
-});
-
+const header = document.querySelector(".header");
 const hamburger = document.querySelector(".hamburger");
 const menu = document.querySelector(".hamburger-menu");
 const closeMenu = document.querySelector(".close-menu");
 
+function setMenu(open) {
+  if (!hamburger || !menu) return;
+
+  menu.classList.toggle("active", open);
+  hamburger.setAttribute("aria-expanded", String(open));
+  document.body.classList.toggle("menu-open", open);
+}
+
 if (hamburger && menu) {
   hamburger.addEventListener("click", () => {
-    menu.classList.toggle("active");
+    setMenu(!menu.classList.contains("active"));
+  });
+
+  menu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setMenu(false));
   });
 }
 
-if (closeMenu && menu) {
-  closeMenu.addEventListener("click", () => {
-    menu.classList.remove("active");
-  });
+closeMenu?.addEventListener("click", () => setMenu(false));
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") setMenu(false);
+});
+
+if (header) {
+  const updateHeader = () => {
+    header.classList.toggle("scrolled", window.scrollY > 20);
+  };
+
+  updateHeader();
+  window.addEventListener("scroll", updateHeader, { passive: true });
 }
-
-const header = document.querySelector(".header");
-
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 50) {
-    header.classList.add("scrolled");
-  } else {
-    header.classList.remove("scrolled");
-  }
-});
-
-window.addEventListener("scroll", () => {
-  const construction = document.querySelector(".construction");
-
-  if (window.scrollY > 50) {
-    construction.style.display = "none";
-  } else {
-    construction.style.display = "block";
-  }
-});
-
-window.addEventListener("scroll", () => {
-  const header = document.querySelector("header");
-
-  if (window.scrollY > 50) {
-    header.classList.add("scrolled");
-  } else {
-    header.classList.remove("scrolled");
-  }
-});
-
-window.addEventListener("scroll", () => {
-  const construction = document.querySelector(".construction");
-
-  if (window.scrollY > 50) {
-    construction.style.height = "0";
-    construction.style.padding = "0";
-  } else {
-    construction.style.height = "60px";
-    construction.style.padding = "14px 20px";
-  }
-});
