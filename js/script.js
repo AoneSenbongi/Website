@@ -36,14 +36,42 @@ if (header) {
   window.addEventListener("scroll", updateHeader, { passive: true });
 }
 
-const emailCopyButton = document.querySelector("[data-copy-email]");
+const emailComposeLink = document.querySelector("[data-email-compose]");
 
-if (emailCopyButton) {
+if (emailComposeLink) {
+  emailComposeLink.addEventListener("click", () => {
+    let emailAppOpened = false;
+    const gmailUrl = emailComposeLink.dataset.gmailFallback;
+    const markEmailAppOpened = () => {
+      emailAppOpened = true;
+    };
+    const markHidden = () => {
+      if (document.hidden) markEmailAppOpened();
+    };
+
+    window.addEventListener("blur", markEmailAppOpened, { once: true });
+    window.addEventListener("pagehide", markEmailAppOpened, { once: true });
+    document.addEventListener("visibilitychange", markHidden);
+
+    window.setTimeout(() => {
+      window.removeEventListener("blur", markEmailAppOpened);
+      window.removeEventListener("pagehide", markEmailAppOpened);
+      document.removeEventListener("visibilitychange", markHidden);
+
+      if (!emailAppOpened && !document.hidden) {
+        window.open(gmailUrl, "_blank", "noopener,noreferrer");
+      }
+    }, 1200);
+  });
+}
+
+document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {
   let resetCopyLabel;
+  const label = emailCopyButton.querySelector(".email-copy-label");
+  const defaultLabel = label.textContent.trim();
 
   emailCopyButton.addEventListener("click", async () => {
     const email = emailCopyButton.dataset.copyEmail;
-    const label = emailCopyButton.querySelector(".email-copy-label");
 
     try {
       await navigator.clipboard.writeText(email);
@@ -52,11 +80,11 @@ if (emailCopyButton) {
 
       window.clearTimeout(resetCopyLabel);
       resetCopyLabel = window.setTimeout(() => {
-        label.textContent = "メールアドレスをコピー";
+        label.textContent = defaultLabel;
         emailCopyButton.classList.remove("is-copied");
       }, 2000);
     } catch {
       window.prompt("メールアドレスをコピーしてください", email);
     }
   });
-}
+});
