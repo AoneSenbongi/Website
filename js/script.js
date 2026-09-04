@@ -52,7 +52,7 @@ if (emailCopyButton) {
 
       window.clearTimeout(resetCopyLabel);
       resetCopyLabel = window.setTimeout(() => {
-        label.textContent = "Email（クリックでコピー）";
+        label.textContent = "メールアドレスをコピー";
         emailCopyButton.classList.remove("is-copied");
       }, 2000);
     } catch {

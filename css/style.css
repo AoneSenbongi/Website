@@ -772,6 +772,15 @@ section h3 {
   background: #0f68a7;
 }
 
+.contact-button-gmail {
+  background: #b3261e;
+  box-shadow: 0 8px 20px rgba(179, 38, 30, 0.2);
+}
+
+.contact-button-gmail:hover {
+  background: #8f1f19;
+}
+
 .contact-button-email.is-copied {
   background: #197044;
 }
