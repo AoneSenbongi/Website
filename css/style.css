@@ -8,9 +8,14 @@
     box-sizing:border-box;
 }
 
+:root{
+    --header-height:70px;
+}
+
 html{
 
     scroll-behavior:smooth;
+    scroll-padding-top:calc(var(--header-height) + 20px);
 
 }
 
@@ -123,7 +128,7 @@ header{
     width:100%;
 
     /* Keep the fixed header compact so it does not cover page content. */
-    padding:12px 40px;
+    padding:17px 40px;
 
     transition:0.3s;
 
@@ -283,6 +288,10 @@ nav a.current::after{
 }
 
 @media(max-width:768px){
+
+    :root{
+        --header-height:61px;
+    }
 
     .pc-nav{
         display:none !important;
@@ -472,7 +481,10 @@ nav a.current::after{
 
     position:relative;
 
-    height:88vh;
+    /* Reserve room for the fixed header instead of hiding the hero behind it. */
+    margin-top:var(--header-height);
+
+    height:calc(88vh - var(--header-height));
 
     min-height:650px;
 
