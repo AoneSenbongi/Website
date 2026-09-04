@@ -36,33 +36,26 @@ if (header) {
   window.addEventListener("scroll", updateHeader, { passive: true });
 }
 
-const emailComposeLink = document.querySelector("[data-email-compose]");
+const mobileEmailLink = document.querySelector("[data-mobile-mailto]");
 
-if (emailComposeLink) {
-  emailComposeLink.addEventListener("click", () => {
-    let emailAppOpened = false;
-    const gmailUrl = emailComposeLink.dataset.gmailFallback;
-    const markEmailAppOpened = () => {
-      emailAppOpened = true;
-    };
-    const markHidden = () => {
-      if (document.hidden) markEmailAppOpened();
-    };
+if (mobileEmailLink) {
+  const useMobileEmailApp = window.matchMedia(
+    "(hover: none) and (pointer: coarse)",
+  ).matches;
 
-    window.addEventListener("blur", markEmailAppOpened, { once: true });
-    window.addEventListener("pagehide", markEmailAppOpened, { once: true });
-    document.addEventListener("visibilitychange", markHidden);
+  if (useMobileEmailApp) {
+    const label = mobileEmailLink.querySelector(".email-compose-label");
+    label.textContent = "メールアプリで作成";
+    mobileEmailLink.setAttribute(
+      "aria-label",
+      "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成",
+    );
 
-    window.setTimeout(() => {
-      window.removeEventListener("blur", markEmailAppOpened);
-      window.removeEventListener("pagehide", markEmailAppOpened);
-      document.removeEventListener("visibilitychange", markHidden);
-
-      if (!emailAppOpened && !document.hidden) {
-        window.open(gmailUrl, "_blank", "noopener,noreferrer");
-      }
-    }, 1200);
-  });
+    mobileEmailLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.location.href = mobileEmailLink.dataset.mobileMailto;
+    });
+  }
 }
 
 document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {

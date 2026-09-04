@@ -1004,7 +1004,6 @@ footer p,
 .footer-email-copy {
   padding: 0;
   border: 0;
-  border-bottom: 1px dashed currentColor;
   background: transparent;
   color: inherit;
   cursor: pointer;
