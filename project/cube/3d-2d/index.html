@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="3Dの構造を2Dの画面上で表現するための試作集"
+    />
+    <meta name="author" content="Seiya Yamachika" />
+    <title>3D → 2D | Seiya Yamachika</title>
+    <link rel="stylesheet" href="../../../css/style.css" />
+  </head>
+
+  <body>
+    <div class="construction">
+      このWebサイトは現在構築中です． 研究成果・制作物・発表資料などを順次公開予定です．
+    </div>
+
+    <header class="header">
+      <div class="header-inner">
+        <div class="logo"><a href="/">山近 晴也</a></div>
+        <nav class="pc-nav">
+          <a href="/">Home</a>
+          <a href="/research/">Research</a>
+          <a href="/project/">Project</a>
+          <a href="/contact/">Contact</a>
+        </nav>
+        <button class="hamburger">☰</button>
+      </div>
+
+      <nav class="hamburger-menu">
+        <button class="close-menu">×</button>
+        <a href="/">Home</a>
+        <a href="/research/">Research</a>
+        <a href="/project/">Project</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="project-page">
+        <div class="container">
+          <div class="project-header">
+            <p class="project-eyebrow">4D Viewer / Foundation Studies</p>
+            <h1>3D → 2D</h1>
+            <p>
+              4Dルービックキューブを3Dで表現するための基礎として、3Dの構造・視点・操作を2Dの画面上でどう伝えるかを試作しています。
+            </p>
+          </div>
+
+          <div class="project-card-grid">
+            <article class="project-card">
+              <p class="project-card-label">Projection</p>
+              <h2>3D Cube → 2D Projection</h2>
+              <p>3Dのキューブ状態を保持したまま2D Canvasへ投影し、視点の回転とキューブの操作を試せるデモです。</p>
+              <a href="/project/cube/3d-2d-projection/" class="project-link">デモを開く ↗</a>
+            </article>
+
+            <article class="project-card">
+              <p class="project-card-label">Plane</p>
+              <h2>3D → 2D Plane</h2>
+              <p>1本の軸を切り替えながら、3Dのキューブを2Dの平面として捉えるための試作です。</p>
+              <a href="/project/cube/3d-2d-slice/" class="project-link">デモを開く ↗</a>
+            </article>
+
+            <article class="project-card">
+              <p class="project-card-label">Net</p>
+              <h2>Cube Net Viewer</h2>
+              <p>キューブの各面を展開図として配置し、立体の状態を平面上で参照する試作です。</p>
+              <a href="/project/cube/3d-2d-net/" class="project-link">デモを開く ↗</a>
+            </article>
+          </div>
+
+          <a href="/project/cube/" class="project-back-link">← 4D Viewer に戻る</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Contact</p>
+      <p>seiyaro0704@gmail.com</p>
+      <br />
+      <p>© 2026 Seiya Yamachikaseiya</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>
