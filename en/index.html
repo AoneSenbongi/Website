@@ -39,28 +39,50 @@
   </head>
 
   <body>
-    <header>
-      <div class="logo">
-        <a href="/en/"> Seiya Yamachika </a>
+    <header class="header">
+      <div class="header-inner">
+        <div class="logo">
+          <a href="/en/">Seiya Yamachika</a>
+        </div>
+
+        <nav class="pc-nav" aria-label="Primary navigation">
+          <a href="/en/" class="current">Home</a>
+          <a href="/research/" lang="ja">Research (JA)</a>
+          <a href="/project/" lang="ja">Project (JA)</a>
+          <a href="/contact/" lang="ja">Contact (JA)</a>
+        </nav>
+
+        <div class="language" aria-label="Language">
+          <a href="/" lang="ja">日本語</a>
+          <span class="separator" aria-hidden="true">|</span>
+          <span class="current">English</span>
+        </div>
+
+        <button
+          class="hamburger"
+          type="button"
+          aria-label="Open navigation"
+          aria-controls="mobile-navigation"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
       </div>
 
-      <nav>
-        <a href="/en/" class="current"> Home </a>
-
-        <a href="research.html"> Research </a>
-
-        <a href="projects.html"> Projects </a>
-
-        <a href="contact.html"> Contact </a>
+      <nav
+        class="hamburger-menu"
+        id="mobile-navigation"
+        aria-label="Mobile navigation"
+      >
+        <button class="close-menu" type="button" aria-label="Close navigation">
+          ×
+        </button>
+        <a href="/en/" class="current">Home</a>
+        <a href="/research/" lang="ja">Research (JA)</a>
+        <a href="/project/" lang="ja">Project (JA)</a>
+        <a href="/contact/" lang="ja">Contact (JA)</a>
+        <a href="/" lang="ja">日本語</a>
       </nav>
-
-      <div class="language">
-        <a href="/"> 日本語 </a>
-
-        <span class="separator"> | </span>
-
-        <span class="current"> English </span>
-      </div>
     </header>
 
     <section class="hero">
@@ -85,7 +107,9 @@
           </p>
 
           <div class="hero-buttons">
-            <a href="research.html" class="primary-button"> Research </a>
+            <a href="/research/" class="primary-button" lang="ja">
+              Research (JA)
+            </a>
 
             <a href="#about" class="secondary-button"> About Me </a>
           </div>
@@ -147,5 +171,14 @@
         </div>
       </div>
     </section>
+
+    <footer>
+      <p>Contact</p>
+      <p>seiyaro0704@gmail.com</p>
+      <br />
+      <p>© 2026 Seiya Yamachika</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
   </body>
 </html>
