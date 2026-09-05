@@ -1002,12 +1002,20 @@ footer p,
 }
 
 .footer-email-copy {
+  display: inline;
+  margin: 0;
   padding: 0;
   border: 0;
+  border-radius: 0;
+  appearance: none;
+  -webkit-appearance: none;
   background: transparent;
   color: inherit;
   cursor: pointer;
   font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  touch-action: manipulation;
 }
 
 .footer-email-copy:hover,
