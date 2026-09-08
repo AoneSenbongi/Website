@@ -1080,6 +1080,10 @@ footer p,
     padding-block: 4.5rem;
   }
 
+  .summary-wide-break {
+    display: none;
+  }
+
   .about-container,
   .contact-links,
   .vrsj-link-grid,
