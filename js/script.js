@@ -87,7 +87,7 @@ document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {
       resetCopyLabel = window.setTimeout(() => {
         label.textContent = defaultLabel;
         emailCopyButton.classList.remove("is-copied");
-      }, 2000);
+      }, 1000);
     } catch {
       window.prompt("メールアドレスをコピーしてください", email);
     }
