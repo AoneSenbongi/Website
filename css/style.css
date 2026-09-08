@@ -398,6 +398,10 @@ section h3 {
   font-size: 1.08rem;
 }
 
+.summary-text + .summary-text {
+  margin-top: 1.75rem;
+}
+
 .about-container {
   display: grid;
   grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
