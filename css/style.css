@@ -963,6 +963,15 @@ section h3 {
   transform: translateY(-3px);
 }
 
+.vrsj-link-card-unavailable {
+  background: var(--subtle);
+}
+
+.vrsj-link-card-unavailable:hover {
+  border-color: var(--border);
+  transform: none;
+}
+
 .vrsj-link-card span {
   margin-bottom: 0.4rem;
 }
@@ -978,6 +987,18 @@ section h3 {
   font-size: 1.5rem;
 }
 
+.vrsj-link-status {
+  flex: none;
+  margin: 0;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: #e7ebf2;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
 .i2-hero {
   background-image: linear-gradient(
       90deg,
@@ -987,6 +1008,52 @@ section h3 {
     url("../research/files/i2-hero.png");
   background-position: center;
   background-size: cover;
+}
+
+/* ===========================================================================
+   Not found page
+   ========================================================================== */
+.not-found-main {
+  display: grid;
+  min-height: calc(100svh - var(--header-height));
+  place-items: center;
+  padding: 4rem 1.5rem;
+  background: var(--subtle);
+}
+
+.not-found-content {
+  width: min(100%, 46rem);
+  padding: clamp(2rem, 6vw, 4rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+
+.not-found-code {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.not-found-content h1 {
+  margin-bottom: 1rem;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+}
+
+.not-found-content > p:not(.not-found-code) {
+  margin-bottom: 2rem;
+  color: var(--muted);
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
 /* ===========================================================================
@@ -1139,6 +1206,7 @@ footer p,
   }
 
   .hero-buttons,
+  .not-found-actions,
   .project-actions,
   .vrsj-buttons {
     align-items: stretch;
@@ -1146,6 +1214,7 @@ footer p,
   }
 
   .hero-buttons a,
+  .not-found-actions a,
   .project-actions a,
   .vrsj-buttons a {
     width: 100%;
