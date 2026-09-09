@@ -1005,6 +1005,7 @@ footer p,
   margin-bottom: 0.25rem;
 }
 
+.footer-contact-link,
 .footer-email-copy {
   display: inline;
   margin: 0;
@@ -1022,6 +1023,8 @@ footer p,
   touch-action: manipulation;
 }
 
+.footer-contact-link:hover,
+.footer-contact-link:focus-visible,
 .footer-email-copy:hover,
 .footer-email-copy.is-copied {
   color: #fff;
