@@ -101,7 +101,7 @@
       }
     </script>
 
-    <link rel="stylesheet" href="css/style.css?v=20260910a" />
+    <link rel="stylesheet" href="css/style.css?v=20260910b" />
   </head>
 
   <body>
@@ -115,23 +115,51 @@
           <a href="/">山近 晴也</a>
         </div>
 
-        <nav class="pc-nav">
-          <a href="/">Home</a>
+        <nav class="pc-nav" aria-label="メインナビゲーション">
+          <a href="/" class="current">Home</a>
           <a href="/research/">Research</a>
           <a href="/project/">Project</a>
           <a href="/contact/">Contact</a>
         </nav>
 
-        <button class="hamburger">☰</button>
+        <nav class="language-switch" aria-label="言語を選択">
+          <a href="/" class="current" lang="ja" aria-current="page">JP</a>
+          <a href="/en/" lang="en" hreflang="en">EN</a>
+        </nav>
+
+        <button
+          class="hamburger"
+          type="button"
+          aria-label="ナビゲーションを開く"
+          aria-controls="mobile-navigation"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
       </div>
 
-      <nav class="hamburger-menu">
-        <button class="close-menu">×</button>
+      <nav
+        class="hamburger-menu"
+        id="mobile-navigation"
+        aria-label="モバイルナビゲーション"
+      >
+        <button class="close-menu" type="button" aria-label="ナビゲーションを閉じる">
+          ×
+        </button>
 
-        <a href="/">Home</a>
+        <a href="/" class="current">Home</a>
         <a href="/research/">Research</a>
         <a href="/project/">Project</a>
         <a href="/contact/">Contact</a>
+
+        <div
+          class="language-switch language-switch-mobile"
+          role="group"
+          aria-label="言語を選択"
+        >
+          <a href="/" class="current" lang="ja" aria-current="page">JP</a>
+          <a href="/en/" lang="en" hreflang="en">EN</a>
+        </div>
       </nav>
     </header>
 

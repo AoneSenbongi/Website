@@ -232,22 +232,44 @@ section h3 {
   transform-origin: left;
 }
 
-.language {
-  display: flex;
+.language-switch {
+  display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
   margin-left: 1.75rem;
-  color: var(--muted);
-  font-size: 0.9rem;
+  padding: 0.2rem;
+  border: 1px solid #d3d9e3;
+  border-radius: 999px;
+  background: #f4f6f9;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
-.language .current {
+.language-switch a {
+  min-width: 2.25rem;
+  padding: 0.48rem 0.58rem;
+  border-radius: 999px;
+  color: #667085;
+  text-align: center;
+  transition: background-color 180ms ease, box-shadow 180ms ease,
+    color 180ms ease, transform 180ms ease;
+}
+
+.language-switch a:hover {
   color: var(--dark);
-  font-weight: 700;
+  transform: translateY(-1px);
 }
 
-.separator {
-  color: #b7bfcc;
+.language-switch a.current {
+  background: var(--surface);
+  box-shadow: 0 1px 4px rgba(24, 39, 75, 0.14);
+  color: var(--dark);
+}
+
+.language-switch-mobile {
+  align-self: flex-start;
+  margin: 0.5rem 0 0;
 }
 
 .hamburger,
@@ -1138,7 +1160,7 @@ footer p,
   }
 
   .pc-nav,
-  .header .language {
+  .header-inner > .language-switch {
     display: none;
   }
 
