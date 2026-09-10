@@ -35,10 +35,11 @@ document.querySelectorAll(".pc-nav a, .hamburger-menu a").forEach((link) => {
     (linkPath === "/" && currentPath === "/") ||
     (linkPath === "/en/" && currentPath === "/en/");
   const section = linkPath.split("/").filter(Boolean)[0];
-  const isSection =
+  const isSection = Boolean(
     section &&
-    section !== "en" &&
-    currentPath.startsWith(`/${section}/`);
+      section !== "en" &&
+      currentPath.startsWith(`/${section}/`),
+  );
   const isCurrent = isHome || isSection;
 
   link.classList.toggle("current", isCurrent);
