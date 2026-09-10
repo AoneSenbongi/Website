@@ -1,8 +1,66 @@
 const header = document.querySelector(".header");
+const isEnglishPage = document.documentElement.lang === "en";
+const normalizedPath = window.location.pathname
+  .replace(/\/index\.html$/, "/")
+  .replace(/\.html$/, "");
+const pagePath = isEnglishPage
+  ? normalizedPath.replace(/^\/en(?=\/|$)/, "") || "/"
+  : normalizedPath;
+const translatedPaths = new Set([
+  "/",
+  "/research/",
+  "/research/i2",
+  "/research/vrsj2026",
+  "/project/",
+  "/project/cube/",
+  "/project/cube/3d-2d/",
+  "/contact/",
+]);
+
+function createLanguageSwitch(mobile = false) {
+  const switcher = document.createElement(mobile ? "div" : "nav");
+  switcher.className = `language-switch${mobile ? " language-switch-mobile" : ""}`;
+  switcher.setAttribute("aria-label", isEnglishPage ? "Select language" : "言語を選択");
+  if (mobile) switcher.setAttribute("role", "group");
+
+  const options = [
+    { code: "JP", href: pagePath, lang: "ja" },
+    { code: "EN", href: pagePath === "/" ? "/en/" : `/en${pagePath}`, lang: "en" },
+  ];
+
+  options.forEach(({ code, href, lang }) => {
+    const link = document.createElement("a");
+    link.href = href;
+    link.lang = lang;
+    link.hreflang = lang;
+    link.textContent = code;
+    if ((isEnglishPage && lang === "en") || (!isEnglishPage && lang === "ja")) {
+      link.className = "current";
+      link.setAttribute("aria-current", "page");
+    }
+    switcher.append(link);
+  });
+
+  return switcher;
+}
+
+if (header && translatedPaths.has(pagePath)) {
+  const headerInner = header.querySelector(".header-inner");
+  const existingDesktopSwitch = headerInner?.querySelector(":scope > .language-switch");
+  const hamburgerButton = headerInner?.querySelector(".hamburger");
+  if (headerInner && hamburgerButton && !existingDesktopSwitch) {
+    headerInner.insertBefore(createLanguageSwitch(), hamburgerButton);
+  }
+
+  const mobileMenu = header.querySelector(".hamburger-menu");
+  if (mobileMenu && !mobileMenu.querySelector(".language-switch-mobile")) {
+    mobileMenu.append(createLanguageSwitch(true));
+  }
+}
+
 const hamburger = document.querySelector(".hamburger");
 const menu = document.querySelector(".hamburger-menu");
 const closeMenu = document.querySelector(".close-menu");
-const isEnglishPage = document.documentElement.lang === "en";
 const menuLabels = isEnglishPage
   ? { menu: "Mobile navigation", open: "Open navigation", close: "Close navigation" }
   : { menu: "モバイルナビゲーション", open: "ナビゲーションを開く", close: "ナビゲーションを閉じる" };
@@ -25,20 +83,15 @@ if (closeMenu) {
   closeMenu.setAttribute("aria-label", closeMenu.getAttribute("aria-label") || menuLabels.close);
 }
 
-const currentPath = window.location.pathname
-  .replace(/\/index\.html$/, "/")
-  .replace(/\.html$/, "");
-
-document.querySelectorAll(".pc-nav a, .hamburger-menu a").forEach((link) => {
-  const linkPath = new URL(link.href, window.location.href).pathname;
-  const isHome =
-    (linkPath === "/" && currentPath === "/") ||
-    (linkPath === "/en/" && currentPath === "/en/");
+document.querySelectorAll(".pc-nav > a, .hamburger-menu > a").forEach((link) => {
+  const rawLinkPath = new URL(link.href, window.location.href).pathname
+    .replace(/\/index\.html$/, "/")
+    .replace(/\.html$/, "");
+  const linkPath = rawLinkPath.replace(/^\/en(?=\/|$)/, "") || "/";
+  const isHome = linkPath === "/" && pagePath === "/";
   const section = linkPath.split("/").filter(Boolean)[0];
   const isSection = Boolean(
-    section &&
-      section !== "en" &&
-      currentPath.startsWith(`/${section}/`),
+    section && pagePath.startsWith(`/${section}/`),
   );
   const isCurrent = isHome || isSection;
 
@@ -123,14 +176,22 @@ if (mobileEmailLink) {
     mobileWidth.matches || window.screen.width <= 768 || mobileUserAgent;
 
   const updateEmailLinkLabel = () => {
-    label.textContent = useMobileEmailApp()
-      ? "メールアプリで作成"
-      : "Gmailでメールを作成";
+    label.textContent = isEnglishPage
+      ? useMobileEmailApp()
+        ? "Compose in your email app"
+        : "Compose in Gmail"
+      : useMobileEmailApp()
+        ? "メールアプリで作成"
+        : "Gmailでメールを作成";
     mobileEmailLink.setAttribute(
       "aria-label",
-      useMobileEmailApp()
-        ? "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成"
-        : "Gmailを別タブで開き、seiyaro0704@gmail.com 宛てのメールを作成",
+      isEnglishPage
+        ? useMobileEmailApp()
+          ? "Compose an email to seiyaro0704@gmail.com in your email app"
+          : "Open Gmail in a new tab and compose an email to seiyaro0704@gmail.com"
+        : useMobileEmailApp()
+          ? "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成"
+          : "Gmailを別タブで開き、seiyaro0704@gmail.com 宛てのメールを作成",
     );
   };
 
@@ -157,7 +218,7 @@ document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {
 
     try {
       await navigator.clipboard.writeText(email);
-      label.textContent = "コピーしました";
+      label.textContent = isEnglishPage ? "Copied" : "コピーしました";
       emailCopyButton.classList.add("is-copied");
 
       window.clearTimeout(resetCopyLabel);
@@ -166,7 +227,10 @@ document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {
         emailCopyButton.classList.remove("is-copied");
       }, 700);
     } catch {
-      window.prompt("メールアドレスをコピーしてください", email);
+      window.prompt(
+        isEnglishPage ? "Copy this email address" : "メールアドレスをコピーしてください",
+        email,
+      );
     }
   });
 });
