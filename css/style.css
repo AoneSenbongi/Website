@@ -331,7 +331,7 @@ section h3 {
 .hero {
   position: relative;
   display: grid;
-  min-height: max(38rem, calc(88svh - var(--header-height)));
+  min-height: max(40rem, calc(88svh - var(--header-height)));
   padding: 0;
   overflow: hidden;
 }
@@ -882,6 +882,26 @@ section h3 {
   color: var(--muted);
   font-size: clamp(1rem, 2vw, 1.25rem);
   line-height: 1.9;
+}
+
+@media (min-width: 48.0625rem) {
+  .en-research-hero .vrsj-title {
+    margin-top: 2rem;
+    line-height: 1.7;
+  }
+
+  .en-research-hero .research-title-note {
+    margin-top: 0.35rem;
+    line-height: 1.35;
+  }
+
+  .en-research-hero .vrsj-meta {
+    margin-top: 1.5rem;
+  }
+
+  .en-i2-hero h1 {
+    font-size: clamp(2.65rem, 4.5vw, 3.25rem);
+  }
 }
 
 .vrsj-meta {
