@@ -12,9 +12,31 @@
   `;
   document.body.append(switcher);
 
+  const destination = switcher.querySelector("a:not(.current)");
+  switcher.setAttribute(
+    "aria-label",
+    isEnglish ? "Switch to Japanese" : "英語に切り替える",
+  );
+  switcher.addEventListener("click", (event) => {
+    if (
+      !destination ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    window.location.assign(destination.href);
+  });
+
   const style = document.createElement("style");
   style.textContent = `
-    .demo-language-switch { position: fixed; z-index: 9999; right: 1rem; bottom: 1rem; display: inline-flex; padding: .2rem; border: 1px solid #d3d9e3; border-radius: 999px; background: rgba(244,246,249,.95); box-shadow: 0 4px 18px rgba(15,23,42,.14); font: 750 .78rem/1 system-ui,sans-serif; letter-spacing: .05em; }
+    .demo-language-switch { position: fixed; z-index: 9999; right: 1rem; bottom: 1rem; display: inline-flex; padding: .2rem; border: 1px solid #d3d9e3; border-radius: 999px; background: rgba(244,246,249,.95); box-shadow: 0 4px 18px rgba(15,23,42,.14); cursor: pointer; font: 750 .78rem/1 system-ui,sans-serif; letter-spacing: .05em; }
     .demo-language-switch a { min-width: 2.25rem; padding: .48rem .58rem; border-radius: 999px; color: #667085; text-align: center; text-decoration: none; }
     .demo-language-switch a.current { background: #fff; box-shadow: 0 1px 4px rgba(24,39,75,.14); color: #111827; }
   `;

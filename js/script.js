@@ -44,6 +44,33 @@ function createLanguageSwitch(mobile = false) {
   return switcher;
 }
 
+function enableLanguageToggle(switcher) {
+  const destination = switcher.querySelector("a:not(.current)");
+  if (!destination || switcher.dataset.toggleReady === "true") return;
+
+  switcher.dataset.toggleReady = "true";
+  switcher.style.cursor = "pointer";
+  switcher.setAttribute(
+    "aria-label",
+    isEnglishPage ? "Switch to Japanese" : "英語に切り替える",
+  );
+  switcher.addEventListener("click", (event) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    window.location.assign(destination.href);
+  });
+}
+
 if (header && translatedPaths.has(pagePath)) {
   const headerInner = header.querySelector(".header-inner");
   const existingDesktopSwitch = headerInner?.querySelector(":scope > .language-switch");
@@ -57,6 +84,8 @@ if (header && translatedPaths.has(pagePath)) {
     mobileMenu.append(createLanguageSwitch(true));
   }
 }
+
+document.querySelectorAll(".language-switch").forEach(enableLanguageToggle);
 
 const hamburger = document.querySelector(".hamburger");
 const menu = document.querySelector(".hamburger-menu");
