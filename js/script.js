@@ -1,5 +1,66 @@
 const header = document.querySelector(".header");
 const isEnglishPage = document.documentElement.lang === "en";
+const themeStorageKey = "yamachika-theme";
+const systemDarkTheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+function readSavedTheme() {
+  try {
+    const savedTheme = window.localStorage.getItem(themeStorageKey);
+    return savedTheme === "light" || savedTheme === "dark" ? savedTheme : null;
+  } catch {
+    return null;
+  }
+}
+
+function resolvedTheme() {
+  return readSavedTheme() || (systemDarkTheme.matches ? "dark" : "light");
+}
+
+const savedTheme = readSavedTheme();
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
+function themeIcon(theme) {
+  return theme === "dark"
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"></path></svg>';
+}
+
+function updateThemeToggle(button) {
+  const theme = resolvedTheme();
+  const label = isEnglishPage
+    ? `Switch to ${theme === "dark" ? "light" : "dark"} mode`
+    : `${theme === "dark" ? "ライト" : "ダーク"}モードに切り替える`;
+
+  button.innerHTML = themeIcon(theme);
+  button.setAttribute("aria-label", label);
+  button.setAttribute("title", label);
+  button.setAttribute("aria-pressed", String(theme === "dark"));
+}
+
+function createThemeToggle() {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "theme-toggle";
+  updateThemeToggle(button);
+  button.addEventListener("click", () => {
+    const nextTheme = resolvedTheme() === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = nextTheme;
+    try {
+      window.localStorage.setItem(themeStorageKey, nextTheme);
+    } catch {
+      // The selected theme still applies for this page when storage is unavailable.
+    }
+    updateThemeToggle(button);
+  });
+  return button;
+}
+
+systemDarkTheme.addEventListener?.("change", () => {
+  if (!readSavedTheme()) {
+    document.querySelectorAll(".theme-toggle").forEach(updateThemeToggle);
+  }
+});
+
 const normalizedPath = window.location.pathname
   .replace(/\/index\.html$/, "/")
   .replace(/\.html$/, "");
@@ -82,6 +143,14 @@ if (header && translatedPaths.has(pagePath)) {
   const mobileMenu = header.querySelector(".hamburger-menu");
   if (mobileMenu && !mobileMenu.querySelector(".language-switch-mobile")) {
     mobileMenu.append(createLanguageSwitch(true));
+  }
+}
+
+if (header && !header.querySelector(".theme-toggle")) {
+  const headerInner = header.querySelector(".header-inner");
+  const hamburgerButton = headerInner?.querySelector(".hamburger");
+  if (headerInner) {
+    headerInner.insertBefore(createThemeToggle(), hamburgerButton || null);
   }
 }
 
