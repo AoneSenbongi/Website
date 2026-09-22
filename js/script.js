@@ -82,6 +82,26 @@ const translatedPaths = new Set([
 const languageDocumentCache = new Map();
 let languageNavigationInProgress = false;
 
+function decodeProtectedEmail(encoded) {
+  const key = Number.parseInt(encoded.slice(0, 2), 16);
+  let email = "";
+  for (let index = 2; index < encoded.length; index += 2) {
+    email += String.fromCharCode(Number.parseInt(encoded.slice(index, index + 2), 16) ^ key);
+  }
+  return email;
+}
+
+function restoreProtectedEmails(targetDocument) {
+  targetDocument.querySelectorAll("[data-cfemail]").forEach((element) => {
+    const encoded = element.getAttribute("data-cfemail");
+    if (!encoded) return;
+    element.replaceWith(targetDocument.createTextNode(decodeProtectedEmail(encoded)));
+  });
+  targetDocument
+    .querySelectorAll('script[src*="/cdn-cgi/"][src*="email-decode"]')
+    .forEach((script) => script.remove());
+}
+
 function fetchLanguageDocument(url) {
   const targetUrl = new URL(url, window.location.href);
   const cacheKey = targetUrl.href;
@@ -103,6 +123,7 @@ function fetchLanguageDocument(url) {
     if (!response.ok) throw new Error(`Language page returned ${response.status}`);
     const html = await response.text();
     const targetDocument = new DOMParser().parseFromString(html, "text/html");
+    restoreProtectedEmails(targetDocument);
     if (!targetDocument.querySelector("main") || !targetDocument.querySelector(".header")) {
       throw new Error("Language page is missing the shared layout");
     }
