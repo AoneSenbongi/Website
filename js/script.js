@@ -1,5 +1,5 @@
 const header = document.querySelector(".header");
-const isEnglishPage = document.documentElement.lang === "en";
+let isEnglishPage = document.documentElement.lang === "en";
 const themeStorageKey = "yamachika-theme";
 const systemDarkTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -61,10 +61,12 @@ systemDarkTheme.addEventListener?.("change", () => {
   }
 });
 
-const normalizedPath = window.location.pathname
-  .replace(/\/index\.html$/, "/")
-  .replace(/\.html$/, "");
-const pagePath = isEnglishPage
+function normalizePath(pathname) {
+  return pathname.replace(/\/index\.html$/, "/").replace(/\.html$/, "");
+}
+
+let normalizedPath = normalizePath(window.location.pathname);
+let pagePath = isEnglishPage
   ? normalizedPath.replace(/^\/en(?=\/|$)/, "") || "/"
   : normalizedPath;
 const translatedPaths = new Set([
@@ -77,6 +79,189 @@ const translatedPaths = new Set([
   "/project/cube/3d-2d/",
   "/contact/",
 ]);
+const languageDocumentCache = new Map();
+let languageNavigationInProgress = false;
+
+function fetchLanguageDocument(url) {
+  const targetUrl = new URL(url, window.location.href);
+  const cacheKey = targetUrl.href;
+  if (languageDocumentCache.has(cacheKey)) {
+    return languageDocumentCache.get(cacheKey);
+  }
+
+  const request = (async () => {
+    const requestOptions = { headers: { "X-Requested-With": "language-switch" } };
+    let response = await fetch(targetUrl.href, requestOptions);
+    const finalSegment = targetUrl.pathname.split("/").filter(Boolean).at(-1) || "";
+
+    if (!response.ok && !targetUrl.pathname.endsWith("/") && !finalSegment.includes(".")) {
+      const htmlFallbackUrl = new URL(targetUrl.href);
+      htmlFallbackUrl.pathname = `${htmlFallbackUrl.pathname}.html`;
+      response = await fetch(htmlFallbackUrl.href, requestOptions);
+    }
+
+    if (!response.ok) throw new Error(`Language page returned ${response.status}`);
+    const html = await response.text();
+    const targetDocument = new DOMParser().parseFromString(html, "text/html");
+    if (!targetDocument.querySelector("main") || !targetDocument.querySelector(".header")) {
+      throw new Error("Language page is missing the shared layout");
+    }
+    return targetDocument;
+  })().catch((error) => {
+    languageDocumentCache.delete(cacheKey);
+    throw error;
+  });
+
+  languageDocumentCache.set(cacheKey, request);
+  return request;
+}
+
+function syncHeadFromDocument(targetDocument) {
+  const selector = [
+    'meta[name="description"]',
+    'meta[property^="og:"]',
+    'meta[name^="twitter:"]',
+    'link[rel="canonical"]',
+    'link[rel="alternate"][hreflang]',
+  ].join(",");
+
+  document.head.querySelectorAll(selector).forEach((element) => element.remove());
+  targetDocument.head.querySelectorAll(selector).forEach((element) => {
+    document.head.append(document.importNode(element, true));
+  });
+  document.title = targetDocument.title;
+}
+
+function syncAnchor(currentAnchor, targetAnchor) {
+  if (!currentAnchor || !targetAnchor) return;
+  currentAnchor.textContent = targetAnchor.textContent;
+  currentAnchor.setAttribute("href", targetAnchor.getAttribute("href") || "#");
+  for (const attribute of ["lang", "hreflang", "aria-label"]) {
+    const value = targetAnchor.getAttribute(attribute);
+    if (value === null) currentAnchor.removeAttribute(attribute);
+    else currentAnchor.setAttribute(attribute, value);
+  }
+}
+
+function syncHeaderFromDocument(targetDocument) {
+  const targetHeader = targetDocument.querySelector(".header");
+  if (!header || !targetHeader) return;
+
+  syncAnchor(header.querySelector(".logo a"), targetHeader.querySelector(".logo a"));
+
+  const currentDesktopNav = header.querySelector(".pc-nav");
+  const targetDesktopNav = targetHeader.querySelector(".pc-nav");
+  if (currentDesktopNav && targetDesktopNav) {
+    const navLabel = targetDesktopNav.getAttribute("aria-label");
+    if (navLabel) currentDesktopNav.setAttribute("aria-label", navLabel);
+    else currentDesktopNav.removeAttribute("aria-label");
+    const currentLinks = [...currentDesktopNav.querySelectorAll(":scope > a")];
+    const targetLinks = [...targetDesktopNav.querySelectorAll(":scope > a")];
+    currentLinks.forEach((link, index) => syncAnchor(link, targetLinks[index]));
+  }
+
+  const currentMobileNav = header.querySelector(".hamburger-menu");
+  const targetMobileNav = targetHeader.querySelector(".hamburger-menu");
+  if (currentMobileNav && targetMobileNav) {
+    const currentLinks = [...currentMobileNav.querySelectorAll(":scope > a")];
+    const targetLinks = [...targetMobileNav.querySelectorAll(":scope > a")];
+    currentLinks.forEach((link, index) => syncAnchor(link, targetLinks[index]));
+  }
+}
+
+function updateLanguageSwitches() {
+  const options = [
+    { href: pagePath, lang: "ja" },
+    { href: pagePath === "/" ? "/en/" : `/en${pagePath}`, lang: "en" },
+  ];
+
+  document.querySelectorAll(".language-switch").forEach((switcher) => {
+    switcher.setAttribute(
+      "aria-label",
+      isEnglishPage ? "Switch to Japanese" : "英語に切り替える",
+    );
+    switcher.querySelectorAll(":scope > a").forEach((link, index) => {
+      const option = options[index];
+      if (!option) return;
+      const isCurrent = option.lang === (isEnglishPage ? "en" : "ja");
+      link.href = option.href;
+      link.classList.toggle("current", isCurrent);
+      if (isCurrent) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  });
+}
+
+function updateLanguageContext(targetDocument, targetUrl) {
+  isEnglishPage = targetDocument.documentElement.lang === "en";
+  document.documentElement.lang = targetDocument.documentElement.lang;
+  normalizedPath = normalizePath(targetUrl.pathname);
+  pagePath = isEnglishPage
+    ? normalizedPath.replace(/^\/en(?=\/|$)/, "") || "/"
+    : normalizedPath;
+  menuLabels = getMenuLabels();
+}
+
+async function navigateLanguage(url, { historyMode = "push" } = {}) {
+  if (languageNavigationInProgress) return;
+  languageNavigationInProgress = true;
+  document.querySelectorAll(".language-switch").forEach((switcher) => {
+    switcher.setAttribute("aria-busy", "true");
+  });
+
+  const targetUrl = new URL(url, window.location.href);
+  const scrollPosition = window.scrollY;
+  try {
+    const targetDocument = await fetchLanguageDocument(targetUrl.href);
+    const targetMain = targetDocument.querySelector("main");
+    const targetFooter = targetDocument.querySelector("footer, .footer");
+
+    const applyLanguagePage = () => {
+      updateLanguageContext(targetDocument, targetUrl);
+      const state = { ...(window.history.state || {}), languageSwap: true };
+      if (historyMode === "push") window.history.pushState(state, "", targetUrl.href);
+      else if (historyMode === "replace") window.history.replaceState(state, "", targetUrl.href);
+
+      syncHeadFromDocument(targetDocument);
+      syncHeaderFromDocument(targetDocument);
+
+      const currentMain = document.querySelector("main");
+      if (currentMain && targetMain) {
+        currentMain.replaceWith(document.importNode(targetMain, true));
+      }
+
+      const currentFooter = document.querySelector("footer, .footer");
+      if (currentFooter && targetFooter) {
+        currentFooter.replaceWith(document.importNode(targetFooter, true));
+      }
+
+      updateLanguageSwitches();
+      updateRouteState();
+      updateMenuLabels();
+      updateMobileEmailLink();
+      document.querySelectorAll(".theme-toggle").forEach(updateThemeToggle);
+      setMenu(false, false);
+
+      window.scrollTo({ top: scrollPosition, left: 0, behavior: "auto" });
+    };
+
+    if (document.startViewTransition) {
+      await document.startViewTransition(applyLanguagePage).finished;
+    } else {
+      applyLanguagePage();
+    }
+  } finally {
+    languageNavigationInProgress = false;
+    document.querySelectorAll(".language-switch").forEach((switcher) => {
+      switcher.removeAttribute("aria-busy");
+    });
+  }
+}
+
+function preloadLanguageDestination(switcher) {
+  const destination = switcher.querySelector("a:not(.current)");
+  if (destination) fetchLanguageDocument(destination.href).catch(() => {});
+}
 
 function createLanguageSwitch(mobile = false) {
   const switcher = document.createElement(mobile ? "div" : "nav");
@@ -106,8 +291,9 @@ function createLanguageSwitch(mobile = false) {
 }
 
 function enableLanguageToggle(switcher) {
-  const destination = switcher.querySelector("a:not(.current)");
-  if (!destination || switcher.dataset.toggleReady === "true") return;
+  if (!switcher.querySelector("a:not(.current)") || switcher.dataset.toggleReady === "true") {
+    return;
+  }
 
   switcher.dataset.toggleReady = "true";
   switcher.style.cursor = "pointer";
@@ -128,7 +314,17 @@ function enableLanguageToggle(switcher) {
     }
 
     event.preventDefault();
-    window.location.assign(destination.href);
+    const destination = switcher.querySelector("a:not(.current)");
+    if (!destination) return;
+    navigateLanguage(destination.href).catch(() => {
+      window.location.assign(destination.href);
+    });
+  });
+  switcher.addEventListener("pointerenter", () => preloadLanguageDestination(switcher), {
+    once: true,
+  });
+  switcher.addEventListener("focusin", () => preloadLanguageDestination(switcher), {
+    once: true,
   });
 }
 
@@ -159,10 +355,24 @@ document.querySelectorAll(".language-switch").forEach(enableLanguageToggle);
 const hamburger = document.querySelector(".hamburger");
 const menu = document.querySelector(".hamburger-menu");
 const closeMenu = document.querySelector(".close-menu");
-const menuLabels = isEnglishPage
-  ? { menu: "Mobile navigation", open: "Open navigation", close: "Close navigation" }
-  : { menu: "モバイルナビゲーション", open: "ナビゲーションを開く", close: "ナビゲーションを閉じる" };
+function getMenuLabels() {
+  return isEnglishPage
+    ? { menu: "Mobile navigation", open: "Open navigation", close: "Close navigation" }
+    : { menu: "モバイルナビゲーション", open: "ナビゲーションを開く", close: "ナビゲーションを閉じる" };
+}
+
+let menuLabels = getMenuLabels();
 let menuReturnFocus;
+
+function updateMenuLabels() {
+  menuLabels = getMenuLabels();
+  if (menu) menu.setAttribute("aria-label", menuLabels.menu);
+  if (hamburger) {
+    const open = menu?.classList.contains("active") || false;
+    hamburger.setAttribute("aria-label", open ? menuLabels.close : menuLabels.open);
+  }
+  closeMenu?.setAttribute("aria-label", menuLabels.close);
+}
 
 if (hamburger && menu) {
   const menuId = menu.id || "mobile-navigation";
@@ -181,25 +391,22 @@ if (closeMenu) {
   closeMenu.setAttribute("aria-label", closeMenu.getAttribute("aria-label") || menuLabels.close);
 }
 
-document.querySelectorAll(".pc-nav > a, .hamburger-menu > a").forEach((link) => {
-  const rawLinkPath = new URL(link.href, window.location.href).pathname
-    .replace(/\/index\.html$/, "/")
-    .replace(/\.html$/, "");
-  const linkPath = rawLinkPath.replace(/^\/en(?=\/|$)/, "") || "/";
-  const isHome = linkPath === "/" && pagePath === "/";
-  const section = linkPath.split("/").filter(Boolean)[0];
-  const isSection = Boolean(
-    section && pagePath.startsWith(`/${section}/`),
-  );
-  const isCurrent = isHome || isSection;
+function updateRouteState() {
+  document.querySelectorAll(".pc-nav > a, .hamburger-menu > a").forEach((link) => {
+    const rawLinkPath = normalizePath(new URL(link.href, window.location.href).pathname);
+    const linkPath = rawLinkPath.replace(/^\/en(?=\/|$)/, "") || "/";
+    const isHome = linkPath === "/" && pagePath === "/";
+    const section = linkPath.split("/").filter(Boolean)[0];
+    const isSection = Boolean(section && pagePath.startsWith(`/${section}/`));
+    const isCurrent = isHome || isSection;
 
-  link.classList.toggle("current", isCurrent);
-  if (isCurrent) {
-    link.setAttribute("aria-current", "page");
-  } else {
-    link.removeAttribute("aria-current");
-  }
-});
+    link.classList.toggle("current", isCurrent);
+    if (isCurrent) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+updateRouteState();
 
 function setMenu(open, restoreFocus = true) {
   if (!hamburger || !menu) return;
@@ -264,71 +471,86 @@ if (header) {
   window.addEventListener("scroll", updateHeader, { passive: true });
 }
 
-const mobileEmailLink = document.querySelector("[data-mobile-mailto]");
+const mobileWidth = window.matchMedia("(max-width: 768px)");
+const mobileUserAgent = /Android|iPhone|iPod/i.test(navigator.userAgent);
+const copyResetTimers = new WeakMap();
+const useMobileEmailApp = () =>
+  mobileWidth.matches || window.screen.width <= 768 || mobileUserAgent;
 
-if (mobileEmailLink) {
-  const mobileWidth = window.matchMedia("(max-width: 768px)");
-  const mobileUserAgent = /Android|iPhone|iPod/i.test(navigator.userAgent);
-  const label = mobileEmailLink.querySelector(".email-compose-label");
-  const useMobileEmailApp = () =>
-    mobileWidth.matches || window.screen.width <= 768 || mobileUserAgent;
+function updateMobileEmailLink() {
+  const mobileEmailLink = document.querySelector("[data-mobile-mailto]");
+  const label = mobileEmailLink?.querySelector(".email-compose-label");
+  if (!mobileEmailLink || !label) return;
 
-  const updateEmailLinkLabel = () => {
-    label.textContent = isEnglishPage
+  label.textContent = isEnglishPage
+    ? useMobileEmailApp()
+      ? "Compose in your email app"
+      : "Compose in Gmail"
+    : useMobileEmailApp()
+      ? "メールアプリで作成"
+      : "Gmailでメールを作成";
+  mobileEmailLink.setAttribute(
+    "aria-label",
+    isEnglishPage
       ? useMobileEmailApp()
-        ? "Compose in your email app"
-        : "Compose in Gmail"
+        ? "Compose an email to seiyaro0704@gmail.com in your email app"
+        : "Open Gmail in a new tab and compose an email to seiyaro0704@gmail.com"
       : useMobileEmailApp()
-        ? "メールアプリで作成"
-        : "Gmailでメールを作成";
-    mobileEmailLink.setAttribute(
-      "aria-label",
-      isEnglishPage
-        ? useMobileEmailApp()
-          ? "Compose an email to seiyaro0704@gmail.com in your email app"
-          : "Open Gmail in a new tab and compose an email to seiyaro0704@gmail.com"
-        : useMobileEmailApp()
-          ? "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成"
-          : "Gmailを別タブで開き、seiyaro0704@gmail.com 宛てのメールを作成",
-    );
-  };
-
-  updateEmailLinkLabel();
-  if (mobileWidth.addEventListener) {
-    mobileWidth.addEventListener("change", updateEmailLinkLabel);
-  }
-
-  mobileEmailLink.addEventListener("click", (event) => {
-    if (useMobileEmailApp()) {
-      event.preventDefault();
-      window.location.href = mobileEmailLink.dataset.mobileMailto;
-    }
-  });
+        ? "メールアプリで seiyaro0704@gmail.com 宛てのメールを作成"
+        : "Gmailを別タブで開き、seiyaro0704@gmail.com 宛てのメールを作成",
+  );
 }
 
-document.querySelectorAll("[data-copy-email]").forEach((emailCopyButton) => {
-  let resetCopyLabel;
+updateMobileEmailLink();
+mobileWidth.addEventListener?.("change", updateMobileEmailLink);
+
+document.addEventListener("click", async (event) => {
+  const mobileEmailLink = event.target.closest?.("[data-mobile-mailto]");
+  if (mobileEmailLink && useMobileEmailApp()) {
+    event.preventDefault();
+    window.location.href = mobileEmailLink.dataset.mobileMailto;
+    return;
+  }
+
+  const emailCopyButton = event.target.closest?.("[data-copy-email]");
+  if (!emailCopyButton) return;
+
+  const email = emailCopyButton.dataset.copyEmail;
   const label = emailCopyButton.querySelector(".email-copy-label");
+  if (!email || !label) return;
   const defaultLabel = label.textContent.trim();
 
-  emailCopyButton.addEventListener("click", async () => {
-    const email = emailCopyButton.dataset.copyEmail;
+  try {
+    await navigator.clipboard.writeText(email);
+    label.textContent = isEnglishPage ? "Copied" : "コピーしました";
+    emailCopyButton.classList.add("is-copied");
 
-    try {
-      await navigator.clipboard.writeText(email);
-      label.textContent = isEnglishPage ? "Copied" : "コピーしました";
-      emailCopyButton.classList.add("is-copied");
-
-      window.clearTimeout(resetCopyLabel);
-      resetCopyLabel = window.setTimeout(() => {
+    window.clearTimeout(copyResetTimers.get(emailCopyButton));
+    copyResetTimers.set(
+      emailCopyButton,
+      window.setTimeout(() => {
         label.textContent = defaultLabel;
         emailCopyButton.classList.remove("is-copied");
-      }, 700);
-    } catch {
-      window.prompt(
-        isEnglishPage ? "Copy this email address" : "メールアドレスをコピーしてください",
-        email,
-      );
-    }
+      }, 700),
+    );
+  } catch {
+    window.prompt(
+      isEnglishPage ? "Copy this email address" : "メールアドレスをコピーしてください",
+      email,
+    );
+  }
+});
+
+const initialHistoryState = { ...(window.history.state || {}), languageSwap: true };
+window.history.replaceState(initialHistoryState, "", window.location.href);
+window.addEventListener("popstate", (event) => {
+  if (!event.state?.languageSwap) return;
+  navigateLanguage(window.location.href, { historyMode: "none" }).catch(() => {
+    window.location.reload();
   });
+});
+
+const scheduleLanguagePreload = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 1));
+scheduleLanguagePreload(() => {
+  document.querySelectorAll(".language-switch").forEach(preloadLanguageDestination);
 });
