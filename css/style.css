@@ -744,17 +744,48 @@ section h3 {
    ========================================================================== */
 .contact-page {
   min-height: calc(100vh - var(--header-height) - 12rem);
-  padding: clamp(4rem, 8vw, 6.5rem) max(1.5rem, 10vw);
+}
+
+.contact-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+  min-height: clamp(28rem, 56svh, 36rem);
+  padding-block: 0;
+  background: var(--dark);
+  color: #fff;
+}
+
+.contact-hero-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(4rem, 8vw, 7rem) clamp(2rem, 8vw, 7rem);
+}
+
+.contact-hero-visual {
+  min-width: 0;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.contact-hero-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .contact-page h1 {
   margin-bottom: 1.2rem;
+  color: #fff;
   font-size: clamp(2.75rem, 6vw, 4.5rem);
   letter-spacing: -0.04em;
 }
 
 .contact-intro {
   margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.08rem;
 }
 
@@ -765,7 +796,7 @@ section h3 {
 
 .contact-response {
   margin-bottom: 1.75rem;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.66);
   font-size: 0.95rem;
 }
 
@@ -773,7 +804,8 @@ section h3 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
-  max-width: 46rem;
+  width: min(46rem, calc(100% - 3rem));
+  margin: clamp(3rem, 6vw, 5rem) auto;
 }
 
 .contact-button {
@@ -1223,6 +1255,20 @@ footer p,
     grid-template-columns: 1fr;
   }
 
+  .contact-hero {
+    grid-template-columns: 1fr;
+    padding-block: 0;
+  }
+
+  .contact-hero-copy {
+    padding: 4rem 1.5rem 3rem;
+  }
+
+  .contact-hero-visual {
+    min-height: 0;
+    aspect-ratio: 1;
+  }
+
   .project-page {
     padding-block: 4rem;
   }
@@ -1273,9 +1319,6 @@ footer p,
     width: 100%;
   }
 
-  .contact-page {
-    padding-inline: 1rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
