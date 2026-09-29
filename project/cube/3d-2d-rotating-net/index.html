@@ -6,7 +6,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>回転する展開図のルービックキューブ | 山近晴也</title>
-<meta name="description" content="立方体を回すと中央の面が交代する展開図で、3×3ルービックキューブを操作するデモ。全体の回転と各層の操作を別々に試せます。">
+<meta name="description" content="見えている色マスをドラッグして層を回すルービックキューブ。余白のドラッグで全体を回すと中央面と操作方向が変わります。">
 <link rel="canonical" href="https://yamachikaseiya.com/project/cube/3d-2d-rotating-net/">
 <style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
 </head>
@@ -1534,92 +1534,78 @@ html&gt;body{padding:0}&lt;/style&gt;
 })();
 &lt;/script&gt;
 &lt;div id=&quot;cube-rubik-net&quot;&gt;
-  &lt;h3&gt;展開図で操作するルービックキューブ&lt;/h3&gt;
-  &lt;div class=&quot;viz-controls&quot;&gt;
-    &lt;label class=&quot;form-label&quot;&gt;立方体全体の回転
-      &lt;select id=&quot;rubik-plane&quot; class=&quot;form-select&quot;&gt;&lt;option value=&quot;XZ&quot;&gt;XZ&lt;/option&gt;&lt;option value=&quot;YZ&quot;&gt;YZ&lt;/option&gt;&lt;option value=&quot;XY&quot;&gt;XY&lt;/option&gt;&lt;/select&gt;
-    &lt;/label&gt;
-    &lt;label class=&quot;form-label&quot;&gt;角度 &lt;span id=&quot;rubik-angle-value&quot; class=&quot;tabular-nums&quot;&gt;0°&lt;/span&gt;
-      &lt;input id=&quot;rubik-angle&quot; class=&quot;form-range&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;360&quot; step=&quot;1&quot; value=&quot;0&quot;&gt;
-    &lt;/label&gt;
-  &lt;/div&gt;
-  &lt;div class=&quot;viz-row&quot;&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-angle=&quot;0&quot;&gt;0°&lt;/button&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-angle=&quot;45&quot;&gt;45°&lt;/button&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-angle=&quot;90&quot;&gt;90°&lt;/button&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-angle=&quot;180&quot;&gt;180°&lt;/button&gt;
-  &lt;/div&gt;
-  &lt;svg id=&quot;rubik-drawing&quot; role=&quot;img&quot; aria-label=&quot;54枚のステッカーを表示する立方体の平面展開図&quot;&gt;&lt;title&gt;中央面が交代するルービックキューブ&lt;/title&gt;&lt;g id=&quot;rubik-grid&quot;&gt;&lt;/g&gt;&lt;g id=&quot;rubik-faces&quot;&gt;&lt;/g&gt;&lt;/svg&gt;
-  &lt;div class=&quot;viz-controls&quot;&gt;
-    &lt;label class=&quot;form-label&quot;&gt;回す層（固定座標の面番号）
-      &lt;select id=&quot;rubik-turn-face&quot; class=&quot;form-select&quot;&gt;&lt;option value=&quot;0&quot;&gt;1：Z−&lt;/option&gt;&lt;option value=&quot;1&quot;&gt;2：X＋&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;3：X−&lt;/option&gt;&lt;option value=&quot;3&quot;&gt;4：Y＋&lt;/option&gt;&lt;option value=&quot;4&quot;&gt;5：Y−&lt;/option&gt;&lt;option value=&quot;5&quot;&gt;6：Z＋&lt;/option&gt;&lt;/select&gt;
-    &lt;/label&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-cw&quot;&gt;時計回り（外側から）&lt;/button&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-ccw&quot;&gt;反時計回り&lt;/button&gt;
-  &lt;/div&gt;
-  &lt;div class=&quot;viz-row&quot;&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-undo&quot;&gt;1手戻す&lt;/button&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-scramble&quot;&gt;20手混ぜる&lt;/button&gt;
-    &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-reset&quot;&gt;パズル初期化&lt;/button&gt;
-  &lt;/div&gt;
-  &lt;div id=&quot;rubik-status&quot; class=&quot;text-small&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
-  &lt;div class=&quot;viz-row text-small&quot; id=&quot;rubik-legend&quot;&gt;&lt;/div&gt;
+ &lt;h3&gt;展開図で操作するルービックキューブ&lt;/h3&gt;
+ &lt;div class=&quot;text-small&quot;&gt;色マスをドラッグ：その列を回す · 余白をドラッグ：キューブ全体を回す&lt;/div&gt;
+ &lt;svg id=&quot;rubik-drawing&quot; role=&quot;img&quot; aria-label=&quot;色マスをドラッグして層を回す立方体の展開図&quot;&gt;&lt;title&gt;見えている面から直接回すルービックキューブ&lt;/title&gt;&lt;g id=&quot;rubik-grid&quot;&gt;&lt;/g&gt;&lt;g id=&quot;rubik-faces&quot;&gt;&lt;/g&gt;&lt;g id=&quot;rubik-gesture&quot; pointer-events=&quot;none&quot;&gt;&lt;/g&gt;&lt;/svg&gt;
+ &lt;div class=&quot;viz-row&quot; aria-label=&quot;キューブ全体を回す&quot;&gt;
+  &lt;span class=&quot;text-small&quot;&gt;キューブ全体を回す&lt;/span&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-view=&quot;right&quot;&gt;左の面を中央へ&lt;/button&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-view=&quot;left&quot;&gt;右の面を中央へ&lt;/button&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-view=&quot;down&quot;&gt;上の面を中央へ&lt;/button&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn&quot; data-view=&quot;up&quot;&gt;下の面を中央へ&lt;/button&gt;
+  &lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-resume&quot; hidden&gt;全体回転を続ける&lt;/button&gt;
+ &lt;/div&gt;
+ &lt;div class=&quot;viz-row&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-undo&quot;&gt;1手戻す&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-scramble&quot;&gt;20手混ぜる&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;rubik-reset&quot;&gt;パズル初期化&lt;/button&gt;&lt;/div&gt;
+ &lt;div id=&quot;rubik-status&quot; class=&quot;text-small&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;style&gt;
- #cube-rubik-net #rubik-drawing {display:block;width:100%;height:360px;overflow:hidden}
- #cube-rubik-net .face-number {fill:var(--foreground);font-size:var(--font-size-base);font-weight:500;text-anchor:middle;dominant-baseline:middle}
- #cube-rubik-net .legend-dot {display:inline-block;width:10px;height:10px;margin-right:4px}
+ #cube-rubik-net [hidden] {display:none!important}
+ #cube-rubik-net #rubik-drawing {display:block;width:100%;height:360px;overflow:hidden;touch-action:none;user-select:none}
+ #cube-rubik-net .face-number {fill:var(--foreground);font-size:var(--font-size-base);font-weight:500;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+ #cube-rubik-net #rubik-grid {pointer-events:none}
 &lt;/style&gt;
 &lt;script&gt;
 (() =&gt; {
- const root=document.getElementById(&#x27;cube-rubik-net&#x27;);
- const svg=root.querySelector(&#x27;#rubik-drawing&#x27;),faces=root.querySelector(&#x27;#rubik-faces&#x27;),grid=root.querySelector(&#x27;#rubik-grid&#x27;);
- const slider=root.querySelector(&#x27;#rubik-angle&#x27;),plane=root.querySelector(&#x27;#rubik-plane&#x27;),angleValue=root.querySelector(&#x27;#rubik-angle-value&#x27;),status=root.querySelector(&#x27;#rubik-status&#x27;),legend=root.querySelector(&#x27;#rubik-legend&#x27;),faceSelect=root.querySelector(&#x27;#rubik-turn-face&#x27;),undoButton=root.querySelector(&#x27;#rubik-undo&#x27;);
- const names=[&#x27;Z−&#x27;,&#x27;X＋&#x27;,&#x27;X−&#x27;,&#x27;Y＋&#x27;,&#x27;Y−&#x27;,&#x27;Z＋&#x27;],defs=[[2,-1],[0,1],[0,-1],[1,1],[1,-1],[2,1]],centers=[[0,0],[1,0],[-1,0],[0,1],[0,-1],[2,0]],planes={XY:[0,1],XZ:[0,2],YZ:[1,2]};
- const ident=()=&gt;[[1,0,0],[0,1,0],[0,0,1]];
+ const root=document.getElementById(&#x27;cube-rubik-net&#x27;),svg=root.querySelector(&#x27;#rubik-drawing&#x27;),faces=root.querySelector(&#x27;#rubik-faces&#x27;),grid=root.querySelector(&#x27;#rubik-grid&#x27;),gesture=root.querySelector(&#x27;#rubik-gesture&#x27;),status=root.querySelector(&#x27;#rubik-status&#x27;),undo=root.querySelector(&#x27;#rubik-undo&#x27;),resume=root.querySelector(&#x27;#rubik-resume&#x27;);
+ const defs=[[2,-1],[0,1],[0,-1],[1,1],[1,-1],[2,1]],centers=[[0,0],[1,0],[-1,0],[0,1],[0,-1],[2,0]];
+ const ident=()=&gt;[[1,0,0],[0,1,0],[0,0,1]],transpose=m=&gt;m[0].map((_,j)=&gt;m.map(row=&gt;row[j])),mul=(a,b)=&gt;a.map(row=&gt;b[0].map((_,j)=&gt;row.reduce((sum,v,k)=&gt;sum+v*b[k][j],0))),mv=(a,v)=&gt;a.map(row=&gt;row.reduce((sum,x,k)=&gt;sum+x*v[k],0)),dot=(a,b)=&gt;a.reduce((s,x,k)=&gt;s+x*b[k],0),cross=(a,b)=&gt;[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],same=(a,b)=&gt;a.every((v,k)=&gt;v===b[k]);
  const A=defs.map(([axis,sign])=&gt;{const m=ident();if(axis&lt;2){m[axis][axis]=0;m[2][2]=0;m[axis][2]=sign;m[2][axis]=-sign;}else if(sign&gt;0){m[0][0]=-1;m[2][2]=-1;}return m;});
- const transpose=m=&gt;m[0].map((_,j)=&gt;m.map(row=&gt;row[j]));
- const mul=(a,b)=&gt;a.map(row=&gt;b[0].map((_,j)=&gt;row.reduce((sum,v,k)=&gt;sum+v*b[k][j],0)));
- const mv=(a,v)=&gt;a.map(row=&gt;row.reduce((sum,x,k)=&gt;sum+x*v[k],0));
- const dot=(a,b)=&gt;a.reduce((s,x,k)=&gt;s+x*b[k],0),cross=(a,b)=&gt;[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
- function faceNormal(i){const n=[0,0,0];n[defs[i][0]]=defs[i][1];return n;}
- function rotation(p,q){const m=ident(),[a,b]=planes[p],c=Math.round(Math.cos(q*Math.PI/2)),s=Math.round(Math.sin(q*Math.PI/2));m[a][a]=m[b][b]=c;m[a][b]=-s;m[b][a]=s;return m;}
- function endpoint(p,q,i){const r=rotation(p,q),rn=mv(r,faceNormal(i)),j=defs.findIndex(([a,s])=&gt;rn[a]===s),m=mul(mul(A[j],r),transpose(A[i]));return {role:j,center:centers[j],angle:Math.atan2(m[1][0],m[0][0]),matrix:m};}
- function pose(p,deg,i){const turns=deg/90,q=Math.floor(turns),u=turns-q,t=Math.sin(Math.PI*u/2)**2,a=endpoint(p,q,i),b=endpoint(p,q+1,i);let delta=Math.atan2(Math.sin(b.angle-a.angle),Math.cos(b.angle-a.angle));if(Math.abs(Math.abs(delta)-Math.PI)&lt;1e-8)delta=Math.PI;return {center:a.center.map((v,k)=&gt;v+(b.center[k]-v)*t),angle:a.angle+delta*t};}
- let stickers=[],history=[];
- function solved(){stickers=[];history=[];for(let i=0;i&lt;6;i++)for(let x=-1;x&lt;=1;x++)for(let y=-1;y&lt;=1;y++){const n=faceNormal(i),v=mv(transpose(A[i]),[x,y,0]),dir=mv(transpose(A[i]),[1,0,0]);stickers.push({id:i*9+(x+1)*3+y+1,p:v.map((c,k)=&gt;c+n[k]),n,color:i,dir});}}
- function quarter(v,a,direction){const d=dot(a,v),c=cross(a,v);return a.map((x,k)=&gt;x*d+direction*c[k]);}
- function turn(i,direction,record=true){const a=faceNormal(i);for(const sticker of stickers)if(dot(sticker.p,a)===1){sticker.p=quarter(sticker.p,a,direction);sticker.n=quarter(sticker.n,a,direction);sticker.dir=quarter(sticker.dir,a,direction);}if(record)history.push([i,direction]);}
- function stateSignature(){return JSON.stringify(stickers.map(s=&gt;[s.id,s.p,s.n,s.color,s.dir]));}
- function element(tag,attrs,parent,text){const e=document.createElementNS(&#x27;http://www.w3.org/2000/svg&#x27;,tag);Object.entries(attrs).forEach(([k,v])=&gt;e.setAttribute(k,v));if(text!==undefined)e.textContent=text;parent.appendChild(e);return e;}
- function draw(){const width=Math.max(280,svg.getBoundingClientRect().width),height=360,scale=Math.min((width-36)/5.2,88),origin=[width/2-scale*.5,height/2];svg.setAttribute(&#x27;viewBox&#x27;,`0 0 ${width} ${height}`);faces.replaceChildren();grid.replaceChildren();const screen=([x,y])=&gt;[origin[0]+x*scale,origin[1]-y*scale];
-  for(const c of centers){const [x,y]=screen(c);element(&#x27;rect&#x27;,{x:x-scale/2,y:y-scale/2,width:scale,height:scale,fill:&#x27;none&#x27;,stroke:&#x27;var(--border)&#x27;,&#x27;stroke-width&#x27;:1,&#x27;stroke-dasharray&#x27;:&#x27;3 5&#x27;},grid);}
-  const deg=Number(slider.value),p=plane.value;
-  for(let i=0;i&lt;6;i++){const body=pose(p,deg,i),co=Math.cos(body.angle),si=Math.sin(body.angle),local=([x,y])=&gt;screen([body.center[0]+co*x-si*y,body.center[1]+si*x+co*y]);
-   const g=element(&#x27;g&#x27;,{&#x27;data-face&#x27;:i+1,&#x27;data-center&#x27;:body.center.join(&#x27;,&#x27;),&#x27;data-angle&#x27;:body.angle},faces);
-   element(&#x27;polygon&#x27;,{points:[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]].map(local).map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:&#x27;var(--muted)&#x27;,&#x27;fill-opacity&#x27;:.5,stroke:&#x27;var(--border)&#x27;,&#x27;stroke-width&#x27;:1},g);
-   const n=faceNormal(i);for(const sticker of stickers){if(!sticker.n.every((v,k)=&gt;v===n[k]))continue;const coord=mv(A[i],sticker.p),cx=coord[0]/3,cy=coord[1]/3,half=.44/3;
-    element(&#x27;polygon&#x27;,{points:[[-half,-half],[half,-half],[half,half],[-half,half]].map(([x,y])=&gt;local([cx+x,cy+y])).map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:`var(--viz-series-${sticker.color+1})`,&#x27;fill-opacity&#x27;:.8,&#x27;data-sticker&#x27;:sticker.id,&#x27;data-color&#x27;:sticker.color,&#x27;data-tooltip&#x27;:`元の色面 ${sticker.color+1} → 現在の面 ${i+1}（${names[i]}）`},g);
-    if(coord[0]===0&amp;&amp;coord[1]===0){const [lx,ly]=local([0,.30]);element(&#x27;text&#x27;,{x:lx,y:ly,class:&#x27;face-number&#x27;,transform:`rotate(${-body.angle*180/Math.PI} ${lx} ${ly})`},g,String(i+1));const tangent=mv(A[i],sticker.dir),arrowAngle=Math.atan2(tangent[1],tangent[0]),ac=Math.cos(arrowAngle),as=Math.sin(arrowAngle),arrow=([x,y])=&gt;local([ac*x-as*y,as*x+ac*y]);
-     element(&#x27;polyline&#x27;,{points:[[-.08,0],[.08,0],[.035,.045],[.08,0],[.035,-.045]].map(arrow).map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:&#x27;none&#x27;,stroke:&#x27;var(--foreground)&#x27;,&#x27;stroke-width&#x27;:1.5},g);
-    }
+ function normal(i){const n=[0,0,0];n[defs[i][0]]=defs[i][1];return n;}
+ function quarter(v,a,d){const along=dot(a,v),c=cross(a,v);return a.map((x,k)=&gt;x*along+d*c[k]);}
+ function rotation(axis,sign){const a=[0,0,0];a[axis]=1;return transpose(ident().map(v=&gt;quarter(v,a,sign)));}
+ function endpoint(matrix,i){const rn=mv(matrix,normal(i)),j=defs.findIndex(([a,s])=&gt;rn[a]===s),q=mul(mul(A[j],matrix),transpose(A[i]));return {role:j,center:centers[j].slice(),angle:Math.atan2(q[1][0],q[0][0])};}
+ function blend(a,b,t){let d=Math.atan2(Math.sin(b.angle-a.angle),Math.cos(b.angle-a.angle));if(Math.abs(Math.abs(d)-Math.PI)&lt;1e-8)d=Math.PI;return {center:a.center.map((v,k)=&gt;v+(b.center[k]-v)*t),angle:a.angle+d*t,role:b.role};}
+ let stickers=[],history=[],R=ident(),motion=null,raf=0,press=null,scale=60,last=&#x27;&#x27;;
+ function solved(){stickers=[];history=[];for(let i=0;i&lt;6;i++)for(let x=-1;x&lt;=1;x++)for(let y=-1;y&lt;=1;y++){const n=normal(i),p=mv(transpose(A[i]),[x,y,0]),dir=mv(transpose(A[i]),[1,0,0]);stickers.push({id:i*9+(x+1)*3+y+1,p:p.map((v,k)=&gt;v+n[k]),n,color:i,dir});}}
+ function turn(axis,layer,d,record=true){for(const s of stickers)if(dot(s.p,axis)===layer){s.p=quarter(s.p,axis,d);s.n=quarter(s.n,axis,d);s.dir=quarter(s.dir,axis,d);}if(record)history.push([axis.slice(),layer,d]);}
+ function pose(i){const end=endpoint(R,i);return motion?blend(motion.start[i],end,Math.sin(Math.PI*motion.u/2)**2):end;}
+ function pause(){cancelAnimationFrame(raf);if(motion)motion.running=false;}
+ function play(){if(!motion)return;const m=motion,u=m.u,started=performance.now();m.running=true;function tick(now){if(motion!==m||!m.running)return;m.u=Math.min(1,u+(now-started)/380);if(m.u===1){motion=null;draw();persist();}else{draw(false);raf=requestAnimationFrame(tick);}}raf=requestAnimationFrame(tick);}
+ const viewMoves={right:[1,-1],left:[1,1],up:[0,1],down:[0,-1]};
+ function rotateView(direction){if(press)return;const start=defs.map((_,i)=&gt;pose(i));pause();const [a,d]=viewMoves[direction];R=mul(rotation(a,d),R);motion={start,u:0,running:false};last=&#x27;全体の向きを変更&#x27;;if(matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches)motion=null;else play();draw();persist();}
+ function resolveDrag(s,dx,dy){const c=Math.cos(s.body.angle),z=Math.sin(s.body.angle),x=c*dx-z*dy,y=-z*dx-c*dy,k=Math.abs(x)&gt;=Math.abs(y)?0:1,local=[0,0,0];local[k]=(k===0?x:y)&gt;=0?1:-1;const d=mv(transpose(A[s.face]),local),a=cross(s.n,d);return {axis:a,layer:dot(s.p,a),direction:1,tangent:d};}
+ function el(tag,attrs,parent,text){const e=document.createElementNS(&#x27;http://www.w3.org/2000/svg&#x27;,tag);Object.entries(attrs).forEach(([k,v])=&gt;e.setAttribute(k,v));if(text!==undefined)e.textContent=text;parent.appendChild(e);return e;}
+ function draw(announce=true){const width=Math.max(280,svg.getBoundingClientRect().width),height=360;scale=Math.min((width-36)/5.2,88);const origin=[width/2-scale*.5,height/2],screen=([x,y])=&gt;[origin[0]+x*scale,origin[1]-y*scale];svg.setAttribute(&#x27;viewBox&#x27;,`0 0 ${width} ${height}`);faces.replaceChildren();grid.replaceChildren();gesture.replaceChildren();
+  for(const c of centers){const [x,y]=screen(c);el(&#x27;rect&#x27;,{x:x-scale/2,y:y-scale/2,width:scale,height:scale,fill:&#x27;none&#x27;,stroke:&#x27;var(--border)&#x27;,&#x27;stroke-width&#x27;:1,&#x27;stroke-dasharray&#x27;:&#x27;3 5&#x27;},grid);}
+  for(let i=0;i&lt;6;i++){const body=pose(i),co=Math.cos(body.angle),si=Math.sin(body.angle),local=([x,y])=&gt;screen([body.center[0]+co*x-si*y,body.center[1]+si*x+co*y]),g=el(&#x27;g&#x27;,{&#x27;data-face&#x27;:i,&#x27;data-center&#x27;:body.center.join(&#x27;,&#x27;),&#x27;data-angle&#x27;:body.angle},faces);el(&#x27;polygon&#x27;,{points:[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]].map(local).map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:&#x27;var(--muted)&#x27;,&#x27;fill-opacity&#x27;:.5,stroke:&#x27;var(--border)&#x27;,&#x27;stroke-width&#x27;:1},g);
+   for(const s of stickers){if(!same(s.n,normal(i)))continue;const coord=mv(A[i],s.p),cx=coord[0]/3,cy=coord[1]/3,h=.44/3,active=press&amp;&amp;press.move&amp;&amp;dot(s.p,press.move.axis)===press.move.layer;
+    el(&#x27;polygon&#x27;,{points:[[-h,-h],[h,-h],[h,h],[-h,h]].map(([x,y])=&gt;local([cx+x,cy+y])).map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:`var(--viz-series-${s.color+1})`,&#x27;fill-opacity&#x27;:active?1:.8,stroke:active?&#x27;var(--foreground)&#x27;:&#x27;none&#x27;,&#x27;stroke-width&#x27;:active?2:0,&#x27;data-sticker&#x27;:s.id,&#x27;data-color&#x27;:s.color,&#x27;data-highlight&#x27;:active?&#x27;true&#x27;:&#x27;false&#x27;,class:&#x27;cursor-interaction&#x27;,&#x27;aria-label&#x27;:&#x27;ドラッグしてこの列を回す&#x27;},g);
+    if(coord[0]===0&amp;&amp;coord[1]===0){const [x,y]=local([0,.30]);el(&#x27;text&#x27;,{x,y,class:&#x27;face-number&#x27;,transform:`rotate(${-body.angle*180/Math.PI} ${x} ${y})`},g,String(s.color+1));const tangent=mv(A[i],s.dir),a=Math.atan2(tangent[1],tangent[0]),c=Math.cos(a),z=Math.sin(a),arrow=([x,y])=&gt;local([c*x-z*y,z*x+c*y]);el(&#x27;polyline&#x27;,{points:[[-.08,0],[.08,0],[.035,.045],[.08,0],[.035,-.045]].map(arrow).map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:&#x27;none&#x27;,stroke:&#x27;var(--foreground)&#x27;,&#x27;stroke-width&#x27;:1.5,&#x27;pointer-events&#x27;:&#x27;none&#x27;},g);}
    }
   }
-  angleValue.textContent=`${deg}°`;const q=Math.floor(deg/90),from=defs.findIndex((_,i)=&gt;endpoint(p,q,i).role===0),to=defs.findIndex((_,i)=&gt;endpoint(p,q+1,i).role===0),exact=deg%90===0;
-  const centered=exact?`中央 ${from+1}（${names[from]}）｜正確な展開図`:`中央 ${from+1} → ${to+1}｜途中は重なりを許す補助移動`;
-  status.textContent=`${centered}｜パズル操作 ${history.length}手`;undoButton.disabled=history.length===0;
+  if(press&amp;&amp;press.move){const box=svg.getBoundingClientRect(),x=press.x-box.left,y=press.y-box.top,l=Math.hypot(press.dx,press.dy),ux=press.dx/l,uy=press.dy/l,L=Math.min(l,60),end=[x+ux*L,y+uy*L];el(&#x27;polyline&#x27;,{points:[[x,y],end,[end[0]-ux*9-uy*5,end[1]-uy*9+ux*5],end,[end[0]-ux*9+uy*5,end[1]-uy*9-ux*5]].map(v=&gt;v.join(&#x27;,&#x27;)).join(&#x27; &#x27;),fill:&#x27;none&#x27;,stroke:&#x27;var(--foreground)&#x27;,&#x27;stroke-width&#x27;:2},gesture);}
+  root.dataset.moves=history.length;root.dataset.orientation=JSON.stringify(R);undo.disabled=history.length===0;resume.hidden=!motion||motion.running;if(announce)status.textContent=`${last?last+&#x27; · &#x27;:&#x27;&#x27;}${history.length}手${motion?&#x27; · 途中は重なりを許す表示&#x27;:&#x27;&#x27;}`;
  }
- function persist(){const host=window.openai;if(host&amp;&amp;host.setWidgetState)host.setWidgetState({modelContent:{kind:&#x27;cube-rubik-v1&#x27;,plane:plane.value,angle:Number(slider.value),moves:history.slice()},privateContent:{turnFace:Number(faceSelect.value)}}).catch(()=&gt;{});}
- function act(i,d){if(history.length&gt;=300)return;turn(i,d);draw();persist();}
- function restore(state){const s=state&amp;&amp;state.modelContent,ui=state&amp;&amp;state.privateContent;solved();if(s&amp;&amp;s.kind===&#x27;cube-rubik-v1&#x27;){if(planes[s.plane])plane.value=s.plane;if(Number.isFinite(s.angle))slider.value=Math.max(0,Math.min(360,s.angle));if(Array.isArray(s.moves)&amp;&amp;s.moves.length&lt;=300&amp;&amp;s.moves.every(m=&gt;Array.isArray(m)&amp;&amp;Number.isInteger(m[0])&amp;&amp;m[0]&gt;=0&amp;&amp;m[0]&lt;6&amp;&amp;(m[1]===1||m[1]===-1)))for(const [i,d]of s.moves)turn(i,d);}if(ui&amp;&amp;Number.isInteger(ui.turnFace)&amp;&amp;ui.turnFace&gt;=0&amp;&amp;ui.turnFace&lt;6)faceSelect.value=String(ui.turnFace);draw();}
- slider.addEventListener(&#x27;input&#x27;,()=&gt;{draw();persist();});plane.addEventListener(&#x27;change&#x27;,()=&gt;{draw();persist();});faceSelect.addEventListener(&#x27;change&#x27;,persist);
- root.querySelectorAll(&#x27;[data-angle]&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,()=&gt;{slider.value=b.dataset.angle;draw();persist();}));
- root.querySelector(&#x27;#rubik-cw&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;act(Number(faceSelect.value),-1));root.querySelector(&#x27;#rubik-ccw&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;act(Number(faceSelect.value),1));
- undoButton.addEventListener(&#x27;click&#x27;,()=&gt;{const move=history.pop();if(move)turn(move[0],-move[1],false);draw();persist();});
- root.querySelector(&#x27;#rubik-reset&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{solved();draw();persist();});
- root.querySelector(&#x27;#rubik-scramble&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(history.length&gt;280)return;let last=-1;for(let k=0;k&lt;20;k++){let i;do{i=Math.floor(Math.random()*6);}while(i===last);last=i;turn(i,Math.random()&lt;.5?-1:1);}draw();persist();});
- for(let i=0;i&lt;6;i++){const span=document.createElement(&#x27;span&#x27;),dot=document.createElement(&#x27;span&#x27;);dot.className=&#x27;legend-dot&#x27;;dot.style.background=`var(--viz-series-${i+1})`;span.appendChild(dot);span.appendChild(document.createTextNode(`色 ${i+1}：${names[i]}`));legend.appendChild(span);}
- new ResizeObserver(draw).observe(svg);window.addEventListener(&#x27;openai:set_globals&#x27;,e=&gt;{if(e.detail&amp;&amp;e.detail.globals)restore(e.detail.globals.widgetState);});restore(window.openai&amp;&amp;window.openai.widgetState);
+ function persist(){const host=window.openai;if(host&amp;&amp;host.setWidgetState)host.setWidgetState({modelContent:{kind:&#x27;cube-rubik-v2&#x27;,orientation:R,moves:history.slice()},privateContent:{motion:motion?{start:motion.start,u:motion.u}:null}}).catch(()=&gt;{});}
+ function validR(m){return Array.isArray(m)&amp;&amp;m.length===3&amp;&amp;m.every(r=&gt;Array.isArray(r)&amp;&amp;r.length===3&amp;&amp;r.every(v=&gt;Number.isInteger(v)&amp;&amp;Math.abs(v)&lt;=1)&amp;&amp;r.reduce((s,v)=&gt;s+Math.abs(v),0)===1)&amp;&amp;m[0].every((_,i)=&gt;m.reduce((s,r)=&gt;s+Math.abs(r[i]),0)===1)&amp;&amp;dot(m[0],cross(m[1],m[2]))===1;}
+ function validMove(m){return Array.isArray(m)&amp;&amp;m.length===3&amp;&amp;Array.isArray(m[0])&amp;&amp;m[0].length===3&amp;&amp;m[0].every(v=&gt;Number.isInteger(v)&amp;&amp;Math.abs(v)&lt;=1)&amp;&amp;dot(m[0],m[0])===1&amp;&amp;Number.isInteger(m[1])&amp;&amp;Math.abs(m[1])&lt;=1&amp;&amp;(m[2]===1||m[2]===-1);}
+ function restore(state){pause();press=null;motion=null;R=ident();solved();const s=state&amp;&amp;state.modelContent,ui=state&amp;&amp;state.privateContent;
+  if(s&amp;&amp;s.kind===&#x27;cube-rubik-v2&#x27;){if(validR(s.orientation))R=s.orientation.map(r=&gt;r.slice());if(Array.isArray(s.moves)&amp;&amp;s.moves.length&lt;=300&amp;&amp;s.moves.every(validMove))for(const [a,l,d]of s.moves)turn(a,l,d);const m=ui&amp;&amp;ui.motion;if(m&amp;&amp;Number.isFinite(m.u)&amp;&amp;m.u&gt;=0&amp;&amp;m.u&lt;1&amp;&amp;Array.isArray(m.start)&amp;&amp;m.start.length===6&amp;&amp;m.start.every(p=&gt;p&amp;&amp;Array.isArray(p.center)&amp;&amp;p.center.length===2&amp;&amp;p.center.every(Number.isFinite)&amp;&amp;Number.isFinite(p.angle)))motion={start:m.start,u:m.u,running:false};}
+  else if(s&amp;&amp;s.kind===&#x27;cube-rubik-v1&#x27;){if(Array.isArray(s.moves)&amp;&amp;s.moves.length&lt;=300&amp;&amp;s.moves.every(m=&gt;Array.isArray(m)&amp;&amp;Number.isInteger(m[0])&amp;&amp;m[0]&gt;=0&amp;&amp;m[0]&lt;6&amp;&amp;Math.abs(m[1])===1))for(const [i,d]of s.moves)turn(normal(i),1,d);const planes={XY:[2,1],XZ:[1,-1],YZ:[0,1]};if(planes[s.plane]&amp;&amp;Number.isFinite(s.angle)){const [a,d]=planes[s.plane];for(let q=0;q&lt;((Math.round(s.angle/90)%4)+4)%4;q++)R=mul(rotation(a,d),R);}}
+  last=&#x27;&#x27;;draw();
+ }
+ function snapshotSticker(id){const s=stickers.find(s=&gt;s.id===id);if(!s)return null;const face=defs.findIndex((_,i)=&gt;same(normal(i),s.n));return {id,face,p:s.p.slice(),n:s.n.slice(),body:pose(face)};}
+ function updatePress(e){press.dx=e.clientX-press.x;press.dy=e.clientY-press.y;const l=Math.hypot(press.dx,press.dy);press.move=l&gt;=Math.max(12,scale*.17)&amp;&amp;press.snapshot?resolveDrag(press.snapshot,press.dx,press.dy):null;press.background=l&gt;=18&amp;&amp;!press.snapshot?(Math.abs(press.dx)&gt;=Math.abs(press.dy)?(press.dx&gt;0?&#x27;right&#x27;:&#x27;left&#x27;):(press.dy&lt;0?&#x27;up&#x27;:&#x27;down&#x27;)):null;}
+ svg.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{if(press||e.button&gt;0)return;pause();const target=e.target.closest(&#x27;[data-sticker]&#x27;);press={pointer:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0,snapshot:target?snapshotSticker(Number(target.dataset.sticker)):null,move:null,background:null};svg.setPointerCapture(e.pointerId);e.preventDefault();draw();});
+ svg.addEventListener(&#x27;pointermove&#x27;,e=&gt;{if(!press||press.pointer!==e.pointerId)return;updatePress(e);e.preventDefault();draw(false);});
+ svg.addEventListener(&#x27;pointerup&#x27;,e=&gt;{if(!press||press.pointer!==e.pointerId)return;updatePress(e);const p=press;press=null;if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);if(p.move&amp;&amp;history.length&lt;300){turn(p.move.axis,p.move.layer,1);last=&#x27;ドラッグした列を回転&#x27;;}else if(p.background){rotateView(p.background);return;}draw();persist();});
+ const cancel=e=&gt;{if(press&amp;&amp;press.pointer===e.pointerId){press=null;draw();persist();}};svg.addEventListener(&#x27;pointercancel&#x27;,cancel);svg.addEventListener(&#x27;lostpointercapture&#x27;,cancel);
+ root.querySelectorAll(&#x27;[data-view]&#x27;).forEach(b=&gt;b.addEventListener(&#x27;click&#x27;,()=&gt;rotateView(b.dataset.view)));resume.addEventListener(&#x27;click&#x27;,()=&gt;{play();draw();});
+ undo.addEventListener(&#x27;click&#x27;,()=&gt;{if(press)return;const m=history.pop();if(m)turn(m[0],m[1],-m[2],false);last=&#x27;1手戻しました&#x27;;draw();persist();});
+ root.querySelector(&#x27;#rubik-reset&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(press)return;solved();last=&#x27;パズルを初期化&#x27;;draw();persist();});
+ root.querySelector(&#x27;#rubik-scramble&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(press||history.length&gt;280)return;let previous=-1;for(let k=0;k&lt;20;k++){let axis;do{axis=Math.floor(Math.random()*3);}while(axis===previous);previous=axis;const a=[0,0,0];a[axis]=1;turn(a,Math.random()&lt;.5?-1:1,Math.random()&lt;.5?-1:1);}last=&#x27;20手混ぜました&#x27;;draw();persist();});
+ new ResizeObserver(()=&gt;draw(false)).observe(svg);window.addEventListener(&#x27;openai:set_globals&#x27;,e=&gt;{if(e.detail&amp;&amp;e.detail.globals)restore(e.detail.globals.widgetState);});restore(window.openai&amp;&amp;window.openai.widgetState);
+ if(window.__RUBIK_TEST__)root.rubikTest={ident,A,defs,centers,normal,rotation,mul,mv,transpose,endpoint,resolveDrag,quarter,validR,restore,rotateView,pose,snapshotSticker,turn,draw,solved,persist,signature:()=&gt;JSON.stringify(stickers),stickers:()=&gt;stickers,history:()=&gt;history,R:()=&gt;R,motion:()=&gt;motion,press:()=&gt;press};
 })();
 &lt;/script&gt;
 
