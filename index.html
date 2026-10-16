@@ -24,7 +24,7 @@
 
     <link rel="canonical" href="https://yamachikaseiya.com/" />
     <link rel="alternate" hreflang="ja" href="https://yamachikaseiya.com/" />
-    <link rel="alternate" hreflang="en" href="https://yamachikaseiya.com/en/" />
+    <link rel="alternate" hreflang="en" href="/en/" />
     <link
       rel="alternate"
       hreflang="x-default"
@@ -102,7 +102,7 @@
     </script>
 
     <link rel="stylesheet" href="css/style.css?v=20260923c" />
-  </head>
+  <link rel="stylesheet" href="/css/home.css?v=20261016a"></head>
 
   <body>
     <!-- ===================================================== -->
@@ -119,7 +119,8 @@
           <a href="/" class="current">Home</a>
           <a href="/research/">Research</a>
           <a href="/project/">Project</a>
-          <a href="/contact/">Contact</a>
+          <a href="/blog/">Blog</a>
+<a href="/contact/">Contact</a>
         </nav>
 
         <nav class="language-switch" aria-label="言語を選択">
@@ -150,7 +151,8 @@
         <a href="/" class="current">Home</a>
         <a href="/research/">Research</a>
         <a href="/project/">Project</a>
-        <a href="/contact/">Contact</a>
+        <a href="/blog/">Blog</a>
+<a href="/contact/">Contact</a>
 
         <div
           class="language-switch language-switch-mobile"
@@ -190,7 +192,7 @@
           </p>
 
           <div class="hero-buttons">
-            <a href="research/" class="primary-button"> 研究成果 </a>
+            <a href="/research/" class="primary-button"> 研究成果 </a>
 
             <a href="#about" class="secondary-button"> About Me </a>
           </div>
@@ -202,23 +204,14 @@
     <!-- Research Summary -->
     <!-- ===================================================== -->
 
-    <section class="summary">
+
+    <section class="home-news" aria-labelledby="news-heading">
       <div class="container">
-        <h2>研究概要</h2>
+        <h2 id="news-heading">News</h2>
 
-        <p class="summary-text">
-          現在は、ラバーハンド錯覚による身体所有感の転移が<br class="summary-wide-break" />身体位置を参照するような運動へ与える影響について<br class="summary-wide-break" />研究を行っています。
-        </p>
-
-        <p class="summary-text">
-          また、Phantom Touch Illusionや、VR環境下における<br class="summary-wide-break" />身体所有感や、その転移が人間の行動、運動へ与える<br class="summary-wide-break" />影響などの知覚・認知の研究を行っています。
-        </p>
+        <ul class="news-list"><li><time class="news-date" datetime="2026-10-16">2026.10.16</time><a href="/blog/">Blogページを追加しました →</a></li></ul>
       </div>
     </section>
-
-    <!-- ===================================================== -->
-    <!-- About -->
-    <!-- ===================================================== -->
 
     <section class="about" id="about">
       <div class="container about-container">
@@ -254,6 +247,32 @@
         </div>
       </div>
     </section>
+    <section class="summary home-reading" aria-label="研究とブログ">
+      <div class="container reading-grid">
+        <article class="reading-panel">
+          <div class="reading-heading"><h2>Research</h2><span>研究活動</span></div>
+          <p class="reading-description">身体所有感・運動主体感・知覚をテーマに、ラバーハンド錯覚やVR環境での身体認知を研究しています。</p>
+          <div class="featured-research">
+            <p>2026 · 日本バーチャルリアリティ学会 第31回大会</p>
+            <a href="/research/vrsj2026">ラバーハンド錯覚による身体所有感の転移が身体位置を参照する運動の反応時間に与える影響 <span aria-hidden="true">→</span></a>
+          </div>
+          <a href="/research/" class="primary-button reading-action">研究成果を見る</a>
+        </article>
+        <article class="reading-panel" id="blog">
+          <div class="reading-heading"><h2>Blog</h2><span>文章・記録</span></div>
+          <p class="reading-description">研究や制作の過程で考えたこと、試したことなどを書いていきます。</p>
+          <p class="blog-empty">記事は準備中です。</p>
+          <a href="/blog/" class="secondary-button reading-action">Blogを見る</a>
+        </article>
+      </div>
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- About -->
+    <!-- ===================================================== -->
+
+
 
     </main>
 

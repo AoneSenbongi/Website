@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://yamachikaseiya.com/</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="ja" href="https://yamachikaseiya.com/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://yamachikaseiya.com/en/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://yamachikaseiya.com/" />
@@ -32,4 +32,5 @@
   <url><loc>https://yamachikaseiya.com/project/cube/3d-2d-net/</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://yamachikaseiya.com/contact/</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://yamachikaseiya.com/en/contact/</loc><lastmod>2026-09-10</lastmod></url>
+  <url><loc>https://yamachikaseiya.com/blog/</loc><lastmod>2026-10-16</lastmod></url>
 </urlset>

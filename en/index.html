@@ -55,7 +55,7 @@
     <meta name="twitter:image" content="https://yamachikaseiya.com/images/og-card.png" />
 
     <link rel="stylesheet" href="../css/style.css?v=20260923c" />
-  </head>
+  <link rel="stylesheet" href="/css/home.css?v=20261016a"></head>
 
   <body>
     <header class="header">
@@ -68,6 +68,7 @@
           <a href="/en/" class="current">Home</a>
           <a href="/en/research/">Research</a>
           <a href="/en/project/">Project</a>
+          <a href="/blog/" lang="ja" aria-label="Blog (Japanese only)">Blog</a>
           <a href="/en/contact/">Contact</a>
         </nav>
 
@@ -98,7 +99,8 @@
         <a href="/en/" class="current">Home</a>
         <a href="/en/research/">Research</a>
         <a href="/en/project/">Project</a>
-        <a href="/en/contact/">Contact</a>
+        <a href="/blog/" lang="ja" aria-label="Blog (Japanese only)">Blog</a>
+          <a href="/en/contact/">Contact</a>
 
         <div
           class="language-switch language-switch-mobile"
@@ -141,21 +143,16 @@
       </div>
     </section>
 
-    <section class="summary">
+    <!-- ===================================================== -->
+    <!-- Research Summary -->
+    <!-- ===================================================== -->
+
+
+    <section class="home-news" aria-labelledby="news-heading">
       <div class="container">
-        <h2>Research Overview</h2>
+        <h2 id="news-heading">News</h2>
 
-        <p class="summary-text">
-          My current research examines how shifts in body ownership induced by
-          the Rubber Hand Illusion affect movements guided by perceived body
-          position.
-        </p>
-
-        <p class="summary-text">
-          I also study perception and cognition through phenomena such as the
-          Phantom Touch Illusion and body ownership in VR, including how such
-          shifts influence human behavior and movement.
-        </p>
+        <ul class="news-list"><li><time class="news-date" datetime="2026-10-16">2026.10.16</time><a href="/blog/">Added a Blog page (Japanese only) →</a></li></ul>
       </div>
     </section>
 
@@ -190,6 +187,32 @@
         </div>
       </div>
     </section>
+    <section class="summary home-reading" aria-label="Research and Blog">
+      <div class="container reading-grid">
+        <article class="reading-panel">
+          <div class="reading-heading"><h2>Research</h2><span>Research activities</span></div>
+          <p class="reading-description">I study body ownership, sense of agency, and perception, focusing on the rubber hand illusion and bodily cognition in VR.</p>
+          <div class="featured-research">
+            <p>2026 · The 31st Annual Conference of the Virtual Reality Society of Japan</p>
+            <a href="/en/research/vrsj2026">Effects of body ownership transfer through the rubber hand illusion on reaction time in movements that reference body position <span aria-hidden="true">→</span></a>
+          </div>
+          <a href="/en/research/" class="primary-button reading-action">View research</a>
+        </article>
+        <article class="reading-panel" id="blog">
+          <div class="reading-heading"><h2>Blog</h2><span>Writing & notes</span></div>
+          <p class="reading-description">Notes on research and making things. Blog posts are available in Japanese.</p>
+          <p class="blog-empty">Posts are coming soon.</p>
+          <a href="/blog/" class="secondary-button reading-action">Read Blog (Japanese)</a>
+        </article>
+      </div>
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- About -->
+    <!-- ===================================================== -->
+
+
 
     </main>
 
