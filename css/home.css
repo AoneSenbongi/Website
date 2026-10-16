@@ -18,3 +18,9 @@
 .blog-empty { color: var(--muted); font-size: .9rem; padding-top: 1.25rem; border-top: 1px solid var(--border); margin-bottom: 2rem; }
 .reading-action { align-self: flex-start; margin-top: auto; }
 @media(max-width:48rem) { .reading-grid { grid-template-columns: 1fr; gap: 1.25rem; } .reading-panel { padding: 1.75rem; } .home-reading { padding-block: 2.75rem; } }
+
+.news-archive { max-width: 64rem; margin-top: 1.25rem; }
+.news-archive summary { width: fit-content; padding: .55rem 0; color: var(--muted); cursor: pointer; font-size: .9rem; }
+.news-archive summary:hover { color: var(--accent); }
+.news-archive[open] summary { margin-bottom: .5rem; }
+.news-history-note { margin: 1rem 0 0; color: var(--muted); font-size: .75rem; }
