@@ -1,7 +1,6 @@
 const header = document.querySelector(".header");
 let isEnglishPage = document.documentElement.lang === "en";
 const themeStorageKey = "yamachika-theme";
-const systemDarkTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
 function readSavedTheme() {
   try {
@@ -13,11 +12,10 @@ function readSavedTheme() {
 }
 
 function resolvedTheme() {
-  return readSavedTheme() || (systemDarkTheme.matches ? "dark" : "light");
+  return document.documentElement.dataset.theme || "light";
 }
 
-const savedTheme = readSavedTheme();
-if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+document.documentElement.dataset.theme = readSavedTheme() || "light";
 
 function themeIcon(theme) {
   return theme === "dark"
@@ -54,12 +52,6 @@ function createThemeToggle() {
   });
   return button;
 }
-
-systemDarkTheme.addEventListener?.("change", () => {
-  if (!readSavedTheme()) {
-    document.querySelectorAll(".theme-toggle").forEach(updateThemeToggle);
-  }
-});
 
 function normalizePath(pathname) {
   return pathname.replace(/\/index\.html$/, "/").replace(/\.html$/, "");
