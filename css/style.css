@@ -307,7 +307,8 @@ section h3 {
   line-height: 1;
 }
 
-.language-switch a {
+.language-switch a,
+.language-switch > span {
   min-width: 2.25rem;
   padding: 0.48rem 0.58rem;
   border-radius: 999px;
@@ -315,6 +316,11 @@ section h3 {
   text-align: center;
   transition: background-color 180ms ease, box-shadow 180ms ease,
     color 180ms ease, transform 180ms ease;
+}
+
+.language-switch > span[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .language-switch a:hover {
