@@ -15,6 +15,33 @@ const date = (ms) =>
   new Date(ms).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" });
 export const entryPath = (p) =>
   p.kind === "diary" ? `/diary/${p.entry_date}/` : `/blog/${p.slug}/`;
+export function shareMetadata(post, origin) {
+  let image = /^[a-f0-9]{32}\.(?:jpg|png|webp)$/.test(post.photo || "")
+    ? origin + "/media/" + post.photo : null;
+  let text = "";
+  function visit(tokens) {
+    for (const token of tokens) {
+      if (token.type === "image") {
+        if (!image) {
+          try {
+            const url = new URL(token.attrGet("src"), origin + "/");
+            if (url.origin === origin && /^\/(?:images|media|research\/files)\//.test(url.pathname))
+              image = url.href;
+          } catch { /* A malformed image cannot become a share image. */ }
+        }
+      } else if (token.children) visit(token.children);
+      else if (["text", "code_inline"].includes(token.type)) text += token.content;
+      else if (["softbreak", "hardbreak"].includes(token.type)) text += " ";
+      if (token.block && token.nesting === -1) text += " ";
+    }
+  }
+  visit(markdown.parse(post.body || "", {}));
+  return {
+    type: "article",
+    description: [...text.replace(/\s+/g, " ").trim()].slice(0, 160).join("") || post.title || "山近晴也のBlog",
+    image: image || origin + "/images/og-card.png",
+  };
+}
 const switcher = (active) =>
   `<nav class="journal-tabs" aria-label="読みもの"><a href="/blog/"${active === "blog" ? ' aria-current="page"' : ""}>Blog</a><a href="/diary/"${active === "diary" ? ' aria-current="page"' : ""}>日記</a></nav>`;
 export async function page(
@@ -27,6 +54,8 @@ export async function page(
     description = "研究や制作の過程で考えたこと、試したことなど。",
     slug,
     canonical,
+    type = "website",
+    image = env.SITE_ORIGIN + "/images/og-card.png",
   } = {},
 ) {
   const asset = await env.ASSETS.fetch(
@@ -47,18 +76,6 @@ export async function page(
       (_, prefix) => prefix + escape(description),
     )
     .replace(
-      /(<meta property="og:title" content=")[^"]*/,
-      (_, prefix) => prefix + escape(title + " | 山近晴也"),
-    )
-    .replace(
-      /(<meta property="og:description" content=")[^"]*/,
-      (_, prefix) => prefix + escape(description),
-    )
-    .replace(
-      /(<meta property="og:url" content=")[^"]*/,
-      (_, prefix) => prefix + escape(address),
-    )
-    .replace(
       /(<link rel="canonical" href=")[^"]*/,
       (_, prefix) => prefix + escape(address),
     )
@@ -77,6 +94,26 @@ export async function page(
       "</body>",
       `<script type="module" src="/blog-ui/${script}.js"></script></body>`,
     );
+  const cards = {
+    "og:type": type,
+    "og:title": title + " | 山近晴也",
+    "og:description": description,
+    "og:url": address,
+    "og:image": image,
+    "og:image:alt": title,
+    "twitter:card": "summary_large_image",
+    "twitter:site": "@YamachikaSeiya",
+    "twitter:title": title + " | 山近晴也",
+    "twitter:description": description,
+    "twitter:image": image,
+    "twitter:image:alt": title,
+  };
+  html = html.replace(/<meta\b[^>]*>/gi, tag => {
+    const key = tag.match(/\b(?:name|property)="([^"]+)"/i)?.[1];
+    return Object.hasOwn(cards, key) ? "" : tag;
+  }).replace("</head>", () => Object.entries(cards).map(([key, value]) =>
+    `<meta ${key.startsWith("og:") ? "property" : "name"}="${key}" content="${escape(value)}">`
+  ).join("") + "</head>");
   return new Response(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });

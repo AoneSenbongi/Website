@@ -7,6 +7,7 @@ import {
   notificationPage,
   diary,
   entryPath,
+  shareMetadata,
 } from "./pages.mjs";
 
 const encoder = new TextEncoder(),
@@ -629,7 +630,7 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
         return page(env, request, article(p), {
           script: "article",
           title: p.title,
-          description: p.body.slice(0, 140),
+          ...shareMetadata(p, env.SITE_ORIGIN),
           slug: p.slug,
         });
       }

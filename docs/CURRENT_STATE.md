@@ -78,3 +78,11 @@ Edgeの画像寸法試験で1280px/390pxそれぞれ、記事・日記本文の�
 本人がBlogとContactの配色の違い、書体の違いを指摘し修正を依頼。Blog・日記・管理画面のjournal変数を共通style.cssのtext/surface/muted/border/accentへ接続し、明朝体・Georgiaの専用指定を除いて本文の共通書体を継承する。コードだけは等幅を維持。主ボタンも共通button-bg/button-textを使う。日記の写真なし背景も共通subtle/text、写真ありの文字保護は中立な黒と白。ContactはJA/ENとも、濃色固定背景・白固定文字・Twitter専用青を共通背景・文字・ボタン色に統一し、不要なmodifierクラスを除いた。
 
 修正前にライトBlogの背景がHomeと異なることをブラウザー再現試験で確認。全45試験・ビルド成功。tools/theme-consistency-check.mjsでライト/ダークのBlog背景・文字・見出し/日付の書体、JA/EN Contact背景・文字・見出し・ボタン色を確認。実ページのPC・390px・ライト/ダークも確認し横溢れなし。画像は `.local/review/unified-{blog,contact}-{light,dark,mobile}.png`。本番は861d68fのままで未反映。次は画像と今回の公開候補を提示して承認を得る。
+
+## 現在の追加依頼（X共有カード、公開承認待ち）
+
+本人がBlog URL共有時のプレビューを要望し、対象はXと回答。現行の公開記事と共通OG画像はTwitterbot User-Agent付きHTTP取得で200。robots.txtは許可。基本OGPはすでにあるが、画像は共通、概要は生Markdown、X個別タグはcardだけだった。実際のXクローラーから取得できたことや、キャッシュが唯一の原因だとは断定しない。
+
+公開記事のOG:typeをarticleとし、OGPとXのタイトル・概要・画像・画像alt、twitter:siteをサーバーHTMLへ出力。概要はMarkdownトークンからプレーンテキストを生成し160文字以内。画像は登録写真、本文の最初のサイト内images/media/research/files画像、共通OG画像の順。認証が必要なパス、外部画像、data URLを自動選択しない。既存メタタグと重複させず属性値をエスケープ。本文や保存データの変更なし。
+
+全49試験とビルド成功。実テンプレートのタグ内容・重複なし・特殊文字、画像選択、公開記事のX用応答と下書き404を確認。本番未反映・実際のX表示は未検証。配色と書体の修正0ba6912も引き続き承認待ちであり、今回の共有対応と合わせて公開候補を提示する。承認後は配信確認を行う。X投稿は別途依頼がない限り行わない。

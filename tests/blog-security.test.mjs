@@ -167,6 +167,16 @@ async function comment(s, body = {}) {
     body: { name: "読者", body: "感想です", turnstile: "valid", ...body },
   });
 }
+test("X向け取得で公開記事のカード情報を返し、下書きは返さない", async () => {
+  const r = await request("/blog/hello/", {headers:{"User-Agent":"Twitterbot/1.0"}});
+  assert.equal(r.status,200);
+  const html = await r.text();
+  assert.match(html, /<meta name="twitter:title" content="公開記事 \| 山近晴也">/);
+  assert.match(html, /<meta name="twitter:description" content="本文">/);
+  assert.match(html, /<meta property="og:type" content="article">/);
+  assert.equal((await request("/blog/secret/", {headers:{"User-Agent":"Twitterbot/1.0"}})).status,404);
+});
+
 test("未保存のMarkdownプレビューは管理者限定でデータを変更しない", async () => {
   const s = await session();
   const before = db.prepare("SELECT * FROM posts ORDER BY id").all();
