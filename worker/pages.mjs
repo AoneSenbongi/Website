@@ -99,7 +99,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261102e"></head>',
+      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261102f"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(

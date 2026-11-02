@@ -604,11 +604,8 @@ summary {
   max-width: 100%;
   font-size: 0.85rem;
   line-height: 1.5;
-  color: var(--journal-accent);
-  overflow-wrap: anywhere;
-}
-.diary-leaf.has-photo .music-link {
   color: inherit;
+  overflow-wrap: anywhere;
 }
 .music-note {
   font: 1.25rem/1 "Segoe UI Symbol", sans-serif;
@@ -616,8 +613,8 @@ summary {
   margin-right: 0.4rem;
 }
 .music-title {
-  font-family: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
-  font-style: italic;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", Georgia, serif;
+  font-style: normal;
   font-weight: 600;
 }
 .music-link > span:last-child {
