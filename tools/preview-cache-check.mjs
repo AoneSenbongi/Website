@@ -34,7 +34,7 @@ try {
   const popup = await opened;
   await popup.waitForFunction(() => document.querySelector(".diary-copy") && getComputedStyle(document.querySelector(".diary-copy")).maxWidth === "none");
   assert.ok(requests.some(url => url.startsWith("/blog-ui/blog.css?preview=")));
-  assert.equal(await popup.locator(".diary-date .music-link").textContent(), "♫曲名↗");
+  assert.equal(await popup.locator(".diary-date .music-link").textContent(), "♫ 曲名↗");
   await popup.screenshot({ path: ".local/review/preview-old-cache-fixed.png", fullPage: true });
   console.log("PASS: cached old CSS stays cached; real popup preview requests fresh CSS and applies updated diary layout");
 } finally {

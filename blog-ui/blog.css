@@ -599,16 +599,29 @@ summary {
   padding: 0.4em 0.8em;
 }
 .music-link {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4rem;
+  display: inline-block;
   min-width: 0;
   max-width: 100%;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--journal-accent);
   overflow-wrap: anywhere;
 }
-.music-link > span:first-child {
-  font-size: 0.85rem;
+.diary-leaf.has-photo .music-link {
+  color: inherit;
+}
+.music-note {
+  font: 1.25rem/1 "Segoe UI Symbol", sans-serif;
+  vertical-align: -0.1em;
+  margin-right: 0.4rem;
+}
+.music-title {
+  font-family: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-style: italic;
+  font-weight: 600;
+}
+.music-link > span:last-child {
+  margin-left: 0.4rem;
 }
 .diary-empty {
   min-height: 20rem;

@@ -36,6 +36,7 @@ test("日記の音楽リンクを日付の隣へまとめる", () => {
     const html = diary({...entry,music:"https://example.com/song",song:"曲名"},[],preview);
     assert.match(html, /<div class="diary-date"><time[^>]*>[^<]*<\/time><a class="music-link"/);
     assert.equal((html.match(/class="music-link"/g)||[]).length,1);
+    assert.match(html, /class="music-note"[^>]*>♫<\/span> <span class="music-title">曲名<\/span>/);
   }
 });
 test("ほかの日記は選択中を除き、閉じたアーカイブにまとめる", () => {
