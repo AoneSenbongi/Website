@@ -69,7 +69,7 @@ function fill(post, kind = selected) {
       ? "公開中"
       : "下書き"
     : "";
-  document.querySelector("#preview").disabled = !post;
+  document.querySelector("#preview").disabled = false;
   status("save-notice", "");
   baseline = snapshot();
   renderPosts();
@@ -166,7 +166,7 @@ document.querySelector("#photo").addEventListener("change", async (event) => {
 function setBusy(value) {
   for (const control of form.querySelectorAll("button,input,textarea,select"))
     control.disabled = value;
-  document.querySelector("#preview").disabled = value || !current;
+  document.querySelector("#preview").disabled = value;
 }
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -210,13 +210,32 @@ form.addEventListener("submit", async (event) => {
     setBusy(false);
   }
 });
-document.querySelector("#preview").addEventListener("click", () => {
-  if (current)
-    window.open(
-      "/admin/preview/" + current.id + "/",
-      "_blank",
-      "noopener,noreferrer",
-    );
+document.querySelector("#preview").addEventListener("click", async () => {
+  if (busy || !form.reportValidity()) return;
+  const popup = window.open("", "_blank");
+  if (!popup) {
+    status("save-notice", "プレビューを開くため、ポップアップを許可してください。");
+    return;
+  }
+  popup.opener = null;
+  popup.document.body.textContent = "プレビューを読み込んでいます。";
+  const body = { ...JSON.parse(snapshot()), status: "draft" };
+  busy = true;
+  setBusy(true);
+  try {
+    const result = await api("/api/admin/preview", { method: "POST", body });
+    if (!popup.closed) {
+      popup.document.open();
+      popup.document.write(result.html);
+      popup.document.close();
+    }
+  } catch (e) {
+    popup.close();
+    status("save-notice", e.message);
+  } finally {
+    busy = false;
+    setBusy(false);
+  }
 });
 async function moderation() {
   comments = await api("/api/admin/comments");

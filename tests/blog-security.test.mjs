@@ -167,6 +167,18 @@ async function comment(s, body = {}) {
     body: { name: "読者", body: "感想です", turnstile: "valid", ...body },
   });
 }
+test("未保存のMarkdownプレビューは管理者限定でデータを変更しない", async () => {
+  const s = await session();
+  const before = db.prepare("SELECT * FROM posts ORDER BY id").all();
+  const body = {kind:"blog",title:"入力中",slug:"unsaved",body:"## 未保存の見出し\n\n**太字**",status:"draft"};
+  assert.equal((await request("/api/admin/preview", {method:"POST",body,cookie:s.cookie,csrf:s.csrf})).status,401);
+  assert.equal((await request("/api/admin/preview", {method:"POST",body,admin:await token(),cookie:s.cookie})).status,403);
+  const response = await request("/api/admin/preview", {method:"POST",body,admin:await token(),cookie:s.cookie,csrf:s.csrf});
+  assert.equal(response.status,200);
+  assert.match((await response.json()).html, /<h2>未保存の見出し<\/h2>/);
+  assert.deepEqual(db.prepare("SELECT * FROM posts ORDER BY id").all(),before);
+});
+
 test("管理画面と全管理APIは署名なし・偽造・別ユーザーを拒否", async () => {
   for (const path of ["/admin/", "/api/admin/posts", "/api/admin/comments"])
     assert.equal((await request(path)).status, 401);

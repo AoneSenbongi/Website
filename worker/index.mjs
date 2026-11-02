@@ -671,6 +671,16 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
     }
     const data = await readJSON(request);
     if (isAdmin) {
+      if (path === "/api/admin/preview" && request.method === "POST") {
+        const input = postInput({ ...data, status: "draft" });
+        if (input.photo && !(await env.PHOTOS.get(input.photo)))
+          fail(400, "写真が見つかりません。");
+        const p = { ...input, entry_date: input.entryDate, published_at: null };
+        const response = await page(env, request,
+          p.kind === "diary" ? diary(p, [], true) : article(p, true),
+          { title: p.title });
+        return json({ html: await response.text() });
+      }
       if (path === "/api/admin/posts" && request.method === "POST") {
         const p = postInput(data),
           pid = id(),
