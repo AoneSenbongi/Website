@@ -528,21 +528,21 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
       if (diaryRoute) {
         const entries = await rows(
           env,
-          "SELECT * FROM posts WHERE kind='diary' AND status='published' ORDER BY entry_date DESC LIMIT 365",
+          "SELECT id,slug,entry_date FROM posts WHERE kind='diary' AND status='published' ORDER BY entry_date DESC",
         );
-        let entry = entries[0] || null;
-        if (diaryRoute[1]) {
-          entry = await one(
-            env,
-            "SELECT * FROM posts WHERE kind='diary' AND status='published' AND entry_date=?",
-            diaryRoute[1],
-          );
-          if (!entry) fail(404, "日記が見つかりません。");
-        }
-        return page(env, request, diary(entry, entries), {
+        const selectedDate = diaryRoute[1] || entries[0]?.entry_date;
+        const index = entries.findIndex(e => e.entry_date === selectedDate);
+        if (diaryRoute[1] && index < 0) fail(404, "日記が見つかりません。");
+        const dates = index < 0 ? [] : entries.slice(Math.max(0,index-1),index+2).map(e=>e.entry_date);
+        const neighbors = dates.length ? await rows(env,
+          "SELECT * FROM posts WHERE kind='diary' AND status='published' AND entry_date IN (?,?,?)",
+          dates[0] || "", dates[1] || "", dates[2] || "") : [];
+        const entry = neighbors.find(e=>e.entry_date === selectedDate) || null;
+        const hydrated = entries.map(e=>neighbors.find(n=>n.id === e.id) || e);
+        return page(env, request, diary(entry, hydrated), {
           ...shareMetadata(entry || {kind:"diary"}, env.SITE_ORIGIN),
           type: entry ? "article" : "website",
-          script: entry ? "article" : undefined,
+          script: entry ? "diary" : undefined,
           title: entry ? entry.entry_date + "の日記" : "日記",
           canonical: entry ? entryPath(entry) : "/diary/",
         });

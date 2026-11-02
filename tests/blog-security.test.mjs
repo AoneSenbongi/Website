@@ -191,6 +191,23 @@ test("日記の共有カードは日付・本文概要・日記画像を使い�
  const html=await(await request('/diary/')).text();assert.ok(!html.includes('日記を書きました。'));
  assert.match(html,/<meta name="twitter:title" content="日記 \| 山近晴也">/);
 });
+test("日記の横移動は古い日付まで辿れ、本文は前後分だけを読み込む",async()=>{
+ const insert=db.prepare("INSERT INTO posts(id,slug,title,body,status,created_at,updated_at,published_at,kind,entry_date) VALUES(?,?,?,?,?,?,?,?,?,?)");
+ const dates=[];
+ for(let i=0;i<367;i++){
+   const date=new Date(Date.UTC(2026,10,2)-i*86400000).toISOString().slice(0,10);dates.push(date);
+   insert.run('day'+i,'day'+i,date,'本文番号'+i+'終端','published',1,1,1,'diary',date);
+ }
+ const latest=await(await request('/diary/')).text();
+ assert.ok(latest.includes('本文番号0終端'));assert.ok(latest.includes('本文番号1終端'));assert.ok(!latest.includes('本文番号2終端'));
+ assert.ok(latest.includes('class="diary-latest"'));
+ const oldest=await request('/diary/'+dates[366]+'/');assert.equal(oldest.status,200);
+ const html=await oldest.text();
+ assert.ok(html.includes('href="/diary/'+dates[365]+'/#diary-reader"'));
+ assert.ok(!html.includes('data-diary-step="1"'));
+ assert.ok(html.includes('data-slug="day366"'));
+ assert.ok(html.includes('本文番号366終端'));assert.ok(!html.includes('本文番号0終端'));
+});
 
 test("未保存のMarkdownプレビューは管理者限定でデータを変更しない", async () => {
   const s = await session();

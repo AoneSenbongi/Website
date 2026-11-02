@@ -34,10 +34,21 @@ test("日記の日付は一箇所にまとめ、1件だけならアーカイブ�
 test("日記の音楽リンクを日付の隣へまとめる", () => {
   for (const preview of [false, true]) {
     const html = diary({...entry,music:"https://example.com/song",song:"曲名"},[],preview);
-    assert.match(html, /<div class="diary-date"><time[^>]*>[^<]*<\/time><a class="music-link"/);
+    assert.match(html, /<div class="diary-date"><div class="diary-date-label"><time[^>]*>[^<]*<\/time>[\s\S]*?<\/div><a class="music-link"/);
     assert.equal((html.match(/class="music-link"/g)||[]).length,1);
     assert.match(html, /class="music-note"[^>]*>♫<\/span> <span class="music-title">曲名<\/span>/);
   }
+});
+test("日記は前後を横に並べ、Latestは最新分だけに表示する",()=>{
+ const newest={...entry,id:'newest',entry_date:'2026-10-22'},oldest={...entry,id:'oldest',entry_date:'2026-10-20'};
+ const html=diary(entry,[newest,entry,oldest]);
+ assert.match(html,/class="diary-track"/);
+ assert.match(html,/data-diary-step="-1"[^>]*href="\/diary\/2026-10-22\//);
+ assert.match(html,/data-diary-step="1"[^>]*href="\/diary\/2026-10-20\//);
+ assert.equal((html.match(/class="diary-latest"/g)||[]).length,1);
+ assert.equal((html.match(/id="comment-form"/g)||[]).length,1);
+ assert.doesNotMatch(diary(newest,[newest,entry,oldest]),/<a data-diary-step="-1"/);
+ assert.doesNotMatch(diary(entry,[newest,entry,oldest],true),/diary-track|diary-latest|data-diary-step/);
 });
 test("ほかの日記は選択中を除き、閉じたアーカイブにまとめる", () => {
   const html = diary(entry, [
