@@ -23,6 +23,13 @@ test("Markdown site images are used with a safe default when absent",()=>{
  assert.equal(shareMetadata({body:'![写真](/images/blog/photo.jpg)'},origin).image,origin+'/images/blog/photo.jpg');
  for(const body of ['本文','![画像](data:image/png;base64,abc)','![画像](/admin/private.jpg)','![画像](https://other.example/img.png)'])assert.equal(shareMetadata({body},origin).image,origin+'/images/og-card.png');
 });
+test("Diary shares use their photo or a dedicated diary image",()=>{
+ const post={kind:'diary',title:'2026-11-02',body:'**今日**の日記'};
+ assert.equal(shareMetadata(post,origin).description,'今日の日記');
+ assert.equal(shareMetadata(post,origin).image,origin+'/images/diary-og-card.png');
+ assert.equal(shareMetadata({...post,photo:'b'.repeat(32)+'.png'},origin).image,origin+'/media/'+'b'.repeat(32)+'.png');
+ assert.equal(shareMetadata({...post,body:'![写真](/images/day.jpg)'},origin).image,origin+'/images/day.jpg');
+});
 test("The real HTML template emits consistent escaped Open Graph and X cards",async()=>{
  const template=await readFile(new URL('../blog/index.html',import.meta.url),'utf8');
  const env={SITE_ORIGIN:origin,ASSETS:{fetch:async()=>new Response(template)}};

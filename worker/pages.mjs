@@ -55,8 +55,8 @@ export function shareMetadata(post, origin) {
   visit(markdown.parse(post.body || "", {}));
   return {
     type: "article",
-    description: [...text.replace(/\s+/g, " ").trim()].slice(0, 160).join("") || post.title || "山近晴也のBlog",
-    image: image || origin + "/images/og-card.png",
+    description: [...text.replace(/\s+/g, " ").trim()].slice(0, 160).join("") || (post.kind === "diary" ? "山近晴也の日記。日々のこと、音楽、写真。" : post.title || "山近晴也のBlog"),
+    image: image || origin + (post.kind === "diary" ? "/images/diary-og-card.png" : "/images/og-card.png"),
   };
 }
 const switcher = (active) =>

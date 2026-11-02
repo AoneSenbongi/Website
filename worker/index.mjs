@@ -540,6 +540,8 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
           if (!entry) fail(404, "日記が見つかりません。");
         }
         return page(env, request, diary(entry, entries), {
+          ...shareMetadata(entry || {kind:"diary"}, env.SITE_ORIGIN),
+          type: entry ? "article" : "website",
           script: entry ? "article" : undefined,
           title: entry ? entry.entry_date + "の日記" : "日記",
           canonical: entry ? entryPath(entry) : "/diary/",

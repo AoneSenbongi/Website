@@ -176,6 +176,21 @@ test("X向け取得で公開記事のカード情報を返し、下書きは返�
   assert.match(html, /<meta property="og:type" content="article">/);
   assert.equal((await request("/blog/secret/", {headers:{"User-Agent":"Twitterbot/1.0"}})).status,404);
 });
+test("日記の共有カードは日付・本文概要・日記画像を使い、下書きは漏らさない",async()=>{
+ db.prepare("INSERT INTO posts(id,slug,title,body,status,created_at,updated_at,published_at,kind,entry_date) VALUES(?,?,?,?,?,?,?,?,?,?)")
+   .run('diary-share','diary-share','2026-11-02','## 今日\n\n**日記**を書きました。','published',1,1,1,'diary','2026-11-02');
+ for(const path of ['/diary/','/diary/2026-11-02/']){
+   const r=await request(path,{headers:{'User-Agent':'Twitterbot/1.0'}});assert.equal(r.status,200);const html=await r.text();
+   assert.match(html,/<meta name="twitter:title" content="2026-11-02の日記 \| 山近晴也">/);
+   assert.match(html,/<meta name="twitter:description" content="今日 日記を書きました。">/);
+   assert.ok(html.includes('content="'+origin+'/images/diary-og-card.png"'));
+   assert.match(html,/<meta property="og:type" content="article">/);
+ }
+ db.prepare("UPDATE posts SET status='draft' WHERE id='diary-share'").run();
+ assert.equal((await request('/diary/2026-11-02/')).status,404);
+ const html=await(await request('/diary/')).text();assert.ok(!html.includes('日記を書きました。'));
+ assert.match(html,/<meta name="twitter:title" content="日記 \| 山近晴也">/);
+});
 
 test("未保存のMarkdownプレビューは管理者限定でデータを変更しない", async () => {
   const s = await session();
