@@ -127,8 +127,14 @@ Edgeで本番Blog一覧の画像幅が390px時350px（行幅350px）、1280px時
 
 本番 `/diary/` は公開日記なしの空状態だったため、実日記本文の幅は確認できない。本番配信CSSを取得してローカルfixtureへ適用し、390pxで本文318px/利用可能318px、1280pxで本文832px/利用可能832px、手動改行保持と横溢れなしを確認。結果 `.local/review/production-news-diary-check.json`、画像 `.local/review/production-css-diary-width-{390,1280}.png`。本人の認証済み未保存プレビューは操作していない。プレビューを開き直して本人が確認する。本番投稿・DB内容への変更はしていない。
 
-## 現在の依頼（プレビューのCSS更新と日付横の音楽、公開実行中）
+## 現在の依頼（プレビューのCSS更新と日付横の音楽、本番反映済み）
 
 本人がプレビュー側にも折り返し修正を反映するよう依頼し、この修正と追加の音楽位置変更は確認なしの公開を明示許可。配信CSSは `Cache-Control: public, max-age=14400, must-revalidate` で、プレビューのCSS URLが固定だったため古いCSSを使用できた。入力中POSTと保存済みGETプレビューの両方で、各表示ごとに全CSSへランダムなpreviewクエリを付ける。公開画面のblog.cssにも版番号を付けて今回のCSSを取得させる。保存本文・DB・認証方式は変更しない。
 
 音楽リンクは日記の末尾から日付の隣へ移動。横並びとし、長い曲名や狭い幅では折り返しを許す。不要になった区切り線・上余白を削除。再現試験2件の失敗確認後に実装し、全55試験とビルド・構文確認成功。tools/preview-cache-check.mjsで4時間有効な旧CSSを実ブラウザーに保持させ、document.writeで開く実テンプレートの新プレビューが最新CSSを取得することを確認。tools/unsaved-preview-browser-check.mjsで認証付き入力中Blog/日記のプレビュー・CSS更新URL・390px/1280pxの本文幅・日付横の曲名・opener遮断・DB変更なしを確認（専用ローカル4203、publish-check DB）。画像 `.local/review/preview-old-cache-fixed.png` と `.local/review/unsaved-diary-preview-{390,1280}.png`。次は承認済み範囲をmainへpushし、本番デプロイと配信内容を確認する。
+
+2026-11-02 JST、本人の確認なし公開許可に従い `ed7bd46ad0939083bb4c0cba69336b349a8ff5c2` をmainへpush。Pages deployment `e3bc8092-2bc1-49e7-903c-920b490837c7` 成功。本番Blogの版番号付きCSSリンク、配信CSS200、新プレビューAPIの未認証302を確認。本番CSSをfixtureへ適用した390px/1280pxの表示で本文幅318px/832pxと日付横の曲名、横溢れなしを確認。結果 `.local/review/production-preview-music-check.json`、画像 `.local/review/production-preview-music-css-{390,1280}.png`。本番の認証済み未保存プレビュー自体は操作していないため、本人には管理画面の再読み込みではなくプレビューボタンで開き直すよう案内する。投稿本文・本番DBは変更していない。依頼の修正・公開は完了。
+
+## 現在の調整（日付と音楽の間隔、公開実行中）
+
+本人が間隔をもう少し広げるよう依頼し、確認なし公開を明示許可。横間隔を1.5rem（24px）から2.5rem（40px）へ変更し、公開画面のCSS版番号を20261102dへ更新。Edgeの390px/1280pxで40px間隔・同じ行・横溢れなしを確認し、ビルドと構文確認成功。次はmainへpushし本番配信を確認する。
