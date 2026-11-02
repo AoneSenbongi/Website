@@ -31,6 +31,13 @@ test("日記の日付は一箇所にまとめ、1件だけならアーカイブ�
   assert.match(html, /<time datetime="2026-10-21">2026\.10\.21<\/time>/);
   assert.match(html, /class="diary-copy"/);
 });
+test("日記の音楽リンクを日付の隣へまとめる", () => {
+  for (const preview of [false, true]) {
+    const html = diary({...entry,music:"https://example.com/song",song:"曲名"},[],preview);
+    assert.match(html, /<div class="diary-date"><time[^>]*>[^<]*<\/time><a class="music-link"/);
+    assert.equal((html.match(/class="music-link"/g)||[]).length,1);
+  }
+});
 test("ほかの日記は選択中を除き、閉じたアーカイブにまとめる", () => {
   const html = diary(entry, [
     entry,

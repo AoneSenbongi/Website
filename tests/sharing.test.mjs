@@ -3,6 +3,16 @@ import assert from "node:assert/strict";
 import { page, shareMetadata } from "../worker/pages.mjs";
 import { readFile } from "node:fs/promises";
 const origin="https://yamachikaseiya.com";
+test("Preview styles bypass cached CSS on every opening", async () => {
+ const template=await readFile(new URL('../blog/index.html',import.meta.url),'utf8');
+ const env={SITE_ORIGIN:origin,ASSETS:{fetch:async()=>new Response(template)}};
+ const render=async()=> (await page(env,new Request(origin+'/api/admin/preview'),'<main>preview</main>',{preview:true})).text();
+ const first=await render(),second=await render();
+ const styles=html=>[...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(m=>m[1]);
+ assert.ok(styles(first).length>=2);
+ for (const href of styles(first)) assert.ok(new URL(href,origin).searchParams.has('preview'),href);
+ assert.notDeepEqual(styles(first),styles(second));
+});
 test("Blog share metadata removes Markdown and chooses a published photo",()=>{
  const meta=shareMetadata({body:'## 見出し\n\n**大事**な[文章](https://example.com)\n\n![写真](/images/example.jpg)',photo:'a'.repeat(32)+'.jpg'},origin);
  assert.equal(meta.description,'見出し 大事な文章');

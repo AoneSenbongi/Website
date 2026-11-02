@@ -522,6 +522,12 @@ summary {
 .diary-leaf.has-photo .diary-copy {
   background: rgba(0, 0, 0, 0.65);
 }
+.diary-date {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  flex-wrap: wrap;
+}
 .diary-date time {
   display: block;
   font-family: inherit;
@@ -529,6 +535,7 @@ summary {
   line-height: 1.5;
   letter-spacing: 0.09em;
   opacity: 0.85;
+  flex-shrink: 0;
 }
 .diary-words {
   margin-block: 1.25rem;
@@ -592,19 +599,16 @@ summary {
   padding: 0.4em 0.8em;
 }
 .music-link {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: auto;
-  width: fit-content;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
   max-width: 100%;
   font-size: 0.75rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid currentColor;
   overflow-wrap: anywhere;
 }
 .music-link > span:first-child {
-  font-size: 1.3rem;
+  font-size: 0.85rem;
 }
 .diary-empty {
   min-height: 20rem;

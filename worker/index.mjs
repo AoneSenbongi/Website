@@ -595,7 +595,7 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
           env,
           request,
           p.kind === "diary" ? diary(p, [], true) : article(p, true),
-          { title: p.title },
+          { title: p.title, preview: true },
         );
       }
       const media = path.match(/^\/media\/([a-f0-9]{32}\.(?:jpg|png|webp))$/);
@@ -679,7 +679,7 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
         const p = { ...input, entry_date: input.entryDate, published_at: null };
         const response = await page(env, request,
           p.kind === "diary" ? diary(p, [], true) : article(p, true),
-          { title: p.title });
+          { title: p.title, preview: true });
         return json({ html: await response.text() });
       }
       if (path === "/api/admin/posts" && request.method === "POST") {

@@ -73,6 +73,7 @@ export async function page(
     canonical,
     type = "website",
     image = env.SITE_ORIGIN + "/images/og-card.png",
+    preview = false,
   } = {},
 ) {
   const asset = await env.ASSETS.fetch(
@@ -98,7 +99,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/blog.css"></head>',
+      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261102c"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -106,6 +107,11 @@ export async function page(
       '<footer class="journal-footer"><span>© 山近晴也</span><nav><a href="/contact/">Contact</a><a href="/blog/privacy/">データの扱い</a></nav></footer>',
     )
     .replace(/ style="[^"]*"/g, "");
+  if (preview) {
+    const version = crypto.randomUUID();
+    html = html.replace(/(<link\b[^>]*rel="stylesheet"[^>]*href=")([^"]+)(")/g,
+      (_, prefix, href, suffix) => prefix + href.split("?")[0] + "?preview=" + version + suffix);
+  }
   if (script)
     html = html.replace(
       "</body>",
@@ -147,7 +153,7 @@ export function article(p, preview = false) {
 }
 export function diary(p, entries = [], preview = false) {
   const others = entries.filter((e) => e.id !== p?.id);
-  return `<main class="article-shell diary-shell"${p ? ` data-slug="${escape(p.slug)}"` : ""}>${switcher("diary")}<header class="diary-heading"><h1>日記</h1>${others.length ? `<details class="diary-archive"><summary>ほかの日記</summary><nav class="date-strip" aria-label="日記の日付">${others.map((e) => `<a href="${entryPath(e)}">${escape(e.entry_date.replaceAll("-", "."))}</a>`).join("")}</nav></details>` : ""}</header>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}${p ? `<article class="diary-leaf${p.photo ? " has-photo" : ""}">${p.photo ? `<img class="diary-background" src="/media/${escape(p.photo)}" alt="">` : ""}<div class="diary-copy"><div class="diary-date"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time></div>${p.body ? `<div class="diary-words">${markdown.render(p.body)}</div>` : ""}${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">♫</span><span>${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div></article>${preview ? "" : interactions(p)}` : '<div class="diary-empty"><p>まだ日記はありません。</p></div>'}</main>`;
+  return `<main class="article-shell diary-shell"${p ? ` data-slug="${escape(p.slug)}"` : ""}>${switcher("diary")}<header class="diary-heading"><h1>日記</h1>${others.length ? `<details class="diary-archive"><summary>ほかの日記</summary><nav class="date-strip" aria-label="日記の日付">${others.map((e) => `<a href="${entryPath(e)}">${escape(e.entry_date.replaceAll("-", "."))}</a>`).join("")}</nav></details>` : ""}</header>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}${p ? `<article class="diary-leaf${p.photo ? " has-photo" : ""}">${p.photo ? `<img class="diary-background" src="/media/${escape(p.photo)}" alt="">` : ""}<div class="diary-copy"><div class="diary-date"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time>${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">♫</span><span>${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div>${p.body ? `<div class="diary-words">${markdown.render(p.body)}</div>` : ""}</div></article>${preview ? "" : interactions(p)}` : '<div class="diary-empty"><p>まだ日記はありません。</p></div>'}</main>`;
 }
 export function adminPage() {
   return `<main class="admin-shell blog-shell"><header class="admin-heading"><h1>書く<span class="heading-dot">.</span></h1><a class="logout-link" href="/cdn-cgi/access/logout">ログアウト ↗</a></header><nav class="editor-tabs" aria-label="管理メニュー"><button type="button" data-tab="blog" aria-pressed="true">記事</button><button type="button" data-tab="diary" aria-pressed="false">日記</button><button type="button" data-tab="comments" aria-pressed="false">コメント<span id="pending-count"></span></button></nav><p id="notice" role="status" aria-live="polite"></p><div id="writing-panel" class="writing-layout"><aside class="writing-sidebar"><button type="button" id="new-post" class="new-entry">＋ 新しく書く</button><div id="posts"></div></aside><section class="writing-editor"><form id="post-form"><input type="hidden" name="kind" value="blog"><header class="editor-heading"><h2 id="editor-title">新しい記事</h2><span id="editor-state"></span></header><div id="blog-fields"><label><span class="visually-hidden">タイトル</span><input class="title-input" name="title" maxlength="160" required placeholder="タイトル"></label><details class="url-setting"><summary>URL</summary><label><span class="visually-hidden">URLの末尾</span><input name="slug" maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" required placeholder="first-post"></label></details></div><div id="diary-fields" hidden><label class="date-label">日付<input type="date" name="date"></label></div><label><span class="visually-hidden">本文</span><textarea class="body-input" name="body" rows="14" maxlength="20000" required placeholder="Markdownで書く（## 小見出し、**太字**）"></textarea></label><div class="photo-editor"><img id="photo-preview" alt="登録する写真" hidden><div><label class="photo-picker" for="photo">＋ 写真を追加</label><input class="visually-hidden" id="photo" type="file" accept="image/jpeg,image/png,image/webp"><button type="button" id="remove-photo" class="text-button" hidden>写真を外す</button></div><p id="photo-state" class="help-text"></p></div><details id="music-fields" hidden><summary>♫ 音楽を添える</summary><label><span class="visually-hidden">音楽のURL</span><input name="music" type="url" placeholder="https://…"></label><label><span class="visually-hidden">曲名</span><input name="song" maxlength="120" placeholder="曲名（任意）"></label></details><div class="editor-actions"><button type="button" id="preview" class="text-button" disabled>プレビュー ↗</button><div><button type="submit" name="action" value="draft">保存</button><button type="submit" name="action" value="published" class="primary-button">公開</button></div></div><p id="save-notice" role="status" aria-live="polite"></p></form></section></div><section id="comments-panel" class="moderation-panel" hidden><div class="moderation-heading"><h2>コメント</h2><label><span class="visually-hidden">表示するコメント</span><select id="comment-filter"><option value="pending">承認待ち</option><option value="all">すべて</option></select></label></div><div id="moderation"></div></section></main>`;

@@ -115,10 +115,20 @@ tools/blog-thumbnail-check.mjsで修正前の88px表示を再現して失敗確�
 
 Edgeで本番Blog一覧の画像幅が390px時350px（行幅350px）、1280px時約413pxになり、モバイルの画像先頭・contain・横溢れなしを確認。本番記事の2.6を含む太字要素と、末尾の日記リンクから `/diary/` へのクリック遷移を確認。結果 `.local/review/production-thumbnail-bold-diary-check.json`、画像 `.local/review/production-thumbnail-{390,1280}.png` と `.local/review/production-article-diary-link.png`。本番記事本文やDBへの変更・試験投稿は行っていない。現在の依頼は反映・検証まで完了。
 
-## 現在の依頼（日記の折り返しとNews、公開承認待ち）
+## 現在の依頼（日記の折り返しとNews、本番反映済み）
 
 本人の下書きプレビュー画面で、写真なしの日記の右側に余白を残して本文が折り返される問題を確認。CSSのdiary-copyが32rem上限かつ二重paddingを持ち、1280px試験で利用可能832pxに対して本文464pxになっていた。再現試験の失敗確認後、写真なしの場合だけ内側の幅全体を使うよう修正。手動改行・段落と写真付きの日記の従来の文字幅は維持する。tools/diary-text-layout-check.mjsで1280px/390pxの幅・改行保持・横溢れなしと、写真付き文字幅の維持を確認。画像 `.local/review/diary-text-width-{1280,390}.png`。
 
 続いて本人がNewsへBlog投稿のお知らせを依頼。HomeのNews先頭に2026.11.02「Blogを投稿しました。」を追加し、`/blog/post-20261102-505bc8/` にリンクする。英語Homeも「Published a new Blog post.」を追加。既存の直近3件表示を維持し、2026.09.29は過去の更新へ移動した。EdgeのJA/EN・390px/1280pxで先頭文言、3件表示、アーカイブ先頭、記事URLを確認。記事へのHTTP200とWorkerビルド・構文確認成功。画像 `.local/review/news-blog-{ja,en}-{390,1280}.png`。
 
 今回の2変更はまだpush・本番反映していない。具体的なNews本文と日記の修正を提示し、承認後に公開する。本番の記事・日記本文やDBへの変更はしない。
+
+2026-11-02 JST、本人が2変更を「いいよ」と承認。`ff7e7a1ec7f2157033ccb9020ffd1da2eb4d8971` をmainへpushし、Pages deployment `f166ebc2-19b5-4bd4-b18f-aca48bcb9423` 成功。上記の承認待ち・未反映は解消済み。JA/ENの本番Homeを390px/1280pxで表示し、News先頭文言・記事リンク・3件表示・アーカイブ先頭を確認。画像 `.local/review/production-news-{ja,en}-{390,1280}.png`。
+
+本番 `/diary/` は公開日記なしの空状態だったため、実日記本文の幅は確認できない。本番配信CSSを取得してローカルfixtureへ適用し、390pxで本文318px/利用可能318px、1280pxで本文832px/利用可能832px、手動改行保持と横溢れなしを確認。結果 `.local/review/production-news-diary-check.json`、画像 `.local/review/production-css-diary-width-{390,1280}.png`。本人の認証済み未保存プレビューは操作していない。プレビューを開き直して本人が確認する。本番投稿・DB内容への変更はしていない。
+
+## 現在の依頼（プレビューのCSS更新と日付横の音楽、公開実行中）
+
+本人がプレビュー側にも折り返し修正を反映するよう依頼し、この修正と追加の音楽位置変更は確認なしの公開を明示許可。配信CSSは `Cache-Control: public, max-age=14400, must-revalidate` で、プレビューのCSS URLが固定だったため古いCSSを使用できた。入力中POSTと保存済みGETプレビューの両方で、各表示ごとに全CSSへランダムなpreviewクエリを付ける。公開画面のblog.cssにも版番号を付けて今回のCSSを取得させる。保存本文・DB・認証方式は変更しない。
+
+音楽リンクは日記の末尾から日付の隣へ移動。横並びとし、長い曲名や狭い幅では折り返しを許す。不要になった区切り線・上余白を削除。再現試験2件の失敗確認後に実装し、全55試験とビルド・構文確認成功。tools/preview-cache-check.mjsで4時間有効な旧CSSを実ブラウザーに保持させ、document.writeで開く実テンプレートの新プレビューが最新CSSを取得することを確認。tools/unsaved-preview-browser-check.mjsで認証付き入力中Blog/日記のプレビュー・CSS更新URL・390px/1280pxの本文幅・日付横の曲名・opener遮断・DB変更なしを確認（専用ローカル4203、publish-check DB）。画像 `.local/review/preview-old-cache-fixed.png` と `.local/review/unsaved-diary-preview-{390,1280}.png`。次は承認済み範囲をmainへpushし、本番デプロイと配信内容を確認する。
