@@ -143,7 +143,7 @@ function interactions(p) {
 }
 export function article(p, preview = false) {
   return `<main class="article-shell" data-slug="${escape(p.slug)}"><a class="article-back" href="${preview ? "/admin/" : "/blog/"}">← ${preview ? "管理画面" : "Blog"}</a>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}<article><header class="article-header"><p class="post-meta">${p.published_at ? date(p.published_at) : "下書き"}</p><h1>${escape(p.title)}</h1><p class="byline"><img src="/images/profile-photo.jpg" alt="">山近晴也<span class="author-badge">本人</span></p></header><div class="article-body">${p.photo ? `<figure><img src="/media/${escape(p.photo)}" alt="記事の写真"></figure>` : ""}${p.body
-    ? markdown.render(p.body) : ""}</div></article>${preview ? "" : interactions(p)}</main>`;
+    ? markdown.render(p.body) : ""}</div></article>${preview ? "" : interactions(p) + '<p class="article-diary-link"><a href="/diary/">日記</a></p>'}</main>`;
 }
 export function diary(p, entries = [], preview = false) {
   const others = entries.filter((e) => e.id !== p?.id);
