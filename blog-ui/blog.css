@@ -566,6 +566,12 @@ summary {
   font-size: 1.2rem;
 }
 .diary-nav-disabled { opacity: 0.3; }
+.diary-navigation[aria-busy="true"] { opacity: 0.5; }
+.diary-navigation-notice {
+  font-size: 0.8rem;
+  color: var(--journal-muted);
+  margin-bottom: 1rem;
+}
 .diary-slider {
   overflow: hidden;
   touch-action: pan-y pinch-zoom;

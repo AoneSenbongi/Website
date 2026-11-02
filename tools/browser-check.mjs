@@ -84,7 +84,6 @@ try {
   assert.ok(await popup.getByText("下書きプレビュー").count());
   assert.equal(await popup.evaluate(() => !!window.untrustedExecuted), false);
   await popup.close();
-  admin.once("dialog", (d) => d.accept());
   await admin.getByRole("button", { name: "公開", exact: true }).click();
   await admin.waitForFunction(
     () =>

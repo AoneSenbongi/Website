@@ -181,7 +181,7 @@ Edgeの390px/1280px・写真あり/なしで本文と同色、normalスタイル
 
 旧静的実装e33010eのdiary/index.htmlには常設の日付navと「新しい日」「前の日」の移動ボタンがあったことをGitの実ファイルで確認。参考サイト自体のURLと現状はまだ特定・再確認していないため、同じ構成だったとは断定しない。暫定案は、日記トップで最近の複数日を続けて読める構成、各日から前後への移動、常設の小さな月別入口。Blogの下から控えめに入る配置という本人の意図は維持する。ここでは実装・本番変更をせず、再共有されたサイトを確認して具体案を決める。
 
-## 現在の依頼（日記の横移動とLatest、公開承認待ち）
+## 現在の依頼（日記の横移動とLatest、本番反映済み）
 
 本人が参考サイト https://cappu.cc/ を再共有し、以前と変わったと説明。現トップのHTTP取得ではプロフィール・Timeline・Certificatesで、日記型の構成は確認できなかった。その後、本人が「横に並べて矢印・矢印キー・スワイプ」「最新にLatest」、さらにGitHubのような黄緑の丸いLatest枠と具体指定。前節の縦並び案は採用せず、この明示仕様を実装。
 
@@ -190,3 +190,15 @@ Edgeの390px/1280px・写真あり/なしで本文と同色、normalスタイル
 日付一覧はメタ情報だけ取得し、本文は選択中と前後の最大3件だけ取得する。従来の365件上限を外し古い日付も移動対象にする。専用JS blog-ui/diary.jsを追加し、既存のarticle.jsは変更しない。CSS版20261102g。
 
 全59試験・ビルド・構文確認成功。tools/diary-navigation-check.mjsでEdgeの390px/1280px、実TouchEventからのスワイプ、矢印・キー・端、Latest、縦操作、入力中キー、戻る、reduced motion、JSなしリンク、移動後のいいね/コメントの送信先を確認。CSPでinline-styleを禁止したfixtureでも動作確認。367件の日記fixtureで古い日付の移動と前後だけの本文取得も試験成功。画像 `.local/review/diary-carousel-{390,1280}.png` と `.local/review/diary-latest-badge.png`。本番・投稿DBは変更していない。次は見た目と操作仕様を提示し、今回の変更への承認後にmainへ反映する。
+
+2026-11-02 JST、本人が「いいよ」と承認。`0deae4cf7690f9a026fde8835b1698671e6c842a` をmainへpushし、Pages deployment `cf406031-7eda-4fff-8f3d-c19d9762c3c1` 成功。本番Edgeの390px/1280pxで最新分のLatest、横溢れなし、矢印クリックで別日付へ移動、左キーで最新へ戻る操作を確認。移動先のtwitter:titleが日付と一致し、その日記の反応取得API200を確認。本番への投稿・いいね・コメント書込はしていない。スワイプの入力確認はローカルfixtureのCDP TouchEvent試験によるもので、本人のスマートフォン実機では未確認。画像 `.local/review/production-diary-carousel-{390,1280}.png`、結果 `.local/review/production-diary-carousel-check.json`。公開・検証まで完了。
+
+## 現在の修正（日記の部分更新、公開承認待ち）
+
+本人が日記移動のたびにリロードされる点を指摘し、JP/EN切り替えと同様の動作を依頼。旧実装は横アニメーション後にlocation.assignしていた。JP/ENのfetch・DOMParser・pushStateによる差し替え方式を確認し、日記もfetchで日記mainだけを差し替え、ヘッダー・フッター・ページ自体を維持する方式へ修正。URL、title、canonical、OG/Xタグを同時更新する。日付一覧からの移動も部分更新し、popstateも同じ方式で処理する。既存言語切り替えのpopstateと競合しないようhistoryにdiarySwap=true/languageSwap=falseを設定する。
+
+article.jsの既存反応UIをinitArticle(root)として再初期化・破棄できる形へ変更。破棄済みの日記への遅いAPI応答やTurnstile callbackが新しい画面へ混入しないようrootと破棄状態で分離する。Blogは従来どおり自動初期化。日記ごとの入力欄・返信先・開閉状態を保持し、戻ると未送信コメントを復元する。取得失敗時は元の日記を維持して再試行可能。本文・本番DBは変更しない。JS/CSS版20261102h。
+
+tools/diary-navigation-check.mjsに同一windowの識別子を入れ、修正前のリロードによる消失を再現して失敗確認後に実装。修正後は矢印・キー・CDPタッチ・戻る/進むで識別子維持、選択日付のtitle/OG更新、日付別のいいね/コメント送信先、未送信文復元、旧APIの遅延応答遮断、503後の再試行、匿名Turnstile widgetの破棄/再作成、JSなしリンクを確認。全59試験・ビルド・構文確認成功。実ローカルAPIのtools/browser-check.mjsもBlogの公開・写真・いいね・匿名コメント・承認・返信・通知・解除まで成功（4204、publish-check DB、Turnstile表示のみfixture）。同試験に残っていた公開確認ダイアログ用の古いonce handlerが返信確認と二重反応して停止したため、その不要な1行だけ削除した。
+
+現状はローカル修正済みで本番は0deae4cのまま。次は今回の部分更新修正の公開承認を得てmainへ反映し、本番で同一window維持と移動先の対応を確認する。

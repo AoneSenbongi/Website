@@ -99,7 +99,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261102g"></head>',
+      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261102h"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -115,7 +115,7 @@ export async function page(
   if (script)
     html = html.replace(
       "</body>",
-      `<script type="module" src="/blog-ui/${script}.js"></script></body>`,
+      `<script type="module" src="/blog-ui/${script}.js?v=20261102h"></script></body>`,
     );
   const cards = {
     "og:type": type,
