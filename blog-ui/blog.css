@@ -72,12 +72,12 @@ body:has(.admin-shell) {
   align-items: center;
 }
 .post-row.has-thumbnail {
-  grid-template-columns: 1fr 11rem;
+  grid-template-columns: minmax(0, 1fr) 38%;
 }
 .post-row img {
-  aspect-ratio: 3/2;
+  aspect-ratio: 16/9;
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 3px;
 }
 .post-row h2 {
@@ -836,7 +836,10 @@ summary {
     padding-block: 1.5rem;
   }
   .post-row.has-thumbnail {
-    grid-template-columns: 1fr 5.5rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .post-row.has-thumbnail > a {
+    grid-row: 1;
   }
   .post-row h2 {
     font-size: 1.1rem;
