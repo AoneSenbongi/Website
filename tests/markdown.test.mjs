@@ -22,3 +22,23 @@ test("Plain text paragraphs, line breaks, and literal dollar signs survive", () 
   assert.match(html, /一行目<br>\n二行目/);
   assert.ok(html.includes("料金 $5 &amp; $&amp;"));
 });
+
+test("Spaced bold markers render in Blog and diary previews and public pages", () => {
+  const body = "** 一つは成績による脚切りです． **\n\n平均評定は** 2.6 **。\n\n**片側 **と** 片側**と**　全角　**";
+  for (const preview of [false, true]) {
+    for (const html of [article({...post, body}, preview), diary({...post, body}, [], preview)]) {
+      for (const text of ["一つは成績による脚切りです．", "2.6", "片側", "全角"])
+        assert.ok(html.includes(`<strong>${text}</strong>`), text);
+    }
+  }
+});
+
+test("Spaced bold preserves code, escaped markers, and HTML safety", () => {
+  const body = '`** 文字 **`\n\n```\n** 文字 **\n```\n\n\\*\\* 文字 \\*\\*\n\n** <script>x</script> **\n\n** [x](javascript:alert%281%29) **';
+  const html = article({...post, body}, true);
+  assert.ok(html.includes('<code>** 文字 **</code>'));
+  assert.ok(html.includes('<code>** 文字 **\n</code>'));
+  assert.ok(html.includes('<p>** 文字 **</p>'));
+  assert.ok(html.includes('<strong>&lt;script&gt;x&lt;/script&gt;</strong>'));
+  assert.doesNotMatch(html, /<script>|href="javascript:/);
+});

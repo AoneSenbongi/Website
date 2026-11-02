@@ -1,6 +1,23 @@
 import MarkdownIt from "markdown-it";
 
 const markdown = new MarkdownIt({ html: false, breaks: true });
+// Accept spaces inside bold markers without rewriting code or stored Markdown.
+markdown.inline.ruler.before("emphasis", "spaced_strong", (state, silent) => {
+  if (!state.src.startsWith("**", state.pos) || state.level >= state.md.options.maxNesting) return false;
+  const match = /^\*\*(?!\*)([^\n]*?)(?<!\\)\*\*(?!\*)/.exec(state.src.slice(state.pos, state.posMax));
+  if (!match || !/^[ \t\u3000]|[ \t\u3000]$/.test(match[1])) return false;
+  const content = match[1].trim();
+  if (!content) return false;
+  if (!silent) {
+    state.push("strong_open", "strong", 1).markup = "**";
+    const children = [];
+    state.md.inline.parse(content, state.md, state.env, children);
+    state.tokens.push(...children);
+    state.push("strong_close", "strong", -1).markup = "**";
+  }
+  state.pos += match[0].length;
+  return true;
+});
 
 export function escape(value) {
   return String(value ?? "").replace(
