@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "website",
+  "account_id": "cdcd515b4a97da608b550387cd459de9",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-10-22",
+  "vars": {
+    "SITE_ORIGIN": "https://yamachikaseiya.com",
+    "ACCESS_ISSUER": "https://soft-disk-64fc.cloudflareaccess.com",
+    "ACCESS_AUD": "32a7d6528b0f7bfa553b251a801b63a5ca9d004886ec993400e6547629063984",
+    "ADMIN_EMAIL": "aonesenbongi@gmail.com",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFv7cIVCzbJfDtmK",
+    "MAIL_FROM": "",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "yamachika-blog",
+      "database_id": "3cf63f07-fbe4-4883-9f90-b28274909f21",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "r2_buckets": [
+    { "binding": "PHOTOS", "bucket_name": "yamachika-blog-photos" },
+  ],
+  "env": {
+    "preview": {
+      "vars": {
+        "SITE_ORIGIN": "https://yamachikaseiya.com",
+        "ACCESS_ISSUER": "",
+        "ACCESS_AUD": "",
+        "ADMIN_EMAIL": "",
+        "TURNSTILE_SITE_KEY": "",
+        "MAIL_FROM": "",
+      },
+      "d1_databases": [],
+      "r2_buckets": [],
+    },
+  },
+}

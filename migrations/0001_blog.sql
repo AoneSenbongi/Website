@@ -1,0 +1,8 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE posts(id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, body TEXT NOT NULL, photo TEXT, status TEXT NOT NULL CHECK(status IN ('draft','published')), created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, published_at INTEGER);
+CREATE TABLE likes(post_id TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE, actor TEXT NOT NULL, PRIMARY KEY(post_id,actor));
+CREATE TABLE comments(id TEXT PRIMARY KEY, post_id TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE, parent_id TEXT REFERENCES comments(id) ON DELETE CASCADE, actor TEXT NOT NULL, name TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')), is_admin INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
+CREATE INDEX comment_post_status ON comments(post_id,status,created_at);
+CREATE TABLE limits(key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL);
+CREATE TABLE subscriptions(id TEXT PRIMARY KEY, comment_id TEXT NOT NULL UNIQUE REFERENCES comments(id) ON DELETE CASCADE, actor TEXT NOT NULL, email TEXT NOT NULL, email_hash TEXT NOT NULL, confirm_hash TEXT UNIQUE, unsubscribe_hash TEXT NOT NULL UNIQUE, unsubscribe_token TEXT NOT NULL, confirmed INTEGER NOT NULL DEFAULT 0, expires INTEGER NOT NULL);
+CREATE TABLE mail_queue(id TEXT PRIMARY KEY, comment_id TEXT NOT NULL REFERENCES comments(id) ON DELETE CASCADE, subscription_id TEXT NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE, state TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, locked_at INTEGER, UNIQUE(comment_id,subscription_id));

@@ -34,6 +34,10 @@ The goal is to provide an interactive web-based visualization that allows users 
 Interactive demonstration:
 https://yamachikaseiya.com/project/cube/3d-2d
 
+Blog
+
+This branch adds an authenticated editor for Blog posts and dated diary entries, anonymous likes, moderated comments and replies, optional email reply notifications, and X sharing using Cloudflare Pages Functions, D1, and R2. Authenticated author comments have an author badge. These features are under local verification and are not deployed to production. Earlier local drafts are not automatically migrated. See docs/BLOG_DYNAMIC.md for setup and security details.
+
 Development
 
 The website is primarily developed using:
@@ -42,7 +46,7 @@ HTML
 CSS
 JavaScript
 
-The site is mainly composed of static web technologies, with individual pages and interactive projects developed within the repository.
+Existing pages and demonstrations remain static. Blog APIs run on Cloudflare Pages Functions, with D1 for data and R2 for photos. Node.js 24 or later is used for development and testing.
 
 Repository Structure
 
@@ -70,7 +74,7 @@ Clone the repository:
 git clone https://github.com/AoneSenbongi/Website.git
 cd Website
 
-The website is built with static HTML, CSS, and JavaScript and can be served using any local static web server.
+Run npm ci and npm run dev for the Blog preview. Preview emails stay in a local outbox and are never sent externally. The existing static pages can also be served with a static web server.
 
 Open Source Projects
 
