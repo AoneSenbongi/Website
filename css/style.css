@@ -867,8 +867,8 @@ section h3 {
   grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
   min-height: clamp(28rem, 56svh, 36rem);
   padding-block: 0;
-  background: var(--deep-surface);
-  color: #fff;
+  background: var(--subtle);
+  color: var(--text);
 }
 
 .contact-hero-copy {
@@ -894,14 +894,14 @@ section h3 {
 
 .contact-page h1 {
   margin-bottom: 1.2rem;
-  color: #fff;
+  color: var(--text);
   font-size: clamp(2.75rem, 6vw, 4.5rem);
   letter-spacing: -0.04em;
 }
 
 .contact-intro {
   margin-bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text);
   font-size: 1.08rem;
 }
 
@@ -912,7 +912,7 @@ section h3 {
 
 .contact-response {
   margin-bottom: 1.75rem;
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
@@ -934,7 +934,7 @@ section h3 {
   border-radius: 0.8rem;
   background: var(--button-bg);
   color: var(--button-text);
-  box-shadow: 0 8px 20px rgba(16, 21, 34, 0.14);
+  box-shadow: var(--card-shadow);
   cursor: pointer;
   font: inherit;
   text-align: left;
@@ -944,17 +944,8 @@ section h3 {
 
 .contact-button:hover {
   background: var(--button-hover);
-  box-shadow: 0 12px 26px rgba(16, 21, 34, 0.2);
+  box-shadow: var(--card-shadow-hover);
   transform: translateY(-2px);
-}
-
-.contact-button-twitter {
-  background: #147ac1;
-  box-shadow: 0 8px 20px rgba(20, 122, 193, 0.22);
-}
-
-.contact-button-twitter:hover {
-  background: #0f68a7;
 }
 
 .contact-button-icon {

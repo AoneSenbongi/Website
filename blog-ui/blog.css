@@ -1,19 +1,11 @@
 /* Editorial surfaces shared by Blog, diary and the private editor. */
 :root {
-  --journal-ink: #303a32;
-  --journal-muted: #85847b;
-  --journal-paper: #f7f6f1;
-  --journal-line: #e1e0d7;
-  --journal-accent: #546b50;
-  --journal-panel: #fff;
-}
-:root[data-theme="dark"] {
-  --journal-ink: #e7e4d8;
-  --journal-muted: #a3a294;
-  --journal-paper: #191b17;
-  --journal-line: #383e32;
-  --journal-accent: #bbcca9;
-  --journal-panel: #20231d;
+  --journal-ink: var(--text);
+  --journal-muted: var(--muted);
+  --journal-paper: var(--surface);
+  --journal-line: var(--border);
+  --journal-accent: var(--accent);
+  --journal-panel: var(--surface);
 }
 body:has(.journal-index),
 body:has(.article-shell),
@@ -55,10 +47,10 @@ body:has(.admin-shell) {
 .index-heading h1,
 .diary-heading h1,
 .admin-heading h1 {
-  font:
-    500 clamp(3rem, 6vw, 5rem) / 1.1 Georgia,
-    "Yu Mincho",
-    serif;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1.1;
   letter-spacing: -0.04em;
   margin: 0;
 }
@@ -117,7 +109,7 @@ body:has(.admin-shell) {
   margin: 3.5rem 0 2.5rem;
 }
 .article-header h1 {
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-family: inherit;
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 600;
   line-height: 1.65;
@@ -147,7 +139,10 @@ body:has(.admin-shell) {
   border: 1px solid color-mix(in srgb, var(--journal-accent), transparent 65%);
   border-radius: 3px;
   color: var(--journal-accent);
-  font: 500 0.65rem/1.6 sans-serif;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.65rem;
+  line-height: 1.6;
   white-space: nowrap;
 }
 .author-badge::before {
@@ -197,9 +192,9 @@ body:has(.admin-shell) {
 }
 .article-shell .primary-button,
 .admin-shell .primary-button {
-  background: var(--journal-accent);
-  border-color: var(--journal-accent);
-  color: var(--journal-paper);
+  background: var(--button-bg);
+  border-color: var(--button-bg);
+  color: var(--button-text);
 }
 .article-shell .text-button,
 .admin-shell .text-button {
@@ -225,14 +220,14 @@ body:has(.admin-shell) {
   justify-content: center;
 }
 #like-icon {
-  font:
-    1.6rem/1 Georgia,
-    serif;
+  font-family: inherit;
+  font-size: 1.6rem;
+  line-height: 1;
 }
 .article-shell .like-button[aria-pressed="true"] {
-  background: var(--journal-accent);
-  color: var(--journal-paper);
-  border-color: var(--journal-accent);
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-bg);
 }
 .share-link {
   font-size: 0.75rem;
@@ -250,9 +245,8 @@ body:has(.admin-shell) {
   margin: 0;
 }
 #comment-count {
-  font:
-    0.8rem Georgia,
-    serif;
+  font-family: inherit;
+  font-size: 0.8rem;
   color: var(--journal-muted);
 }
 .comment {
@@ -480,9 +474,8 @@ summary {
   padding-bottom: 1rem;
   margin-bottom: 1.25rem;
   scrollbar-width: thin;
-  font:
-    0.8rem Georgia,
-    serif;
+  font-family: inherit;
+  font-size: 0.8rem;
   color: var(--journal-muted);
 }
 .date-strip a {
@@ -495,17 +488,13 @@ summary {
   isolation: isolate;
   min-height: 25rem;
   padding: 2rem;
-  background: #eae8dc;
-  color: #343e31;
+  background: var(--subtle);
+  color: var(--text);
   overflow: hidden;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-}
-:root[data-theme="dark"] .diary-leaf {
-  background: #272d22;
-  color: #e6e6d9;
 }
 .diary-leaf.has-photo {
   color: #fff;
@@ -525,13 +514,13 @@ summary {
   border-radius: 4px;
 }
 .diary-leaf.has-photo .diary-copy {
-  background: rgba(12, 20, 12, 0.65);
+  background: rgba(0, 0, 0, 0.65);
 }
 .diary-date time {
   display: block;
-  font:
-    0.8rem/1.5 Georgia,
-    serif;
+  font-family: inherit;
+  font-size: 0.8rem;
+  line-height: 1.5;
   letter-spacing: 0.09em;
   opacity: 0.85;
 }
@@ -709,7 +698,7 @@ summary {
   color: var(--journal-accent);
 }
 .admin-shell .title-input {
-  font-family: "Yu Mincho", serif;
+  font-family: inherit;
   font-size: 1.7rem;
   border: 0;
   padding: 0.4rem 0;
