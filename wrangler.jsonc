@@ -1,7 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "website",
-  "account_id": "cdcd515b4a97da608b550387cd459de9",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-10-22",
   "vars": {
