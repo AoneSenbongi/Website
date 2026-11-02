@@ -539,6 +539,15 @@ summary {
 .diary-words p {
   margin: 0;
 }
+.diary-leaf:not(.has-photo) .diary-copy {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+.diary-leaf:not(.has-photo) .diary-words {
+  max-width: none;
+  overflow-wrap: anywhere;
+}
 .diary-words p + p {
   margin-top: 1em;
 }
