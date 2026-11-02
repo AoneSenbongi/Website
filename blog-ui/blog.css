@@ -539,6 +539,49 @@ summary {
 .diary-words p {
   margin: 0;
 }
+.diary-words p + p {
+  margin-top: 1em;
+}
+:is(.article-body, .diary-words) :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.8em 0 0.7em;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+:is(.article-body, .diary-words) :is(ul, ol) {
+  padding-left: 1.6em;
+  margin-block: 1em;
+}
+:is(.article-body, .diary-words) ul { list-style: disc; }
+:is(.article-body, .diary-words) ol { list-style: decimal; }
+:is(.article-body, .diary-words) blockquote {
+  margin: 1.5em 0;
+  border-left: 3px solid currentColor;
+  padding-left: 1em;
+}
+:is(.article-body, .diary-words) pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1em;
+  background: var(--journal-panel);
+  color: var(--journal-ink);
+  border: 1px solid var(--journal-line);
+  line-height: 1.6;
+}
+:is(.article-body, .diary-words) code {
+  font-family: Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+:is(.article-body, .diary-words) table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin-block: 1em;
+}
+:is(.article-body, .diary-words) :is(th, td) {
+  border: 1px solid var(--journal-line);
+  padding: 0.4em 0.8em;
+}
 .music-link {
   display: flex;
   align-items: center;

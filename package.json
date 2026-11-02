@@ -12,7 +12,8 @@
     "deploy": "npm run build && wrangler pages deploy dist --project-name website --branch main"
   },
   "dependencies": {
-    "jose": "^6.1.0"
+    "jose": "^6.1.0",
+    "markdown-it": "15.0.3"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

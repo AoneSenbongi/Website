@@ -1,0 +1,42 @@
+import { chromium } from "playwright";
+import assert from "node:assert/strict";
+import { mkdir } from "node:fs/promises";
+
+const base = "http://127.0.0.1:4201";
+const browser = await chromium.launch({ channel: "msedge", headless: true });
+await mkdir(".local/review", { recursive: true });
+const body = "## 制作の記録\n\n**太字**で要点を示し、*斜体*も使えます。\n改行もそのまま表示します。\n\n### 試したこと\n\n- 小見出しを付ける\n- 写真や文章をまとめる\n\n> 考えたことを引用として残せます。\n\n[参考リンク](https://example.com)と `inline code`。\n\n```js\nconst message = '長いコードも横スクロールできます';\n```\n\n| 項目 | 状態 |\n| --- | --- |\n| Markdown | 対応 |\n\n<script>window.markdownExecuted=true</script>";
+try {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const page = await context.newPage();
+  await page.goto(base + "/__preview/");
+  await page.getByRole("button", { name: "管理画面を試す" }).click();
+  await page.waitForURL("**/admin/");
+  await page.locator("[name=title]").fill("Markdownの表示例");
+  const slug = await page.locator("[name=slug]").inputValue();
+  await page.locator("[name=body]").fill(body);
+  await page.getByRole("button", { name: "保存", exact: true }).click();
+  await page.waitForFunction(() => document.querySelector("#save-notice").textContent === "保存しました。");
+  const popupPromise = context.waitForEvent("page");
+  await page.locator("#preview").click();
+  const preview = await popupPromise;
+  await preview.waitForLoadState();
+  assert.equal(await preview.locator(".article-body h2").textContent(), "制作の記録");
+  assert.equal(await preview.locator(".article-body strong").textContent(), "太字");
+  assert.equal(await preview.locator(".article-body table").count(), 1);
+  assert.equal(await preview.evaluate(() => window.markdownExecuted), undefined);
+  await preview.screenshot({ path: ".local/review/markdown-desktop.png", fullPage: true });
+  await preview.setViewportSize({ width: 390, height: 844 });
+  assert.ok(await preview.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await preview.screenshot({ path: ".local/review/markdown-mobile.png", fullPage: true });
+  await preview.evaluate(() => document.documentElement.dataset.theme = "dark");
+  await preview.screenshot({ path: ".local/review/markdown-dark.png", fullPage: true });
+  await page.getByRole("button", { name: "公開", exact: true }).click();
+  await page.waitForFunction(() => document.querySelector("#save-notice").textContent === "公開しました。");
+  const reader = await browser.newContext();
+  const publicPage = await reader.newPage();
+  await publicPage.goto(base + "/blog/" + slug + "/");
+  assert.equal(await publicPage.locator(".article-body").innerHTML(), await preview.locator(".article-body").innerHTML());
+  assert.equal(await publicPage.evaluate(() => window.markdownExecuted), undefined);
+  console.log("PASS Markdown save, preview, one-click publish, public rendering, mobile width, and HTML escaping");
+} finally { await browser.close(); }
