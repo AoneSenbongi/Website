@@ -70,6 +70,9 @@ function fill(post, kind = selected) {
       : "下書き"
     : "";
   document.querySelector("#preview").disabled = false;
+  const publishButton = form.querySelector('.primary-button');
+  publishButton.value = post?.status === 'published' ? 'draft' : 'published';
+  publishButton.textContent = post?.status === 'published' ? '非公開' : '公開';
   status("save-notice", "");
   baseline = snapshot();
   renderPosts();
@@ -171,12 +174,10 @@ function setBusy(value) {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (busy) return;
-  const state = event.submitter.value;
-  if (
-    state === "draft" &&
-    current?.status === "published" &&
-    !confirm("この記事を非公開の下書きに戻しますか？")
-  )
+  const saving = event.submitter.value === "save";
+  const state = saving ? current?.status || "draft" : event.submitter.value;
+  const unpublishing = state === "draft" && current?.status === "published";
+  if (unpublishing && !confirm(`この${selected === "diary" ? "日記" : "記事"}を非公開にしますか？`))
     return;
   const body = {
     kind: form.elements.kind.value,
@@ -201,7 +202,7 @@ form.addEventListener("submit", async (event) => {
     fill(posts.find((p) => p.id === result.id));
     status(
       "save-notice",
-      state === "published" ? "公開しました。" : "保存しました。",
+      unpublishing ? "非公開にしました。" : !saving && state === "published" ? "公開しました。" : "保存しました。",
     );
   } catch (e) {
     status("save-notice", e.message);

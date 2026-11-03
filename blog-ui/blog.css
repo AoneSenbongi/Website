@@ -505,6 +505,10 @@ summary {
 .diary-leaf.has-photo {
   color: #fff;
 }
+.diary-leaf:not(.has-photo) {
+  min-height: 0;
+  justify-content: flex-start;
+}
 .diary-background {
   position: absolute;
   inset: 0;

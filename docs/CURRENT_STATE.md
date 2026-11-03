@@ -193,7 +193,7 @@ Edgeの390px/1280px・写真あり/なしで本文と同色、normalスタイル
 
 2026-11-02 JST、本人が「いいよ」と承認。`0deae4cf7690f9a026fde8835b1698671e6c842a` をmainへpushし、Pages deployment `cf406031-7eda-4fff-8f3d-c19d9762c3c1` 成功。本番Edgeの390px/1280pxで最新分のLatest、横溢れなし、矢印クリックで別日付へ移動、左キーで最新へ戻る操作を確認。移動先のtwitter:titleが日付と一致し、その日記の反応取得API200を確認。本番への投稿・いいね・コメント書込はしていない。スワイプの入力確認はローカルfixtureのCDP TouchEvent試験によるもので、本人のスマートフォン実機では未確認。画像 `.local/review/production-diary-carousel-{390,1280}.png`、結果 `.local/review/production-diary-carousel-check.json`。公開・検証まで完了。
 
-## 現在の修正（日記の部分更新、公開承認待ち）
+## 現在の修正（日記の部分更新、本番反映済み）
 
 本人が日記移動のたびにリロードされる点を指摘し、JP/EN切り替えと同様の動作を依頼。旧実装は横アニメーション後にlocation.assignしていた。JP/ENのfetch・DOMParser・pushStateによる差し替え方式を確認し、日記もfetchで日記mainだけを差し替え、ヘッダー・フッター・ページ自体を維持する方式へ修正。URL、title、canonical、OG/Xタグを同時更新する。日付一覧からの移動も部分更新し、popstateも同じ方式で処理する。既存言語切り替えのpopstateと競合しないようhistoryにdiarySwap=true/languageSwap=falseを設定する。
 
@@ -202,3 +202,13 @@ article.jsの既存反応UIをinitArticle(root)として再初期化・破棄で
 tools/diary-navigation-check.mjsに同一windowの識別子を入れ、修正前のリロードによる消失を再現して失敗確認後に実装。修正後は矢印・キー・CDPタッチ・戻る/進むで識別子維持、選択日付のtitle/OG更新、日付別のいいね/コメント送信先、未送信文復元、旧APIの遅延応答遮断、503後の再試行、匿名Turnstile widgetの破棄/再作成、JSなしリンクを確認。全59試験・ビルド・構文確認成功。実ローカルAPIのtools/browser-check.mjsもBlogの公開・写真・いいね・匿名コメント・承認・返信・通知・解除まで成功（4204、publish-check DB、Turnstile表示のみfixture）。同試験に残っていた公開確認ダイアログ用の古いonce handlerが返信確認と二重反応して停止したため、その不要な1行だけ削除した。
 
 現状はローカル修正済みで本番は0deae4cのまま。次は今回の部分更新修正の公開承認を得てmainへ反映し、本番で同一window維持と移動先の対応を確認する。
+
+2026-11-03 JST、本人が「公開して」と承認。`00fe26a1b0f5fe7f5767fd47924d45d5e1cca71d` をmainへpushし、Pages deployment `49cc509b-3dd8-4d2b-9d59-cf844daad058` 成功。本番Edgeの390px/1280pxでwindowへ識別子を置き、矢印クリック・左右キー・戻る/進むの全操作後も識別子が維持され、ページ全体の再読込がないことを確認。移動先の日付、title/twitter:title、その日記の反応取得API200、Latest、横溢れなしも確認。画像 `.local/review/production-diary-partial-{390,1280}.png`、結果 `.local/review/production-diary-partial-check.json`。本番へのいいね・コメント等の書込は行っていない。今回の公開・検証まで完了。
+
+## 現在の依頼（公開/非公開ボタンと日記の上余白、公開承認待ち）
+
+本人が公開済みBlog/日記を非公開にしたいと依頼し、主ボタンの公開を非公開へ切り替える案を指定。従来は「保存」が公開中の投稿を下書きへ戻していたが、この分かりにくい操作を変更。公開中は主ボタンが「非公開」（value=draft）、下書きでは「公開」（value=published）。「保存」（value=save）は現在のstatusを維持し、公開後の編集も保存で反映する。非公開時は記事/日記に応じた確認を出し、現在の入力も保存して非公開に戻す。本文・写真・音楽・元の公開日時は残り、再公開できる。バックエンドは既存のCAS付き更新APIを利用し、新しいAPIは追加していない。手順書PUBLISHING.mdも更新。
+
+続いて本人が2026-11-03の日記の暗色スクリーンショットを提示しレイアウト崩れを報告。実ページの計測で写真なしにもmin-height400px/justify-content:flex-endが適用され、短い本文を下へ寄せていた。短文fixtureで余分な上余白244pxを再現後、写真なしに限りmin-height0/上詰めへ変更。写真ありの背景用レイアウトは維持。実際の日記内容に候補CSSを適用した暗色表示でも余分な上余白0を確認。画像 `.local/review/diary-layout-fixed-dark.png`、操作部 `.local/review/unpublish-toggle.png`。JS/CSS版20261103a。
+
+tools/unpublish-browser-check.mjsでBlog/日記の非公開ボタン未存在を失敗確認後に実装し、実ローカルAPI（4205、publish-check DB）で公開状態を維持する保存、非公開キャンセル、非公開後の記事/反応API/写真404、本文・写真・音楽・公開日時維持、再読込後の内容維持と再公開200を確認。tools/diary-text-layout-check.mjsで390px/1280pxの短文上余白なし・本文幅・手動改行保持、写真付きの文字幅維持を確認。公開/更新試験と部分更新の全ブラウザー試験、全59試験・ビルド・構文確認成功。本番への投稿状態変更・pushはしていない。次は2変更の具体内容を提示して公開承認を得る。

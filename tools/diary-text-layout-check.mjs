@@ -23,6 +23,13 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.screenshot({ path: `.local/review/diary-text-width-${width}.png`, fullPage: true });
     console.log(`PASS ${width}px: text fills available width; manual breaks preserved`);
+    await page.setContent(`<style>${styles.join("\n")}</style>${diary({...entry,body:"短い日記。"}, [], true)}`);
+    const gap = await page.evaluate(() => {
+      const leaf=document.querySelector('.diary-leaf'),copy=document.querySelector('.diary-copy');
+      return copy.getBoundingClientRect().top-leaf.getBoundingClientRect().top-parseFloat(getComputedStyle(leaf).paddingTop);
+    });
+    assert.ok(gap<=1,`Short diary has ${gap}px of excess top space`);
+    await page.screenshot({path:`.local/review/diary-short-width-${width}.png`,fullPage:true});
     await page.setContent(`<style>${styles.join("\n")}</style>${diary({ ...entry, photo: "fixture.png" }, [], true)}`);
     assert.ok(await page.locator(".diary-copy").evaluate(e => e.getBoundingClientRect().width <= 514));
   }

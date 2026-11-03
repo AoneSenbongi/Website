@@ -35,8 +35,8 @@ try {
     assert.equal(response.status(), 200);
     assert.ok((await response.text()).includes("未保存の編集も公開"));
     await page.locator("[name=body]").fill("公開後の更新");
-    await page.getByRole("button", { name: "公開", exact: true }).click();
-    await page.waitForFunction(() => document.querySelector("#save-notice").textContent === "公開しました。");
+    await page.getByRole("button", { name: "保存", exact: true }).click();
+    await page.waitForFunction(() => document.querySelector("#save-notice").textContent === "保存しました。");
     response = await reader.request.get(base + url);
     assert.ok((await response.text()).includes("公開後の更新"));
     assert.deepEqual(dialogs, []);
