@@ -1,4 +1,4 @@
-import { api, session, el, status } from "./common.js";
+import { api, session, el, status } from "./common.js?v=20261104a";
 const form = document.querySelector("#post-form");
 let current = null,
   photo = null,
@@ -11,6 +11,14 @@ const today = () =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(
     new Date(),
   );
+function showError(target, error) {
+  status(target, error.message);
+  if (error.code === "auth_required") {
+    document.getElementById(target).append(el("a", "ログインし直す ↗", {
+      class: "reauth-link", href: "/admin/", target: "_blank", rel: "noopener noreferrer",
+    }));
+  }
+}
 function snapshot() {
   return JSON.stringify({
     title: form.elements.title.value,
@@ -150,7 +158,7 @@ document.querySelector("#photo").addEventListener("change", async (event) => {
       method: "POST",
       headers: {
         "Content-Type": file.type,
-        "X-CSRF-Token": (await session()).csrf,
+        "X-CSRF-Token": (await session({refresh:true, requireAdmin:true})).csrf,
       },
       body: file,
     });
@@ -160,7 +168,7 @@ document.querySelector("#photo").addEventListener("change", async (event) => {
     document.querySelector("#photo-state").textContent = file.name;
     photoDisplay();
   } catch (e) {
-    status("save-notice", e.message);
+    showError("save-notice", e);
   } finally {
     busy = false;
     setBusy(false);
@@ -205,7 +213,7 @@ form.addEventListener("submit", async (event) => {
       unpublishing ? "非公開にしました。" : !saving && state === "published" ? "公開しました。" : "保存しました。",
     );
   } catch (e) {
-    status("save-notice", e.message);
+    showError("save-notice", e);
   } finally {
     busy = false;
     setBusy(false);
@@ -225,6 +233,7 @@ document.querySelector("#preview").addEventListener("click", async () => {
   setBusy(true);
   try {
     const result = await api("/api/admin/preview", { method: "POST", body });
+    status("save-notice", "");
     if (!popup.closed) {
       popup.document.open();
       popup.document.write(result.html);
@@ -232,7 +241,7 @@ document.querySelector("#preview").addEventListener("click", async () => {
     }
   } catch (e) {
     popup.close();
-    status("save-notice", e.message);
+    showError("save-notice", e);
   } finally {
     busy = false;
     setBusy(false);
@@ -281,7 +290,7 @@ function renderComments() {
         await moderation();
         status("notice", "コメントを削除しました。");
       } catch (e) {
-        status("notice", e.message);
+        showError("notice", e);
         remove.disabled = false;
       }
     });
@@ -301,7 +310,7 @@ function renderComments() {
           await moderation();
           status("notice", "更新しました。");
         } catch (e) {
-          status("notice", e.message);
+          showError("notice", e);
           button.disabled = false;
         }
       });
@@ -330,7 +339,7 @@ function renderComments() {
           await moderation();
           status("notice", "返信しました。");
         } catch (e) {
-          status("notice", e.message);
+          showError("notice", e);
           send.disabled = false;
         }
       });
@@ -358,6 +367,6 @@ try {
   await moderation();
   fill(null);
 } catch (e) {
-  status("notice", e.message);
+  showError("notice", e);
   setBusy(true);
 }
