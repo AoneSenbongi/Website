@@ -221,7 +221,7 @@ tools/unpublish-browser-check.mjsでBlog/日記の非公開ボタン未存在を
 
 修正版は管理APIの書込前にsessionを更新して管理者認証とCSRFを確認し、認証切れは明示メッセージと別タブの「ログインし直す」リンクを表示する。入力・選択中の投稿を維持し、ログイン後は元の画面を再読込せず再試行できる。一般の通信障害は別のメッセージとし、認証切れと誤判定しない。Accessの保護・期限・認可を変更せず、操作の自動再送もしない。admin.jsからcommon.jsも版番号付きで読み込んで古いキャッシュを回避する。JS/CSS版20261104a。投稿APIや本番DBに変更はない。
 
-tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復旧リンク未表示で失敗を確認。修正後は記事・日記で原稿保持、別タブログイン、更新済みCSRFを使った保存とプレビューの再試行成功、通常の通信障害での入力保持と再試行を確認。全59試験、ビルド・構文確認、実ローカルAPIで公開/非公開/再公開/写真保護、日記の部分更新ブラウザー回帰が成功。ローカルAPI試験は4205・publish-check DB。本番の非公開投稿は変更していない。確認画像はテスト原稿による `.local/review/admin-auth-expired.png`。次は具体的な復旧表示と修正版の公開承認を得る。本番はab7b248のまま。
+tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復旧リンク未表示で失敗を確認。修正後は記事・日記で原稿保持、別タブログイン、更新済みCSRFを使った保存とプレビューの再試行成功、通常の通信障害での入力保持と再試行を確認。全59試験、ビルド・構文確認、実ローカルAPIで公開/非公開/再公開/写真保護、日記の部分更新ブラウザー回帰が成功。ローカルAPI試験は4205・publish-check DB。本番の非公開投稿は変更していない。確認画像はテスト原稿による `.local/review/admin-auth-expired.png`。2026-11-07 JST、本人が「両方反映していいよ」と承認し音楽サムネイル変更とともにmainへ公開済み（下記参照）。
 
 ## 現在の依頼（日記の音楽サムネイル、公開承認待ち）
 
@@ -229,4 +229,5 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 
 表示は写真日記と同じ presentation（has-photo: 白文字・黒幕・min-height）を再利用し、追加の `has-music-thumb` クラスで背景を #101010 にして、サムネイル取得失敗時も白文字が読める状態を維持。サムネイルimgは loading="lazy"・referrerpolicy="no-referrer"・alt=""。CSPのimg-srcへ `https://i.ytimg.com` を追加（script等は変更なし）。JS/CSS版20261106a。
 
-新規試験2件（サムネイル表示・URL導出）を含む全61試験、ビルド、`node --check dist/_worker.js` 成功。tools/music-thumb-check.mjsでEdgeの390px/1280pxにて、サムネイルがleaf全体を覆うこと、白文字・黒幕の写真と同じ presentation、音楽なし・写真ありの従来表示の維持、横溢れなし、本番と同じimg-srcのCSPでサムネイルが読込违反なしに表示されることを確認。画像 `.local/review/music-thumb-{390,1280}.png`。本番・DBは変更していない。次は表示例と変更内容を提示して公開承認を得る。本番は2030cdeのまま。
+新規試験2件（サムネイル表示・URL導出）を含む全61試験、ビルド、`node --check dist/_worker.js` 成功。tools/music-thumb-check.mjsでEdgeの390px/1280pxにて、サムネイルがleaf全体を覆うこと、白文字・黒幕の写真と同じ presentation、音楽なし・写真ありの従来表示の維持、横溢れなし、本番と同じimg-srcのCSPでサムネイルが読込违反なしに表示されることを確認。画像 `.local/review/music-thumb-{390,1280}.png`。
+2026-11-07 JST、本人が音楽サムネイルと認証切れ復旧修正の「両方反映していいよ」と承認。`2030cde` と `adbbc30` をmainへpush（ab7b248からのfast-forward）。Pagesデプロイ後、本番 `/diary/2026-11-05/` で `diary-leaf has-photo has-music-thumb` とサムネイルimg（naturalWidth 1280）を確認。本番CSPのimg-srcへ `https://i.ytimg.com` 追加済み、Home/Blog 200、`/admin/` はAccessログインへの302、`admin.js?v=20261106a` 200。画像 `.local/review/production-music-thumb-390.png`。本番DB・投稿は変更していない。両変更の公開・検証まで完了。
