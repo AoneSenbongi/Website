@@ -99,7 +99,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261104a"></head>',
+      '<link rel="stylesheet" href="/blog-ui/blog.css?v=20261106a"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -115,7 +115,7 @@ export async function page(
   if (script)
     html = html.replace(
       "</body>",
-      `<script type="module" src="/blog-ui/${script}.js?v=20261104a"></script></body>`,
+      `<script type="module" src="/blog-ui/${script}.js?v=20261106a"></script></body>`,
     );
   const cards = {
     "og:type": type,
@@ -151,8 +151,22 @@ export function article(p, preview = false) {
   return `<main class="article-shell" data-slug="${escape(p.slug)}"><a class="article-back" href="${preview ? "/admin/" : "/blog/"}">← ${preview ? "管理画面" : "Blog"}</a>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}<article><header class="article-header"><p class="post-meta">${p.published_at ? date(p.published_at) : "下書き"}</p><h1>${escape(p.title)}</h1><p class="byline"><img src="/images/profile-photo.jpg" alt="">山近晴也<span class="author-badge">本人</span></p></header><div class="article-body">${p.photo ? `<figure><img src="/media/${escape(p.photo)}" alt="記事の写真"></figure>` : ""}${p.body
     ? markdown.render(p.body) : ""}</div></article>${preview ? "" : interactions(p) + '<p class="article-diary-link"><a href="/diary/">日記</a></p>'}</main>`;
 }
+export function musicThumb(music) {
+  let u;
+  try {
+    u = new URL(music);
+  } catch {
+    return null;
+  }
+  const id =
+    (u.hostname === "youtu.be" && u.pathname.slice(1)) ||
+    (/(^|\.)youtube\.com$/.test(u.hostname) &&
+      (u.pathname === "/watch" ? u.searchParams.get("v") : u.pathname.match(/^\/shorts\/([^/]+)/)?.[1]));
+  return id && /^[\w-]{11}$/.test(id) ? `https://i.ytimg.com/vi/${id}/hq720.jpg` : null;
+}
 function diaryLeaf(p, latest = false) {
-  return `<article class="diary-leaf${p.photo ? " has-photo" : ""}">${p.photo ? `<img class="diary-background" src="/media/${escape(p.photo)}" alt="">` : ""}<div class="diary-copy"><div class="diary-date"><div class="diary-date-label"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time>${latest ? '<span class="diary-latest">Latest</span>' : ""}</div>${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span class="music-note" aria-hidden="true">♫</span> <span class="music-title">${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div>${p.body ? `<div class="diary-words">${markdown.render(p.body)}</div>` : ""}</div></article>`;
+  const thumb = p.photo ? null : musicThumb(p.music);
+  return `<article class="diary-leaf${p.photo || thumb ? " has-photo" : ""}${thumb ? " has-music-thumb" : ""}">${p.photo ? `<img class="diary-background" src="/media/${escape(p.photo)}" alt="">` : thumb ? `<img class="diary-background diary-music-thumb" src="${thumb}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}<div class="diary-copy"><div class="diary-date"><div class="diary-date-label"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time>${latest ? '<span class="diary-latest">Latest</span>' : ""}</div>${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span class="music-note" aria-hidden="true">♫</span> <span class="music-title">${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div>${p.body ? `<div class="diary-words">${markdown.render(p.body)}</div>` : ""}</div></article>`;
 }
 export function diary(p, entries = [], preview = false) {
   const ordered = [...entries].sort((a,b) => b.entry_date.localeCompare(a.entry_date));

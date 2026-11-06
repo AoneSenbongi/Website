@@ -1,4 +1,4 @@
-import { api, session, el, status } from "./common.js?v=20261104a";
+import { api, session, el, status } from "./common.js?v=20261106a";
 const form = document.querySelector("#post-form");
 let current = null,
   photo = null,

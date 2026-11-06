@@ -505,6 +505,9 @@ summary {
 .diary-leaf.has-photo {
   color: #fff;
 }
+.diary-leaf.has-music-thumb {
+  background: #101010;
+}
 .diary-leaf:not(.has-photo) {
   min-height: 0;
   justify-content: flex-start;

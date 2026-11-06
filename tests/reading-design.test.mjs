@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { article, diary } from "../worker/pages.mjs";
+import { article, diary, musicThumb } from "../worker/pages.mjs";
 const entry = {
   id: "day",
   kind: "diary",
@@ -59,4 +59,46 @@ test("ほかの日記は選択中を除き、閉じたアーカイブにまと�
   assert.match(html, />ほかの日記<\/summary>/);
   assert.match(html, /href="\/diary\/2025-10-20\/"/);
   assert.doesNotMatch(html, /href="\/diary\/2026-10-21\/"/);
+});
+test("写真なしの日記は音楽のサムネイルを背景に表示し、写真ありでは使わない", () => {
+  const music = "https://youtu.be/CS2GKwW_2dI?si=abc";
+  const html = diary({ ...entry, photo: null, music, song: "曲名" }, []);
+  assert.match(html, /class="diary-leaf has-photo has-music-thumb"/);
+  assert.match(
+    html,
+    /<img class="diary-background diary-music-thumb" src="https:\/\/i\.ytimg\.com\/vi\/CS2GKwW_2dI\/hq720\.jpg" alt="" loading="lazy" referrerpolicy="no-referrer">/,
+  );
+  assert.doesNotMatch(html, /\/media\//);
+  const withPhoto = diary({ ...entry, music }, []);
+  assert.match(withPhoto, /src="\/media\//);
+  assert.doesNotMatch(withPhoto, /i\.ytimg\.com|has-music-thumb/);
+  const noMusic = diary({ ...entry, photo: null }, []);
+  assert.doesNotMatch(noMusic, /diary-background|has-photo|has-music-thumb/);
+});
+test("音楽のサムネイルはYouTubeのURLから動画IDを取り出して決める", () => {
+  assert.equal(
+    musicThumb("https://youtu.be/CS2GKwW_2dI?si=abc"),
+    "https://i.ytimg.com/vi/CS2GKwW_2dI/hq720.jpg",
+  );
+  assert.equal(
+    musicThumb("https://www.youtube.com/watch?v=8M6H6xGaYjk&list=x"),
+    "https://i.ytimg.com/vi/8M6H6xGaYjk/hq720.jpg",
+  );
+  assert.equal(
+    musicThumb("https://music.youtube.com/watch?v=CS2GKwW_2dI"),
+    "https://i.ytimg.com/vi/CS2GKwW_2dI/hq720.jpg",
+  );
+  assert.equal(
+    musicThumb("https://www.youtube.com/shorts/8M6H6xGaYjk"),
+    "https://i.ytimg.com/vi/8M6H6xGaYjk/hq720.jpg",
+  );
+  for (const bad of [
+    "https://example.com/song",
+    "https://open.spotify.com/track/abc",
+    "https://youtu.be/short-id",
+    "https://youtu.be/<script>",
+    "not a url",
+  ]) {
+    assert.equal(musicThumb(bad), null);
+  }
 });
