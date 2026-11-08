@@ -78,6 +78,7 @@ beforeEach(() => {
     "https://youtu.be/iGkNXfFSdsY",
     "今日の曲",
   );
+  const photoBytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
   env = {
     SITE_ORIGIN: origin,
     ACCESS_ISSUER: "https://test.cloudflareaccess.com",
@@ -85,6 +86,13 @@ beforeEach(() => {
     ADMIN_EMAIL: "owner@example.com",
     SESSION_SECRET: "s".repeat(48),
     DB: d1(db),
+    PHOTOS: {
+      async get(key) {
+        return key === "a".repeat(32) + ".jpg"
+          ? { body: photoBytes, httpMetadata: { contentType: "image/jpeg" } }
+          : null;
+      },
+    },
     ASSETS: {
       async fetch() {
         return new Response(
@@ -198,6 +206,41 @@ test("共有トークンの作成は管理者限定で、再作成と無効化�
     (await request("/api/admin/posts/" + "0".repeat(32) + "/share", { method: "POST", body: {}, admin: await adminToken(), ...body })).status,
     404,
   );
+});
+test("写真付き非公開日記は共有キーでのみ写真を取得でき、表示にキー付きURLを使う", async () => {
+  const photo = "a".repeat(32) + ".jpg";
+  db.prepare("UPDATE posts SET photo=? WHERE id=?").run(photo, ID);
+  const s = await session();
+  const token = await share();
+  const keyless = await request("/media/" + photo);
+  assert.equal(keyless.status, 404);
+  const wrong = await request("/media/" + photo + "?key=" + "x".repeat(43));
+  assert.equal(wrong.status, 404);
+  const ok = await request("/media/" + photo + "?key=" + token);
+  assert.equal(ok.status, 200);
+  assert.equal(ok.headers.get("content-type"), "image/jpeg");
+  // 本文内のmedia画像にもキーが付く
+  db.prepare("UPDATE posts SET body=? WHERE id=?").run(
+    "![写真](/media/" + photo + ")",
+    ID,
+  );
+  const html = await (await request("/diary/2025-11-03/?key=" + token)).text();
+  assert.ok(html.includes("/media/" + photo + "?key=" + token));
+  const bodyImg = await request("/media/" + photo + "?key=" + token);
+  assert.equal(bodyImg.status, 200);
+  // 公開済み投稿の写真はキーなしで取得できる
+  db.prepare("UPDATE posts SET status='published',published_at=1 WHERE id=?").run(ID);
+  assert.equal((await request("/media/" + photo)).status, 200);
+  // トークンを無効化すると写真も見られなくなる
+  db.prepare("UPDATE posts SET status='draft',published_at=null WHERE id=?").run(ID);
+  await request("/api/admin/posts/" + ID + "/share", {
+    method: "DELETE",
+    body: {},
+    cookie: s.cookie,
+    csrf: s.csrf,
+    admin: await adminToken(),
+  });
+  assert.equal((await request("/media/" + photo + "?key=" + token)).status, 404);
 });
 test("保存APIは共有トークンを変更せず、日記の更新後もリンクは有効", async () => {
   const token = await share();

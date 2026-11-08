@@ -539,7 +539,7 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
             shared.share_token &&
             equal(key, shared.share_token)
           )
-            return page(env, request, diary(shared, [], false, true), {
+            return page(env, request, diary(shared, [], false, true, key), {
               ...shareMetadata(shared, env.SITE_ORIGIN),
               type: "article",
               title: shared.entry_date + "の日記",
@@ -629,10 +629,22 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
           media[1],
         );
         if (!pub) {
-          try {
-            await admin(request, env);
-          } catch {
-            fail(404, "写真が見つかりません。");
+          let shared = false;
+          const key = url.searchParams.get("key");
+          if (key && /^[\w-]{43,64}$/.test(key)) {
+            const owners = await rows(
+              env,
+              "SELECT share_token FROM posts WHERE photo=? AND status<>'published' AND share_token IS NOT NULL",
+              media[1],
+            );
+            shared = owners.some((o) => equal(key, o.share_token));
+          }
+          if (!shared) {
+            try {
+              await admin(request, env);
+            } catch {
+              fail(404, "写真が見つかりません。");
+            }
           }
         }
         const object = await env.PHOTOS.get(media[1]);

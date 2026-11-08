@@ -64,6 +64,20 @@ try {
   assert.equal(await page.locator(".diary-navigation").count(), 0);
   await page.screenshot({ path: path.join(output, "diary-share-390.png"), fullPage: true });
 
+  // 画像を添えて保存すると、共有表示でも同じキーで写真が読める
+  await admin.locator("#photo").setInputFiles(path.join(root, "images", "profile-photo.jpg"));
+  await admin.waitForFunction(() => !document.querySelector("#photo-preview").hidden);
+  await admin.getByRole("button", { name: "保存", exact: true }).click();
+  await admin.waitForFunction(
+    () => document.querySelector("#save-notice").textContent === "保存しました。",
+  );
+  assert.equal((await page.goto(shareUrl)).status(), 200);
+  await page.waitForFunction(() => {
+    const img = document.querySelector(".diary-background");
+    return img && img.complete && img.naturalWidth > 0 && img.src.includes("?key=");
+  });
+  await page.screenshot({ path: path.join(output, "diary-share-photo-390.png"), fullPage: true });
+
   // 無効化すると同じURLは開けなくなる
   admin.once("dialog", (d) => d.accept());
   await admin.locator("#share-revoke").click();

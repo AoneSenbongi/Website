@@ -165,21 +165,25 @@ export function musicThumb(music) {
       (u.pathname === "/watch" ? u.searchParams.get("v") : u.pathname.match(/^\/shorts\/([^/]+)/)?.[1]));
   return id && /^[\w-]{11}$/.test(id) ? `https://i.ytimg.com/vi/${id}/hq720.jpg` : null;
 }
-function diaryLeaf(p, latest = false) {
+function diaryLeaf(p, latest = false, mediaKey = null) {
   const thumb = p.photo ? null : musicThumb(p.music);
-  return `<article class="diary-leaf${p.photo || thumb ? " has-photo" : ""}${thumb ? " has-music-thumb" : ""}">${p.photo ? `<img class="diary-background" src="/media/${escape(p.photo)}" alt="">` : thumb ? `<img class="diary-background diary-music-thumb" src="${thumb}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}<div class="diary-copy"><div class="diary-date"><div class="diary-date-label"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time>${latest ? '<span class="diary-latest">Latest</span>' : ""}</div>${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span class="music-note" aria-hidden="true">♫</span> <span class="music-title">${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div>${p.body ? `<div class="diary-words">${markdown.render(p.body)}</div>` : ""}</div></article>`;
+  const media = (src) => mediaKey ? src + "?key=" + mediaKey : src;
+  const words = p.body && mediaKey
+    ? markdown.render(p.body).replace(/\/media\/([a-f0-9]{32}\.(?:jpg|png|webp))/g, "/media/$1?key=" + mediaKey)
+    : p.body ? markdown.render(p.body) : "";
+  return `<article class="diary-leaf${p.photo || thumb ? " has-photo" : ""}${thumb ? " has-music-thumb" : ""}">${p.photo ? `<img class="diary-background" src="${media("/media/" + escape(p.photo))}" alt="">` : thumb ? `<img class="diary-background diary-music-thumb" src="${thumb}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}<div class="diary-copy"><div class="diary-date"><div class="diary-date-label"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time>${latest ? '<span class="diary-latest">Latest</span>' : ""}</div>${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span class="music-note" aria-hidden="true">♫</span> <span class="music-title">${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div>${p.body ? `<div class="diary-words">${words}</div>` : ""}</div></article>`;
 }
-export function diary(p, entries = [], preview = false, share = false) {
+export function diary(p, entries = [], preview = false, share = false, mediaKey = null) {
   const ordered = [...entries].sort((a,b) => b.entry_date.localeCompare(a.entry_date));
   const others = ordered.filter(e => e.id !== p?.id);
   const index = ordered.findIndex(e => e.id === p?.id);
   const newer = index > 0 ? ordered[index-1] : null;
   const older = index >= 0 ? ordered[index+1] : null;
-  const leaf = entry => entry ? diaryLeaf(entry, entry.id === ordered[0]?.id) : "";
+  const leaf = entry => entry ? diaryLeaf(entry, entry.id === ordered[0]?.id, share ? mediaKey : null) : "";
   const arrow = (entry, step, label, symbol) => entry
     ? `<a data-diary-step="${step}" href="${entryPath(entry)}#diary-reader" aria-label="${label}">${symbol}</a>`
     : `<span class="diary-nav-disabled" aria-hidden="true">${symbol}</span>`;
-  const reader = share || preview ? diaryLeaf(p) : `<nav class="diary-navigation" aria-label="日記の移動">${arrow(newer,-1,"新しい日記","←")}${arrow(older,1,"古い日記","→")}</nav><div class="diary-slider" id="diary-reader" tabindex="0" aria-label="日記。左右キーで移動"><div class="diary-track"><div class="diary-slide" aria-hidden="true" inert>${leaf(newer)}</div><div class="diary-slide is-current">${leaf(p)}</div><div class="diary-slide" aria-hidden="true" inert>${leaf(older)}</div></div></div>`;
+  const reader = share || preview ? diaryLeaf(p, false, mediaKey) : `<nav class="diary-navigation" aria-label="日記の移動">${arrow(newer,-1,"新しい日記","←")}${arrow(older,1,"古い日記","→")}</nav><div class="diary-slider" id="diary-reader" tabindex="0" aria-label="日記。左右キーで移動"><div class="diary-track"><div class="diary-slide" aria-hidden="true" inert>${leaf(newer)}</div><div class="diary-slide is-current">${leaf(p)}</div><div class="diary-slide" aria-hidden="true" inert>${leaf(older)}</div></div></div>`;
   return `<main class="article-shell diary-shell"${p && !share ? ` data-slug="${escape(p.slug)}"` : ""}>${switcher("diary")}<header class="diary-heading"><h1>日記</h1>${!share && others.length ? `<details class="diary-archive"><summary>ほかの日記</summary><nav class="date-strip" aria-label="日記の日付">${others.map(e => `<a href="${entryPath(e)}">${escape(e.entry_date.replaceAll("-", "."))}</a>`).join("")}</nav></details>` : ""}</header>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}${p ? reader + (preview || share ? "" : interactions(p)) : '<div class="diary-empty"><p>まだ日記はありません。</p></div>'}</main>`;
 }
 export function adminPage() {
