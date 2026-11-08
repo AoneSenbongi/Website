@@ -632,6 +632,9 @@ summary {
   line-height: 1.5;
   letter-spacing: normal;
 }
+.diary-leaf :is(h1, h2, h3, h4, h5, h6) {
+  color: inherit;
+}
 :is(.article-body, .diary-words) :is(ul, ol) {
   padding-left: 1.6em;
   margin-block: 1em;
