@@ -38,6 +38,18 @@ if (
     readFileSync(path.join(root, "migrations/0002_diary.sql"), "utf8"),
   );
 }
+if (
+  !sqlite
+    .prepare("PRAGMA table_info(posts)")
+    .all()
+    .some((column) => column.name === "share_token")
+) {
+  const backup = path.join(store, "before-share-migration.sqlite");
+  if (!existsSync(backup)) sqlite.prepare("VACUUM INTO ?").run(backup);
+  sqlite.exec(
+    readFileSync(path.join(root, "migrations/0003_share.sql"), "utf8"),
+  );
+}
 const secretPath = path.join(store, "secrets.json");
 if (!existsSync(secretPath))
   await writeFile(

@@ -526,6 +526,27 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
       }
       const diaryRoute = path.match(/^\/diary(?:\/(\d{4}-\d{2}-\d{2}))?\/?$/);
       if (diaryRoute) {
+        const key = url.searchParams.get("key");
+        if (diaryRoute[1] && key && /^[\w-]{43,64}$/.test(key)) {
+          const shared = await one(
+            env,
+            "SELECT * FROM posts WHERE kind='diary' AND entry_date=?",
+            diaryRoute[1],
+          );
+          if (
+            shared &&
+            shared.status !== "published" &&
+            shared.share_token &&
+            equal(key, shared.share_token)
+          )
+            return page(env, request, diary(shared, [], false, true), {
+              ...shareMetadata(shared, env.SITE_ORIGIN),
+              type: "article",
+              title: shared.entry_date + "の日記",
+              canonical: entryPath(shared),
+              noindex: true,
+            });
+        }
         const entries = await rows(
           env,
           "SELECT id,slug,entry_date FROM posts WHERE kind='diary' AND status='published' ORDER BY entry_date DESC",
@@ -738,6 +759,22 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
         if (!saved)
           fail(409, "別の画面で更新されています。一覧から開き直してください。");
         return json(saved);
+      }
+      const share = path.match(/^\/api\/admin\/posts\/([a-f0-9]{32})\/share$/);
+      if (share && request.method === "POST") {
+        const token = base64(crypto.getRandomValues(new Uint8Array(32)));
+        const saved = await one(
+          env,
+          "UPDATE posts SET share_token=? WHERE id=? AND status<>'published' RETURNING id,kind,entry_date",
+          token,
+          share[1],
+        );
+        if (!saved) fail(404, "非公開の投稿が見つかりません。");
+        return json({ shareToken: token });
+      }
+      if (share && request.method === "DELETE") {
+        await run(env, "UPDATE posts SET share_token=NULL WHERE id=?", share[1]);
+        return json({ ok: true });
       }
       const comment = path.match(/^\/api\/admin\/comments\/([a-f0-9]{32})$/);
       if (comment && request.method === "DELETE") {

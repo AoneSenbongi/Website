@@ -1,4 +1,4 @@
-import { api, session, el, status } from "./common.js?v=20261106a";
+import { api, session, el, status } from "./common.js?v=20261109a";
 const form = document.querySelector("#post-form");
 let current = null,
   photo = null,
@@ -77,6 +77,7 @@ function fill(post, kind = selected) {
       ? "公開中"
       : "下書き"
     : "";
+  renderShare();
   document.querySelector("#preview").disabled = false;
   const publishButton = form.querySelector('.primary-button');
   publishButton.value = post?.status === 'published' ? 'draft' : 'published';
@@ -116,6 +117,70 @@ function renderPosts() {
 function dirty() {
   return baseline !== "" && snapshot() !== baseline;
 }
+function shareUrl() {
+  return current?.share_token
+    ? location.origin + "/diary/" + current.entry_date + "/?key=" + current.share_token
+    : null;
+}
+function renderShare() {
+  const url = shareUrl();
+  document.querySelector("#share-fields").hidden = !(current && selected === "diary" && current.status !== "published");
+  document.querySelector("#share-create").hidden = !!url;
+  document.querySelector("#share-active").hidden = !url;
+  const link = document.querySelector("#share-url");
+  if (url) {
+    link.href = url;
+    link.textContent = url;
+  }
+}
+document.querySelector("#share-create").addEventListener("click", async () => {
+  if (busy || !current) return;
+  busy = true;
+  setBusy(true);
+  try {
+    const result = await api("/api/admin/posts/" + current.id + "/share", {
+      method: "POST",
+      body: {},
+    });
+    current.share_token = result.shareToken;
+    renderShare();
+  } catch (e) {
+    showError("save-notice", e);
+  } finally {
+    busy = false;
+    setBusy(false);
+  }
+});
+document.querySelector("#share-copy").addEventListener("click", async () => {
+  const url = shareUrl();
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    status("save-notice", "共有リンクをコピーしました。");
+  } catch {
+    status("save-notice", "コピーできませんでした。リンクを選択してコピーしてください。");
+  }
+});
+document.querySelector("#share-revoke").addEventListener("click", async () => {
+  if (busy || !current) return;
+  if (!confirm("共有リンクを無効にしますか？共有していたURLは開けなくなります。")) return;
+  busy = true;
+  setBusy(true);
+  try {
+    await api("/api/admin/posts/" + current.id + "/share", {
+      method: "DELETE",
+      body: {},
+    });
+    current.share_token = null;
+    renderShare();
+    status("save-notice", "共有リンクを無効にしました。");
+  } catch (e) {
+    showError("save-notice", e);
+  } finally {
+    busy = false;
+    setBusy(false);
+  }
+});
 for (const tab of document.querySelectorAll("[data-tab]"))
   tab.addEventListener("click", () => {
     if (busy || (dirty() && !confirm("未保存の変更を破棄しますか？"))) return;
