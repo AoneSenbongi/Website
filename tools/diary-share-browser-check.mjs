@@ -42,13 +42,17 @@ try {
   assert.equal((await page.request.get(base + "/diary/2025-11-03/")).status(), 404);
 
   // 共有リンクを作成する（再実行時は既存のリンクを使う）
-  if (await admin.locator("#share-create").isVisible())
+  if (await admin.locator("#share-create").isVisible()) {
+    await admin.locator("#share-fields").scrollIntoViewIfNeeded();
+    await admin.screenshot({ path: path.join(output, "diary-share-create.png") });
     await admin.locator("#share-create").click();
+  }
   await admin.waitForFunction(() => {
     const a = document.querySelector("#share-url");
     return !document.querySelector("#share-active").hidden && /\?key=[\w-]{43}$/.test(a.href);
   });
   const shareUrl = await admin.locator("#share-url").getAttribute("href");
+  await admin.locator("#share-fields").scrollIntoViewIfNeeded();
   await admin.screenshot({ path: path.join(output, "diary-share-admin.png") });
 
   // 共有リンクでは閲覧でき、noindexで単票表示になる
