@@ -232,7 +232,7 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 新規試験2件（サムネイル表示・URL導出）を含む全61試験、ビルド、`node --check dist/_worker.js` 成功。tools/music-thumb-check.mjsでEdgeの390px/1280pxにて、サムネイルがleaf全体を覆うこと、白文字・黒幕の写真と同じ presentation、音楽なし・写真ありの従来表示の維持、横溢れなし、本番と同じimg-srcのCSPでサムネイルが読込违反なしに表示されることを確認。画像 `.local/review/music-thumb-{390,1280}.png`。
 2026-11-07 JST、本人が音楽サムネイルと認証切れ復旧修正の「両方反映していいよ」と承認。`2030cde` と `adbbc30` をmainへpush（ab7b248からのfast-forward）。Pagesデプロイ後、本番 `/diary/2026-11-05/` で `diary-leaf has-photo has-music-thumb` とサムネイルimg（naturalWidth 1280）を確認。本番CSPのimg-srcへ `https://i.ytimg.com` 追加済み、Home/Blog 200、`/admin/` はAccessログインへの302、`admin.js?v=20261106a` 200。画像 `.local/review/production-music-thumb-390.png`。本番DB・投稿は変更していない。両変更の公開・検証まで完了。
 
-## 現在の依頼（非公開日記の共有リンク、本番反映承認待ち）
+## 現在の依頼（非公開日記の共有リンク、本番反映済み）
 
 2026-11-09、本人が非公開の2025-11-03の日記を「リンクを共有した人だけが見られる」ようにするよう依頼。本番D1に `diary-2025-11-03`（draft、本文・音楽リンクあり、写真なし）があることを確認済み。仕様はBLOG_DYNAMIC.mdに追記済み。
 
@@ -244,3 +244,5 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - 試験: 新規API試験5件を含む全66試験・ビルド・`node --check dist/_worker.js`・npm audit 0件が成功。`tools/diary-share-browser-check.mjs` でローカル実ブラウザー（4206・publish-check DB）の作成→キーなし404→共有URL閲覧・noindex・単票表示→無効化→404→再作成で別トークンまで確認。画像 `.local/review/diary-share-admin.png` と `diary-share-390.png`。検証用にLocalで確認用日記を1件作成したが、本番DB・投稿は変更していない。
 
 未反映。次は、本番D1への0003適用とmainへのpushについて本人の承認を得る。承認後は本番で「キーなし404、管理画面でリンク作成、共有URL閲覧」を確認し、生成した共有URLを本人へ渡す。制限: 写真付き非公開日記の共有では `/media/` が公開済み写真のみ返すため、対象日記（写真なし）には影響しないが写真付きの共有には別途対応が必要。
+
+2026-11-09 JST、本人が「いいよ」と承認。`5da9c6c` をmainへpushし、Pages deployment `211d692f-13b0-4755-b01f-e48b7d8d5c2c` が成功。migration 0003を本番D1へ適用後、管理APIを使わず `wrangler d1 execute` で `diary-2025-11-03` へトークンを設定した（トークンは `.local/share-token-2025-11-03.txt` に保存、Git対象外）。本番検証: キーなし・誤キー404、共有URL 200でnoindex・音楽リンク・単票表示を確認、`/diary/` 一覧に本文の語が出ないことを確認。管理画面の「共有リンクを作成」ボタンからも同じトークンのURLを確認・再発行できる。本番の共有URLは本人へ直接伝えた。写真付き非公開日記の共有は `/media/` の制限で別途対応が必要（上記のとおり）。本番反映・検証まで完了。
