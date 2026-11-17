@@ -244,6 +244,87 @@ function setBusy(value) {
     control.disabled = value;
   document.querySelector("#preview").disabled = value;
 }
+function insertImage(key, name) {
+  const field = form.elements.body;
+  const alternative =
+    String(name || "")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[\\[\]()<>`]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 60) || "写真";
+  const snippet = "![" + alternative + "](/media/" + key + ")";
+  const start = field.selectionStart ?? field.value.length,
+    end = field.selectionEnd ?? start,
+    before = field.value.slice(0, start),
+    after = field.value.slice(end),
+    lead = !before || before.endsWith("\n") ? "" : "\n\n",
+    trail = !after || after.startsWith("\n") ? "" : "\n\n";
+  field.value = before + lead + snippet + trail + after;
+  const caret = (before + lead + snippet).length;
+  field.setSelectionRange(caret, caret);
+  bodySelection = [caret, caret];
+}
+let bodySelection = null;
+for (const type of ["input", "keyup", "mouseup", "touchend", "select", "blur"])
+  form.elements.body.addEventListener(type, () => {
+    const field = form.elements.body;
+    bodySelection = [
+      field.selectionStart ?? field.value.length,
+      field.selectionEnd ?? field.selectionStart ?? 0,
+    ];
+  });
+document.querySelector("#body-photo").addEventListener("change", async (event) => {
+  const files = [...event.target.files];
+  event.target.value = "";
+  if (busy || !files.length) return;
+  const field = form.elements.body,
+    selection = bodySelection ?? [field.value.length, field.value.length],
+    inserted = [];
+  let failed = false;
+  busy = true;
+  setBusy(true);
+  try {
+    for (const file of files) {
+      if (
+        file.size > 5 * 1024 * 1024 ||
+        !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+      ) {
+        throw Error("JPEG・PNG・WebPの写真を5MB以内で選択してください。");
+      }
+      const r = await fetch("/api/admin/photos", {
+        method: "POST",
+        headers: {
+          "Content-Type": file.type,
+          "X-CSRF-Token": (await session({refresh:true, requireAdmin:true})).csrf,
+        },
+        body: file,
+      });
+      const result = await r.json();
+      if (!r.ok) throw Error(result.error);
+      inserted.push([result.key, file.name]);
+    }
+  } catch (e) {
+    failed = true;
+    showError("save-notice", e);
+  } finally {
+    busy = false;
+    setBusy(false);
+    if (inserted.length) {
+      field.focus();
+      field.setSelectionRange(selection[0], selection[1]);
+      for (const [key, name] of inserted) insertImage(key, name);
+      field.focus();
+      if (!failed)
+        status(
+          "save-notice",
+          inserted.length === 1
+            ? inserted[0][1] + " を本文に差し込みました。"
+            : inserted.length + "枚の写真を本文に差し込みました。",
+        );
+    }
+  }
+});
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (busy) return;

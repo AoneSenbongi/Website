@@ -69,6 +69,12 @@ beforeEach(() => {
       "utf8",
     ),
   );
+  db.exec(
+    readFileSync(
+      new URL("../migrations/0003_share.sql", import.meta.url),
+      "utf8",
+    ),
+  );
   db.prepare(
     "INSERT INTO posts(id,slug,title,body,photo,status,created_at,updated_at,published_at) VALUES(?,?,?,?,?,?,?,?,?)",
   ).run("p1", "hello", "公開記事", "本文", null, "published", 1, 1, 1);
@@ -166,6 +172,27 @@ async function comment(s, body = {}) {
     csrf: s.csrf,
     body: { name: "読者", body: "感想です", turnstile: "valid", ...body },
   });
+}
+async function uploadPhoto(s, admin) {
+  const bytes = new Uint8Array(30);
+  bytes.set([137, 80, 78, 71, 13, 10, 26, 10]);
+  const r = await app.fetch(
+    new Request(origin + "/api/admin/photos", {
+      method: "POST",
+      headers: {
+        Origin: origin,
+        Cookie: s.cookie,
+        "X-CSRF-Token": s.csrf,
+        "Cf-Access-Jwt-Assertion": admin,
+        "Content-Type": "image/png",
+      },
+      body: bytes,
+    }),
+    env,
+    {},
+  );
+  assert.equal(r.status, 201);
+  return (await r.json()).key;
 }
 test("X向け取得で公開記事のカード情報を返し、下書きは返さない", async () => {
   const r = await request("/blog/hello/", {headers:{"User-Agent":"Twitterbot/1.0"}});
@@ -709,6 +736,91 @@ test("写真は管理者に限り形式・容量を検証し、公開まで取�
   assert.equal((await request(photo.url)).status, 404);
   assert.equal((await request(photo.url, { admin })).status, 200);
   assert.equal((await upload(png, "image/jpeg")).status, 400);
+});
+test("本文中に差し込んだ写真は公開済み投稿の参照でだけ取得できる", async () => {
+  const s = await session(),
+    admin = await token(),
+    key = await uploadPhoto(s, admin),
+    body = "前書き\n\n![差し込んだ写真](/media/" + key + ")\n\n後書き",
+    input = {
+      kind: "blog",
+      title: "本文の写真",
+      slug: "body-photo",
+      body,
+      status: "draft",
+    };
+  const created = await request("/api/admin/posts", {
+    method: "POST",
+    ...s,
+    admin,
+    body: input,
+  });
+  assert.equal(created.status, 201);
+  const { id } = await created.json();
+  // 下書きの本文が参照しているだけでは公開しない
+  assert.equal((await request("/media/" + key)).status, 404);
+  assert.equal((await request("/media/" + key, { admin })).status, 200);
+  const draft = db.prepare("SELECT * FROM posts WHERE id=?").get(id);
+  assert.equal(
+    (
+      await request("/api/admin/posts/" + id, {
+        method: "PUT",
+        ...s,
+        admin,
+        body: { ...input, status: "published", updatedAt: draft.updated_at },
+      })
+    ).status,
+    200,
+  );
+  const media = await request("/media/" + key);
+  assert.equal(media.status, 200);
+  assert.equal(media.headers.get("content-type"), "image/png");
+  const html = await (await request("/blog/body-photo/")).text();
+  assert.ok(html.includes('src="/media/' + key + '"'));
+  assert.ok(html.includes('alt="差し込んだ写真"'));
+  // 非公開に戻すと本文の参照でも取得できない
+  const published = db.prepare("SELECT * FROM posts WHERE id=?").get(id);
+  await request("/api/admin/posts/" + id, {
+    method: "PUT",
+    ...s,
+    admin,
+    body: { ...input, updatedAt: published.updated_at },
+  });
+  assert.equal((await request("/media/" + key)).status, 404);
+});
+test("非公開日記の共有リンクは本文中の写真も取得できる", async () => {
+  const s = await session(),
+    admin = await token(),
+    key = await uploadPhoto(s, admin),
+    created = await request("/api/admin/posts", {
+      method: "POST",
+      ...s,
+      admin,
+      body: {
+        kind: "diary",
+        date: "2026-11-17",
+        body: "![共有する写真](/media/" + key + ")",
+        status: "draft",
+      },
+    });
+  assert.equal(created.status, 201);
+  const { id } = await created.json();
+  const shared = await request("/api/admin/posts/" + id + "/share", {
+    method: "POST",
+    ...s,
+    admin,
+    body: {},
+  });
+  const { shareToken } = await shared.json();
+  assert.equal((await request("/media/" + key)).status, 404);
+  assert.equal(
+    (await request("/media/" + key + "?key=" + shareToken)).status,
+    200,
+  );
+  assert.equal(
+    (await request("/media/" + key + "?key=" + "x".repeat(43))).status,
+    404,
+  );
 });
 test("メール確認の期限切れ、通知設定不足、未承認返信は配信しない", async () => {
   const s = await session();

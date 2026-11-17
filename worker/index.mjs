@@ -623,10 +623,13 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
       }
       const media = path.match(/^\/media\/([a-f0-9]{32}\.(?:jpg|png|webp))$/);
       if (media) {
+        // A photo is public when a published post uses it as the header photo or
+        // links it from the Markdown body. Draft bodies keep their photos private.
         const pub = await one(
           env,
-          "SELECT 1 FROM posts WHERE photo=? AND status='published'",
+          "SELECT 1 FROM posts WHERE status='published' AND (photo=? OR instr(body,?)>0)",
           media[1],
+          "/media/" + media[1],
         );
         if (!pub) {
           let shared = false;
@@ -634,8 +637,9 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
           if (key && /^[\w-]{43,64}$/.test(key)) {
             const owners = await rows(
               env,
-              "SELECT share_token FROM posts WHERE photo=? AND status<>'published' AND share_token IS NOT NULL",
+              "SELECT share_token FROM posts WHERE (photo=? OR instr(body,?)>0) AND status<>'published' AND share_token IS NOT NULL",
               media[1],
+              "/media/" + media[1],
             );
             shared = owners.some((o) => equal(key, o.share_token));
           }
