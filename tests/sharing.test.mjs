@@ -28,7 +28,7 @@ test("Diary shares use their photo or a dedicated diary image",()=>{
  assert.equal(shareMetadata(post,origin).description,'今日の日記');
  assert.equal(shareMetadata(post,origin).image,origin+'/images/diary-og-card.png');
  assert.equal(shareMetadata({...post,photo:'b'.repeat(32)+'.png'},origin).image,origin+'/media/'+'b'.repeat(32)+'.png');
- assert.equal(shareMetadata({...post,body:'![写真](/images/day.jpg)'},origin).image,origin+'/images/day.jpg');
+ assert.equal(shareMetadata({...post,body:'![写真](/images/day.jpg)'},origin).image,origin+'/images/diary-og-card.png');
 });
 test("The real HTML template emits consistent escaped Open Graph and X cards",async()=>{
  const template=await readFile(new URL('../blog/index.html',import.meta.url),'utf8');

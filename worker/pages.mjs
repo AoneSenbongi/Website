@@ -38,7 +38,7 @@ export function shareMetadata(post, origin) {
   let text = "";
   function visit(tokens) {
     for (const token of tokens) {
-      if (token.type === "image") {
+      if (token.type === "image" && post.kind !== "diary") {
         if (!image) {
           try {
             const url = new URL(token.attrGet("src"), origin + "/");
