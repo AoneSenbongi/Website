@@ -303,3 +303,5 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - CSS版番号を 20261117c へ更新。JSは変更なし。
 - ローカル検証: 隔離DBに30件の下書きを作成し、一覧の scrollHeight 3,607px を clientHeight 512px 枠内に収めてスクロールすることを確認。JSエラーなし。スクリーンショット `.local/review/admin-scroll-check.png`。
 - 本番・投稿DBは変更していない。次は内容を提示し、push・本番反映の承認を得る。
+
+2026-11-17 JST、本人が「いいよ」と承認。`e37725b` をmainへpush（`c7c209c..e37725b`）。本番で `blog-ui/blog.css?v=20261117c` が22,805 bytesで `writing-sidebar #posts` のスクロール規則を含むことを確認。`/blog/` は200で新CSS版を参照。本番の投稿・DBは変更しておらず、実際の多数投稿時のスクロールは本人が管理画面で確認する。
