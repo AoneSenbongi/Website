@@ -746,6 +746,20 @@ summary {
   padding-right: 1.5rem;
   border-right: 1px solid var(--journal-line);
 }
+.writing-sidebar #posts {
+  max-height: calc(100vh - 13rem);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.25rem;
+}
+.writing-sidebar #posts::-webkit-scrollbar {
+  width: 6px;
+}
+.writing-sidebar #posts::-webkit-scrollbar-thumb {
+  background: var(--journal-line);
+  border-radius: 3px;
+}
 .admin-shell .new-entry {
   border: 0;
   padding: 0 0 1.5rem;
