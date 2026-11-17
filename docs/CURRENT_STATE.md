@@ -279,3 +279,5 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - `tools/body-photo-browser-check.mjs` を追加。隔離DB（4207、publish-check）の実ブラウザーで、本文中のカーソル位置への挿入、登録写真の従来操作、保存、一覧から開き直し、公開、公開記事の `<img>` と `/media/` の200（image/png）まで確認し、404はfaviconのみ、JSエラーなし。画像は `.local/review/body-photo-admin-{1280,390}.png`。
 
 ローカルのみで、push・本番デプロイは未実施。本番 `/admin/` はAccessのログインHTMLを返し、`admin.js?v=20261109b` の旧版を配信しているため今回の変更は本番に存在しない。作業中に本人から「Blogの編集ができなくなった」と報告があったが、本人の指示で原因究明は保留。隔離環境の管理画面では新規作成・保存・開き直し・公開が正常に動作した。次は変更内容と画像を提示し、push・本番反映の承認を得る。
+
+2026-11-17 JST、本人が「公開しちゃって」と承認。`3de8e99` をmainへpush（`3a34904..3de8e99`）。本番で `admin.js?v=20261117a` が16,905 bytesで `insertImage` と `bodySelection` を含み、`blog.css?v=20261117a` に `.body-photo-editor` があることを確認。`/blog/` と既存公開記事 `/blog/post-20261102-505bc8/` は200で新CSS/JS版を参照し、既存の登録写真 `/media/eab83396…png` も200（image/png、23,440 bytes）のまま。`/admin/` と `/api/admin/posts` は従来どおりAccessのログインHTMLで、未認証では管理機能を返さない。GitHub APIではPagesのdeployment IDを取得できなかったため記録しない。本番の投稿・DBは変更しておらず、本文写真の実投稿は本人が管理画面から行う。
