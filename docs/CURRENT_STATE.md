@@ -292,3 +292,5 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - JS版番号を 20261117b へ更新（CSS版番号も同じ）。
 - ローカル検証: 日記を新規作成→公開で、別タブが `https://twitter.com/intent/tweet?text=2099-11-07の日記&url=https://yamachikaseiya.com/diary/2099-11-07/` を開くことを確認（opened url を記録）。JSエラーなし。テスト環境ではtwitter.comがHTTPエラーを返すが、これは環境側の制限で本番ブラウザでは共有ボタンと同じ挙動。
 - 本番・投稿DBは変更していない。次は内容を提示し、push・本番反映の承認を得る。
+
+2026-11-17 JST、本人が「公開して」と承認。`1a17c6b` をmainへpush（`809b1aa..1a17c6b`）。本番で `admin.js?v=20261117b` が17,931 bytesで `publishingDiary` と `twitter.com/intent/tweet` を含むことを確認。`/blog/` と既存公開記事は200で新CSS版 `20261117b` を参照。本番の投稿・DBは変更しておらず、実際の日記公開時のX共有タブは本人が管理画面から確認する。
