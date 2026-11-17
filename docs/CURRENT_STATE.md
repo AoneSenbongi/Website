@@ -313,3 +313,5 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - `worker/pages.mjs` の `shareMetadata()` で、`post.kind === "diary"` のときは本文の image トークンを無視する。
 - `tests/sharing.test.mjs` の日記の期待値を更新（本文画像があっても日記専用OG画像）。
 - ローカル検証: `npm test` 72試験すべて成功。本番・投稿DBは変更していない。次は内容を提示し、push・本番反映の承認を得る。
+
+2026-11-17 JST、本人が「公開」と承認。`b2a99db` をmainへpush（`0bf6614..b2a99db`）。本番で `/diary/2026-11-02/` の og:image / twitter:image が `https://yamachikaseiya.com/images/diary-og-card.png` であることを確認。本番の投稿・DBは変更しておらず、本文写真を挿入した日記の共有カードも本文画像を使わない。
