@@ -331,8 +331,25 @@ form.addEventListener("submit", async (event) => {
   const saving = event.submitter.value === "save";
   const state = saving ? current?.status || "draft" : event.submitter.value;
   const unpublishing = state === "draft" && current?.status === "published";
+  const publishingDiary =
+    selected === "diary" &&
+    state === "published" &&
+    current?.status !== "published";
   if (unpublishing && !confirm(`この${selected === "diary" ? "日記" : "記事"}を非公開にしますか？`))
     return;
+  // 公開時にXの共有画面を別タブで開く。API呼び出し前に最終URLで開いておく（後からの遷移は遮断されるため）。
+  let sharePopup = null;
+  let shareIntent = null;
+  if (publishingDiary) {
+    const date = form.elements.date.value;
+    shareIntent =
+      "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(date + "の日記") +
+      "&url=" +
+      encodeURIComponent("https://yamachikaseiya.com/diary/" + date + "/");
+    sharePopup = window.open(shareIntent, "_blank");
+    if (sharePopup) sharePopup.opener = null;
+  }
   const body = {
     kind: form.elements.kind.value,
     date: form.elements.date.value,
@@ -354,11 +371,22 @@ form.addEventListener("submit", async (event) => {
     );
     await loadPosts();
     fill(posts.find((p) => p.id === result.id));
-    status(
-      "save-notice",
-      unpublishing ? "非公開にしました。" : !saving && state === "published" ? "公開しました。" : "保存しました。",
-    );
+    if (publishingDiary) {
+      if (!sharePopup) {
+        window.open(shareIntent, "_blank");
+      }
+      status(
+        "save-notice",
+        "公開しました。Xの共有画面を別タブで開きました。",
+      );
+    } else {
+      status(
+        "save-notice",
+        unpublishing ? "非公開にしました。" : !saving && state === "published" ? "公開しました。" : "保存しました。",
+      );
+    }
   } catch (e) {
+    if (sharePopup && !sharePopup.closed) sharePopup.close();
     showError("save-notice", e);
   } finally {
     busy = false;

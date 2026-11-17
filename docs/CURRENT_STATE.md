@@ -281,3 +281,14 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 ローカルのみで、push・本番デプロイは未実施。本番 `/admin/` はAccessのログインHTMLを返し、`admin.js?v=20261109b` の旧版を配信しているため今回の変更は本番に存在しない。作業中に本人から「Blogの編集ができなくなった」と報告があったが、本人の指示で原因究明は保留。隔離環境の管理画面では新規作成・保存・開き直し・公開が正常に動作した。次は変更内容と画像を提示し、push・本番反映の承認を得る。
 
 2026-11-17 JST、本人が「公開しちゃって」と承認。`3de8e99` をmainへpush（`3a34904..3de8e99`）。本番で `admin.js?v=20261117a` が16,905 bytesで `insertImage` と `bodySelection` を含み、`blog.css?v=20261117a` に `.body-photo-editor` があることを確認。`/blog/` と既存公開記事 `/blog/post-20261102-505bc8/` は200で新CSS/JS版を参照し、既存の登録写真 `/media/eab83396…png` も200（image/png、23,440 bytes）のまま。`/admin/` と `/api/admin/posts` は従来どおりAccessのログインHTMLで、未認証では管理機能を返さない。GitHub APIではPagesのdeployment IDを取得できなかったため記録しない。本番の投稿・DBは変更しておらず、本文写真の実投稿は本人が管理画面から行う。
+
+## 現在の依頼（日記公開時のX共有タブ、公開承認待ち）
+
+2026-11-17、本人が「日記を投稿したら勝手にツイッターに投稿するようにならない？ Twitter APIは使わず、現在の共有ボタンと同じ挙動で別タブにフォーマットされた状態で表示するように」と依頼。Twitter APIは使わず、管理画面の「Xで共有 ↗」と同じ `https://twitter.com/intent/tweet?text=…&url=…` を別タブで開くだけにした。
+
+- 管理画面の送信処理で、日記を公開する場合（下書き→公開）に限り、公開前に `window.open(共有URL, "_blank")` を実行する。公開後に遷移させるとポップアップ遮断されるため、公開前に最終URLで開く。
+- 共有URLは既存の公開ページと同じ形式: text に「YYYY-MM-DDの日記」、url に `https://yamachikaseiya.com/diary/YYYY-MM-DD/`。投稿の可否・文面の編集はX側で行う。
+- 記事の公開、保存、非公開では開かない。公開に失敗した場合はタブを閉じる。
+- JS版番号を 20261117b へ更新（CSS版番号も同じ）。
+- ローカル検証: 日記を新規作成→公開で、別タブが `https://twitter.com/intent/tweet?text=2099-11-07の日記&url=https://yamachikaseiya.com/diary/2099-11-07/` を開くことを確認（opened url を記録）。JSエラーなし。テスト環境ではtwitter.comがHTTPエラーを返すが、これは環境側の制限で本番ブラウザでは共有ボタンと同じ挙動。
+- 本番・投稿DBは変更していない。次は内容を提示し、push・本番反映の承認を得る。
