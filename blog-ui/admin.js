@@ -118,13 +118,15 @@ function dirty() {
   return baseline !== "" && snapshot() !== baseline;
 }
 function shareUrl() {
-  return current?.share_token
-    ? location.origin + "/diary/" + current.entry_date + "/?key=" + current.share_token
-    : null;
+  if (!current?.share_token) return null;
+  const path = (current.kind || selected) === "diary"
+    ? "/diary/" + current.entry_date + "/"
+    : "/blog/" + current.slug + "/";
+  return location.origin + path + "?key=" + current.share_token;
 }
 function renderShare() {
   const url = shareUrl();
-  document.querySelector("#share-fields").hidden = !(current && selected === "diary" && current.status !== "published");
+  document.querySelector("#share-fields").hidden = !(current && current.status !== "published");
   document.querySelector("#share-create").hidden = !!url;
   document.querySelector("#share-active").hidden = !url;
   const link = document.querySelector("#share-url");

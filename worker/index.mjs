@@ -327,7 +327,7 @@ function secured(response) {
   headers.set("Strict-Transport-Security", "max-age=31536000");
   headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'self'",
+    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com https://note.com; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'self'",
   );
   return new Response(response.body, { status: response.status, headers });
 }
@@ -540,7 +540,7 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
             equal(key, shared.share_token)
           )
             return page(env, request, diary(shared, [], false, true, key), {
-              ...shareMetadata(shared, env.SITE_ORIGIN),
+              ...shareMetadata(shared, env.SITE_ORIGIN, key),
               type: "article",
               title: shared.entry_date + "の日記",
               canonical: entryPath(shared),
@@ -664,13 +664,24 @@ export function createApp({ keyResolver, fetcher = fetch } = {}) {
         );
       const post = path.match(/^\/blog\/([a-z0-9-]+)\/$/);
       if (post) {
-        const p = await published(env, post[1]);
+        const key = url.searchParams.get("key");
+        let shared = null;
+        if (key && /^[\w-]{43,64}$/.test(key)) {
+          const candidate = await one(
+            env,
+            "SELECT * FROM posts WHERE kind='blog' AND slug=? AND status<>'published' AND share_token IS NOT NULL",
+            post[1],
+          );
+          if (candidate && equal(key, candidate.share_token)) shared = candidate;
+        }
+        const p = shared || (await published(env, post[1]));
         if (p.kind !== "blog") fail(404, "記事が見つかりません。");
-        return page(env, request, article(p), {
-          script: "article",
+        return page(env, request, article(p, false, shared ? key : null, !!shared), {
+          script: shared ? undefined : "article",
           title: p.title,
-          ...shareMetadata(p, env.SITE_ORIGIN),
+          ...shareMetadata(p, env.SITE_ORIGIN, shared ? key : null),
           slug: p.slug,
+          noindex: !!shared,
         });
       }
       fail(404, "ページが見つかりません。");

@@ -166,6 +166,14 @@ body:has(.admin-shell) {
   overflow-x: auto;
   overflow-y: hidden;
 }
+:is(.article-body, .diary-words) iframe.note-embed {
+  display: block;
+  width: min(494px, 100%);
+  max-width: 100%;
+  border: 0;
+  margin: 1.5rem auto 2rem;
+  background: #fff;
+}
 .article-body p {
   margin-bottom: 1.8rem;
 }

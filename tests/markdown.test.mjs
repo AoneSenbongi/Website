@@ -64,6 +64,35 @@ test("LaTeX input cannot inject markup, scripts, or links", () => {
   assert.ok(html.includes("$5 &amp; $&amp;"));
 });
 
+test("Pasted note iframes render while the helper script stays inactive", () => {
+  const body = `前の文。\n\n<iframe class="note-embed" src="https://note.com/embed/notes/n87f9ce040450" style="border: 0; display: block; max-width: 99%; width: 494px; padding: 0px; margin: 10px 0px; position: static; visibility: visible;" height="400"></iframe>\n<script async src="https://note.com/scripts/embed.js" charset="utf-8"></script>\n\n後の文。`;
+  for (const preview of [false, true]) {
+    for (const html of [article({...post, body}, preview), diary({...post, body}, [], preview)]) {
+      assert.match(html, /<iframe class="note-embed" src="https:\/\/note\.com\/embed\/notes\/n87f9ce040450" height="400" style="height:400px"/);
+      assert.doesNotMatch(html, /note\.com\/scripts\/embed\.js|<script|onerror=/i);
+      assert.ok(html.includes("前の文。"));
+      assert.ok(html.includes("後の文。"));
+    }
+  }
+});
+test("Iframes other than note embeds stay escaped", () => {
+  const body = '<iframe src="https://evil.example/"></iframe>\n\n<iframe src="https://note.com.evil.example/embed/notes/n1"></iframe>\n\n<iframe src="https://note.com/embed/notes/n1" onload="alert(1)"></iframe>';
+  const html = article({...post, body}, true);
+  assert.ok(html.includes("&lt;iframe"));
+  assert.doesNotMatch(html, /<iframe[^>]+evil\.example|<iframe[^>]+onload/i);
+  assert.match(html, /<iframe class="note-embed" src="https:\/\/note\.com\/embed\/notes\/n1"/);
+  assert.doesNotMatch(html, /<iframe[^>]+onload/i);
+});
+test("Shared draft articles use keyed media and omit reactions and navigation links", () => {
+  const key = "k".repeat(43);
+  const photo = "a".repeat(32) + ".jpg";
+  const bodyPhoto = "b".repeat(32) + ".png";
+  const html = article({...post, photo, body: `本文 ![写真](/media/${bodyPhoto})`}, false, key, true);
+  assert.match(html, new RegExp(`src="/media/${photo}\\?key=${key}"`));
+  assert.match(html, new RegExp(`/media/${bodyPhoto}\\?key=${key}`));
+  assert.match(html, /class="journal-tabs"/);
+  assert.doesNotMatch(html, /article-end|article-diary-link|data-slug=/);
+});
 test("KaTeX positioning styles survive the page template cleanup", async () => {
   const template = await readFile(new URL("../blog/index.html", import.meta.url), "utf8");
   const env = { SITE_ORIGIN: "https://yamachikaseiya.com", ASSETS: { fetch: async () => new Response(template) } };

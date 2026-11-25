@@ -46,6 +46,45 @@ markdown.inline.ruler.before("escape", "latex_math", (state, silent) => {
   state.pos = end;
   return true;
 });
+// A pasted note iframe is restored as a clean iframe. Its helper script and every other tag stay inactive.
+const noteScriptPattern =
+  /<script\b[^>]*\bsrc\s*=\s*["']https:\/\/note\.com\/scripts\/embed\.js["'][^>]*>\s*<\/script>/gi;
+const noteIframePattern = /<iframe\b([^>]*)>\s*<\/iframe>/gi;
+function noteEmbed(attributes) {
+  const attrs = {};
+  for (const match of attributes.matchAll(
+    /([a-z][a-z-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi,
+  ))
+    attrs[match[1].toLowerCase()] = match[2] ?? match[3] ?? "";
+  const id =
+    /^https:\/\/note\.com\/embed\/notes\/([a-z0-9]+)\/?$/i.exec(attrs.src || "")?.[1];
+  if (!id) return null;
+  const height = Number.parseInt(attrs.height ?? "", 10);
+  return {
+    id,
+    height: Number.isInteger(height) && height >= 120 && height <= 2000 ? height : 400,
+  };
+}
+export function markdownBody(body, mediaKey = null) {
+  const embeds = [];
+  const prepared = String(body ?? "")
+    .replace(noteScriptPattern, "")
+    .replace(noteIframePattern, (whole, attributes) => {
+      const embed = noteEmbed(attributes);
+      if (!embed) return whole;
+      const token = `noteembed${crypto.randomUUID().replaceAll("-", "")}${embeds.length}end`;
+      embeds.push({
+        token,
+        html: `<iframe class="note-embed" src="https://note.com/embed/notes/${embed.id}" height="${embed.height}" style="height:${embed.height}px" loading="lazy" title="noteの埋め込み"></iframe>`,
+      });
+      return token;
+    });
+  let html = markdown.render(prepared);
+  for (const embed of embeds) html = html.split(embed.token).join(embed.html);
+  return mediaKey
+    ? html.replace(/\/media\/([a-f0-9]{32}\.(?:jpg|png|webp))/g, "/media/$1?key=" + mediaKey)
+    : html;
+}
 // Accept spaces inside bold markers without rewriting code or stored Markdown.
 markdown.inline.ruler.before("emphasis", "spaced_strong", (state, silent) => {
   if (!state.src.startsWith("**", state.pos) || state.level >= state.md.options.maxNesting) return false;
@@ -77,9 +116,11 @@ const date = (ms) =>
   new Date(ms).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" });
 export const entryPath = (p) =>
   p.kind === "diary" ? `/diary/${p.entry_date}/` : `/blog/${p.slug}/`;
-export function shareMetadata(post, origin) {
+export function shareMetadata(post, origin, mediaKey = null) {
+  const withKey = (url) =>
+    mediaKey ? url + (url.includes("?") ? "&" : "?") + "key=" + mediaKey : url;
   let image = /^[a-f0-9]{32}\.(?:jpg|png|webp)$/.test(post.photo || "")
-    ? origin + "/media/" + post.photo : null;
+    ? withKey(origin + "/media/" + post.photo) : null;
   let text = "";
   function visit(tokens) {
     for (const token of tokens) {
@@ -88,7 +129,7 @@ export function shareMetadata(post, origin) {
           try {
             const url = new URL(token.attrGet("src"), origin + "/");
             if (url.origin === origin && /^\/(?:images|media|research\/files)\//.test(url.pathname))
-              image = url.href;
+              image = withKey(url.href);
           } catch { /* A malformed image cannot become a share image. */ }
         }
       } else if (token.children) visit(token.children);
@@ -97,7 +138,7 @@ export function shareMetadata(post, origin) {
       if (token.block && token.nesting === -1) text += " ";
     }
   }
-  visit(markdown.parse(post.body || "", {}));
+  visit(markdown.parse(String(post.body || "").replace(noteIframePattern, "").replace(noteScriptPattern, ""), {}));
   return {
     type: "article",
     description: [...text.replace(/\s+/g, " ").trim()].slice(0, 160).join("") || (post.kind === "diary" ? "山近晴也の日記。日々のこと、音楽、写真。" : post.title || "山近晴也のBlog"),
@@ -146,7 +187,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126a"></head>',
+      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126b"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -161,7 +202,7 @@ export async function page(
   if (script)
     html = html.replace(
       "</body>",
-      `<script type="module" src="/blog-ui/${script}.js?v=20261117b"></script></body>`,
+      `<script type="module" src="/blog-ui/${script}.js?v=20261126b"></script></body>`,
     );
   const cards = {
     "og:type": type,
@@ -193,9 +234,14 @@ export function listing(posts) {
 function interactions(p) {
   return `<section class="article-end" aria-label="記事への反応"><div class="reaction-bar"><button id="like" class="like-button" type="button" aria-pressed="false" aria-label="いいね" disabled><span id="like-icon" aria-hidden="true">♡</span><span id="likes">0</span></button><a class="share-link" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(p.kind === "diary" ? p.entry_date + "の日記" : p.title)}&url=${encodeURIComponent("https://yamachikaseiya.com" + entryPath(p))}" target="_blank" rel="noopener noreferrer">Xで共有 ↗</a></div><p id="notice" role="status" aria-live="polite"></p><div class="comments-heading" hidden><h2>コメント</h2><span id="comment-count"></span></div><div id="comments"></div><details id="comment-composer" class="comment-composer"><summary>コメントを書く</summary><form id="comment-form"><p id="reply-label" class="reply-label" hidden></p><input type="hidden" name="parentId"><p id="owner-identity" class="identity" hidden>山近晴也 <span class="author-badge">本人</span></p><label id="name-label"><span class="visually-hidden">名前（任意）</span><input name="name" maxlength="40" autocomplete="nickname" placeholder="名前（任意）"></label><label><span class="visually-hidden">コメント</span><textarea name="body" maxlength="2000" rows="3" required placeholder="コメントをどうぞ"></textarea></label><details id="email-label" hidden><summary>返信をメールで受け取る</summary><label><span class="visually-hidden">メールアドレス</span><input name="email" type="email" maxlength="254" autocomplete="email" placeholder="メールアドレス（非公開）"></label><small>確認メールから有効にできます。</small></details><div id="challenge"></div><button id="retry-challenge" type="button" class="text-button" hidden>再試行</button><div class="form-bottom"><small id="moderation-note">承認後に公開します。</small><div><button type="button" id="cancel-reply" class="text-button" hidden>キャンセル</button><button type="submit" class="primary-button" disabled>送信</button></div></div><p id="form-notice" role="status" aria-live="polite"></p></form></details></section>`;
 }
-export function article(p, preview = false) {
-  return `<main class="article-shell" data-slug="${escape(p.slug)}"><a class="article-back" href="${preview ? "/admin/" : "/blog/"}">← ${preview ? "管理画面" : "Blog"}</a>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}<article><header class="article-header"><p class="post-meta">${p.published_at ? date(p.published_at) : "下書き"}</p><h1>${escape(p.title)}</h1><p class="byline"><img src="/images/profile-photo.jpg" alt="">山近晴也<span class="author-badge">本人</span></p></header><div class="article-body">${p.photo ? `<figure><img src="/media/${escape(p.photo)}" alt="記事の写真"></figure>` : ""}${p.body
-    ? markdown.render(p.body) : ""}</div></article>${preview ? "" : interactions(p) + '<p class="article-diary-link"><a href="/diary/">日記</a></p>'}</main>`;
+export function article(p, preview = false, mediaKey = null, share = false) {
+  const photo = p.photo
+    ? `<figure><img src="/media/${escape(p.photo)}${mediaKey ? "?key=" + escape(mediaKey) : ""}" alt="記事の写真"></figure>`
+    : "";
+  const nav = share
+    ? switcher("blog")
+    : `<a class="article-back" href="${preview ? "/admin/" : "/blog/"}">← ${preview ? "管理画面" : "Blog"}</a>`;
+  return `<main class="article-shell"${share ? "" : ` data-slug="${escape(p.slug)}"`}>${nav}${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}<article><header class="article-header"><p class="post-meta">${p.published_at ? date(p.published_at) : "下書き"}</p><h1>${escape(p.title)}</h1><p class="byline"><img src="/images/profile-photo.jpg" alt="">山近晴也<span class="author-badge">本人</span></p></header><div class="article-body">${photo}${p.body ? markdownBody(p.body, mediaKey) : ""}</div></article>${preview || share ? "" : interactions(p) + '<p class="article-diary-link"><a href="/diary/">日記</a></p>'}</main>`;
 }
 export function musicThumb(music) {
   let u;
@@ -213,9 +259,7 @@ export function musicThumb(music) {
 function diaryLeaf(p, latest = false, mediaKey = null) {
   const thumb = p.photo ? null : musicThumb(p.music);
   const media = (src) => mediaKey ? src + "?key=" + mediaKey : src;
-  const words = p.body && mediaKey
-    ? markdown.render(p.body).replace(/\/media\/([a-f0-9]{32}\.(?:jpg|png|webp))/g, "/media/$1?key=" + mediaKey)
-    : p.body ? markdown.render(p.body) : "";
+  const words = p.body ? markdownBody(p.body, mediaKey) : "";
   return `<article class="diary-leaf${p.photo || thumb ? " has-photo" : ""}${thumb ? " has-music-thumb" : ""}">${p.photo ? `<img class="diary-background" src="${media("/media/" + escape(p.photo))}" alt="">` : thumb ? `<img class="diary-background diary-music-thumb" src="${thumb}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}<div class="diary-copy"><div class="diary-date"><div class="diary-date-label"><time datetime="${escape(p.entry_date)}">${escape(p.entry_date.replaceAll("-", "."))}</time>${latest ? '<span class="diary-latest">Latest</span>' : ""}</div>${p.music ? `<a class="music-link" href="${escape(p.music)}" target="_blank" rel="noopener noreferrer"><span class="music-note" aria-hidden="true">♫</span> <span class="music-title">${escape(p.song || "今日の音楽")}</span><span aria-hidden="true">↗</span></a>` : ""}</div>${p.body ? `<div class="diary-words">${words}</div>` : ""}</div></article>`;
 }
 export function diary(p, entries = [], preview = false, share = false, mediaKey = null) {
@@ -232,7 +276,7 @@ export function diary(p, entries = [], preview = false, share = false, mediaKey 
   return `<main class="article-shell diary-shell"${p && !share ? ` data-slug="${escape(p.slug)}"` : ""}>${switcher("diary")}<header class="diary-heading"><h1>日記</h1>${!share && others.length ? `<details class="diary-archive"><summary>ほかの日記</summary><nav class="date-strip" aria-label="日記の日付">${others.map(e => `<a href="${entryPath(e)}">${escape(e.entry_date.replaceAll("-", "."))}</a>`).join("")}</nav></details>` : ""}</header>${preview ? '<p class="preview-caption">下書きプレビュー</p>' : ""}${p ? reader + (preview || share ? "" : interactions(p)) : '<div class="diary-empty"><p>まだ日記はありません。</p></div>'}</main>`;
 }
 export function adminPage() {
-  return `<main class="admin-shell blog-shell"><header class="admin-heading"><h1>書く<span class="heading-dot">.</span></h1><a class="logout-link" href="/cdn-cgi/access/logout">ログアウト ↗</a></header><nav class="editor-tabs" aria-label="管理メニュー"><button type="button" data-tab="blog" aria-pressed="true">記事</button><button type="button" data-tab="diary" aria-pressed="false">日記</button><button type="button" data-tab="comments" aria-pressed="false">コメント<span id="pending-count"></span></button></nav><p id="notice" role="status" aria-live="polite"></p><div id="writing-panel" class="writing-layout"><aside class="writing-sidebar"><button type="button" id="new-post" class="new-entry">＋ 新しく書く</button><div id="posts"></div></aside><section class="writing-editor"><form id="post-form"><input type="hidden" name="kind" value="blog"><header class="editor-heading"><h2 id="editor-title">新しい記事</h2><span id="editor-state"></span></header><div id="blog-fields"><label><span class="visually-hidden">タイトル</span><input class="title-input" name="title" maxlength="160" required placeholder="タイトル"></label><details class="url-setting"><summary>URL</summary><label><span class="visually-hidden">URLの末尾</span><input name="slug" maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" required placeholder="first-post"></label></details></div><div id="diary-fields" hidden><label class="date-label">日付<input type="date" name="date"></label></div><div id="share-fields" hidden><span class="share-label">限定共有</span><button type="button" id="share-create" class="share-button">共有リンクを作成</button><span id="share-active" hidden><a id="share-url" target="_blank" rel="noopener noreferrer"></a><button type="button" id="share-copy" class="text-button">コピー</button><button type="button" id="share-revoke" class="text-button">無効にする</button></span></div><label><span class="visually-hidden">本文</span><textarea class="body-input" name="body" rows="14" maxlength="20000" required placeholder="Markdownで書く（## 小見出し、**太字**、\\alpha で数式）"></textarea></label><div class="body-photo-editor"><div><label class="photo-picker" for="body-photo">＋ 本文に写真を追加</label><input class="visually-hidden" id="body-photo" type="file" accept="image/jpeg,image/png,image/webp" multiple><span id="body-photo-state" class="help-text">選んだ写真を本文のカーソル位置に差し込みます。JPEG・PNG・WebP、5MBまで。</span></div></div><div class="photo-editor"><img id="photo-preview" alt="登録する写真" hidden><div><label class="photo-picker" for="photo">＋ 写真を追加</label><input class="visually-hidden" id="photo" type="file" accept="image/jpeg,image/png,image/webp"><button type="button" id="remove-photo" class="text-button" hidden>写真を外す</button></div><p id="photo-state" class="help-text"></p></div><details id="music-fields" hidden><summary>♫ 音楽を添える</summary><label><span class="visually-hidden">音楽のURL</span><input name="music" type="url" placeholder="https://…"></label><label><span class="visually-hidden">曲名</span><input name="song" maxlength="120" placeholder="曲名（任意）"></label></details><div class="editor-actions"><button type="button" id="preview" class="text-button" disabled>プレビュー ↗</button><div><button type="submit" name="action" value="save">保存</button><button type="submit" name="action" value="published" class="primary-button">公開</button></div></div><p id="save-notice" role="status" aria-live="polite"></p></form></section></div><section id="comments-panel" class="moderation-panel" hidden><div class="moderation-heading"><h2>コメント</h2><label><span class="visually-hidden">表示するコメント</span><select id="comment-filter"><option value="pending">承認待ち</option><option value="all">すべて</option></select></label></div><div id="moderation"></div></section></main>`;
+  return `<main class="admin-shell blog-shell"><header class="admin-heading"><h1>書く<span class="heading-dot">.</span></h1><a class="logout-link" href="/cdn-cgi/access/logout">ログアウト ↗</a></header><nav class="editor-tabs" aria-label="管理メニュー"><button type="button" data-tab="blog" aria-pressed="true">記事</button><button type="button" data-tab="diary" aria-pressed="false">日記</button><button type="button" data-tab="comments" aria-pressed="false">コメント<span id="pending-count"></span></button></nav><p id="notice" role="status" aria-live="polite"></p><div id="writing-panel" class="writing-layout"><aside class="writing-sidebar"><button type="button" id="new-post" class="new-entry">＋ 新しく書く</button><div id="posts"></div></aside><section class="writing-editor"><form id="post-form"><input type="hidden" name="kind" value="blog"><header class="editor-heading"><h2 id="editor-title">新しい記事</h2><span id="editor-state"></span></header><div id="blog-fields"><label><span class="visually-hidden">タイトル</span><input class="title-input" name="title" maxlength="160" required placeholder="タイトル"></label><details class="url-setting"><summary>URL</summary><label><span class="visually-hidden">URLの末尾</span><input name="slug" maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" required placeholder="first-post"></label></details></div><div id="diary-fields" hidden><label class="date-label">日付<input type="date" name="date"></label></div><div id="share-fields" hidden><span class="share-label">限定共有</span><button type="button" id="share-create" class="share-button">共有リンクを作成</button><span id="share-active" hidden><a id="share-url" target="_blank" rel="noopener noreferrer"></a><button type="button" id="share-copy" class="text-button">コピー</button><button type="button" id="share-revoke" class="text-button">無効にする</button></span></div><label><span class="visually-hidden">本文</span><textarea class="body-input" name="body" rows="14" maxlength="20000" required placeholder="Markdownで書く（## 小見出し、**太字**、\\alpha で数式、noteのiframe）"></textarea></label><div class="body-photo-editor"><div><label class="photo-picker" for="body-photo">＋ 本文に写真を追加</label><input class="visually-hidden" id="body-photo" type="file" accept="image/jpeg,image/png,image/webp" multiple><span id="body-photo-state" class="help-text">選んだ写真を本文のカーソル位置に差し込みます。JPEG・PNG・WebP、5MBまで。</span></div></div><div class="photo-editor"><img id="photo-preview" alt="登録する写真" hidden><div><label class="photo-picker" for="photo">＋ 写真を追加</label><input class="visually-hidden" id="photo" type="file" accept="image/jpeg,image/png,image/webp"><button type="button" id="remove-photo" class="text-button" hidden>写真を外す</button></div><p id="photo-state" class="help-text"></p></div><details id="music-fields" hidden><summary>♫ 音楽を添える</summary><label><span class="visually-hidden">音楽のURL</span><input name="music" type="url" placeholder="https://…"></label><label><span class="visually-hidden">曲名</span><input name="song" maxlength="120" placeholder="曲名（任意）"></label></details><div class="editor-actions"><button type="button" id="preview" class="text-button" disabled>プレビュー ↗</button><div><button type="submit" name="action" value="save">保存</button><button type="submit" name="action" value="published" class="primary-button">公開</button></div></div><p id="save-notice" role="status" aria-live="polite"></p></form></section></div><section id="comments-panel" class="moderation-panel" hidden><div class="moderation-heading"><h2>コメント</h2><label><span class="visually-hidden">表示するコメント</span><select id="comment-filter"><option value="pending">承認待ち</option><option value="all">すべて</option></select></label></div><div id="moderation"></div></section></main>`;
 }
 export function notificationPage() {
   return `<main class="article-shell notification-shell"><p class="eyebrow">返信通知</p><h1>お知らせの設定</h1><p id="notification-description">メールのリンクから開いてください。</p><p id="notice" role="status" aria-live="polite"></p><button type="button" class="primary-button" id="confirm-notification" hidden>通知を有効にする</button><button type="button" id="unsubscribe-notification" hidden>通知を解除する</button><p><a href="/blog/">← Blog</a></p></main>`;

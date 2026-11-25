@@ -333,3 +333,13 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 2026-11-26、本人が添付画像で下付き文字のズレを指摘。原因は2点。`page()` がテンプレートのインライン style を消す処理を差し込んだ本文にも適用し KaTeX の位置指定（`style="top:-3.063em"` など）を削除していたことと、CSP の `style-src 'self'` が残った style 属性をブラウザでブロックしていたこと。本人の選択で CSP は `style-src-attr 'unsafe-inline'` のみ追加し、`style-src 'self'` と外部CSSは維持した（KaTeX の見た目を維持）。style 除去はテンプレート側・本文差し込み前へ移動。
 
 新規試験2件（KaTeX の style 保持、CSP の範囲）を含む全76試験・ビルド成功。2026-11-26 JST、`2a76c21` をmainへpush。本番でCSP違反コンソールが消え、KaTeX の `top` 指定がブラウザで有効になることを確認。本番の投稿・DBは変更していない。
+
+## 現在の依頼（note埋め込みとBlogの限定共有、公開前）
+
+2026-11-26、本人が「記事の埋め込みを溶かしたい。Noteの埋め込み用のあれを持ってきてもだめ」と依頼し、`<iframe class="note-embed" src="https://note.com/embed/notes/n87f9ce040450" style="..." height="400"></iframe>` と `<script async src="https://note.com/scripts/embed.js">` の貼り付け例を示した。続けて「日記の方についてる限定共有機能をBlogにもつけてほしい」と依頼。本人の選択は、iframeは貼ったものをそのまま有効化、Blog共有は日記と同じ仕様、作業範囲は実装から本番公開まで。
+
+- `worker/pages.mjs` の本文描画を `markdownBody()` に集約。noteiframeは `https://note.com/embed/notes/<ID>` のときだけクリーンなiframeへ復元し、`height` は120〜2000pxの整数だけ採用（既定400）。`<script src="https://note.com/scripts/embed.js">` は本文から削除し、他のiframe・属性・HTMLは従来どおりエスケープする。記事・日記のプレビューと公開、共有カードの説明文で同じ処理を使う。
+- CSPの `frame-src` に `https://note.com` を追加。CSS版を20261126b、JS版を20261126bへ更新し、`.article-body/.diary-words iframe.note-embed` を幅 `min(494px, 100%)`・中央寄せ・枠なしで表示。管理画面の本文placeholderにもnoteのiframeを追記。
+- Blogの下書きは `/blog/<slug>/?key=<トークン>` で共有可能にした。日記と同じくnoindex、単票表示、反応・コメント・日記リンク・記事スクリプトなし、写真と本文画像はキー付き、誤キー404、再作成で旧リンク無効化、公開記事には作成不可。管理画面の共有欄を記事・日記共通で表示し、URLをkindに応じて生成する。共有カードの画像にもキーを付けるよう `shareMetadata()` を拡張し、日記側にも適用。
+- 新規試験8件を含む全84試験、`npm run check:worker`、npm audit 0件が成功。`tools/note-share-browser-check.mjs` を追加し、隔離DB（4207、publish-check）の実ブラウザーで、保存→プレビューのnoteiframe描画・helper script未読込・CSP違反なし・390px横溢れなし→管理画面で共有リンク作成→別コンテキストで共有ページ表示（noindex、反応なし、iframeあり）→無効化で404まで確認。画像 `.local/review/note-share-{preview-desktop,preview-mobile,admin,public}.png`。
+- 未反映。次はmainへpushし、本番でCSP・CSS/JS版・既存ページ200を確認する。本番への試験投稿はしない。

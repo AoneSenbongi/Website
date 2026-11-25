@@ -30,6 +30,14 @@ test("Diary shares use their photo or a dedicated diary image",()=>{
  assert.equal(shareMetadata({...post,photo:'b'.repeat(32)+'.png'},origin).image,origin+'/media/'+'b'.repeat(32)+'.png');
  assert.equal(shareMetadata({...post,body:'![写真](/images/day.jpg)'},origin).image,origin+'/images/diary-og-card.png');
 });
+test("Shared draft images carry the access key and note markup stays out of descriptions",()=>{
+ const key="x".repeat(43),photo='a'.repeat(32)+'.jpg';
+ assert.equal(shareMetadata({kind:'blog',photo},origin,key).image,origin+'/media/'+photo+'?key='+key);
+ assert.equal(shareMetadata({kind:'diary',photo},origin,key).image,origin+'/media/'+photo+'?key='+key);
+ assert.equal(shareMetadata({body:'![写真](/media/'+photo+') 本文'},origin,key).image,origin+'/media/'+photo+'?key='+key);
+ const embedded='<iframe class="note-embed" src="https://note.com/embed/notes/n87f9ce040450" height="400"></iframe>\n<script async src="https://note.com/scripts/embed.js"></script>';
+ assert.equal(shareMetadata({body:embedded+'\n\n共有する本文'},origin).description,'共有する本文');
+});
 test("The real HTML template emits consistent escaped Open Graph and X cards",async()=>{
  const template=await readFile(new URL('../blog/index.html',import.meta.url),'utf8');
  const env={SITE_ORIGIN:origin,ASSETS:{fetch:async()=>new Response(template)}};

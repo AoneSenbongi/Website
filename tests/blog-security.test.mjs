@@ -1182,5 +1182,6 @@ test("Content-Security-Policy permits KaTeX style attributes only", async () => 
   const csp = response.headers.get("Content-Security-Policy");
   assert.match(csp, /style-src 'self'/);
   assert.match(csp, /style-src-attr 'unsafe-inline'/);
+  assert.match(csp, /frame-src https:\/\/challenges\.cloudflare\.com https:\/\/note\.com/);
   assert.doesNotMatch(csp, /style-src 'self' 'unsafe-inline'/);
 });
