@@ -316,7 +316,7 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 
 2026-11-17 JST、本人が「公開」と承認。`b2a99db` をmainへpush（`0bf6614..b2a99db`）。本番で `/diary/2026-11-02/` の og:image / twitter:image が `https://yamachikaseiya.com/images/diary-og-card.png` であることを確認。本番の投稿・DBは変更しておらず、本文写真を挿入した日記の共有カードも本文画像を使わない。
 
-## 現在の依頼（LaTeX のインライン描画、公開前）
+## 現在の依頼（LaTeX のインライン描画、本番反映済み）
 
 2026-11-26、本人が「BlogでLaTeX表記が使えるようにしてほしい。というか、`\` から始めたらLaTeXだと判定して組版してほしい」と依頼。判定単位は本人の選択で「コマンド単位でインライン」、作業範囲は「実装から本番公開まで」の事前承認を得た。
 
@@ -326,4 +326,4 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - CSS版番号を20261126aへ更新。管理画面の本文欄placeholderに `\alpha で数式` を追記。
 - 新規試験2件を含む全74試験、`npm run check:worker`、npm audit 0件が成功。`tools/latex-browser-check.mjs` で隔離DB（4207、publish-check）の実ブラウザーにより、保存→プレビュー→公開で `\alpha + \beta` / `\frac{1}{2}` / `\sqrt{x^2}` が描画され、日本語と `\*` エスケープが残り、KaTeX CSS 200・フォント適用・390px/1280px で横溢れなし・公開ページとプレビューの本文HTMLが一致することを確認。画像 `.local/review/latex-{desktop,mobile}.png`。
 
-未反映。次はmainへpushし、本番でCSS/フォントの配信と既存ページの表示を確認する。本番への試験投稿は行わない。
+2026-11-26 JST、本人の事前承認に従い `1d3049f` をmainへpush（`5f0f380..1d3049f`）。Pages自動デプロイ後、本番 `/blog/` が `blog.css?v=20261126a` と `katex.min.css?v=20261126a` を参照し、CSS（24,793 bytes）とフォント（KaTeX_Main-Regular.woff2、26,272 bytes、font/woff2）が200で配信されることを確認。`/blog/`、`/diary/`、既存公開記事は200でCSPは変更なし（`font-src` 追加不要）。本番の投稿・DBは変更しておらず、実際の数式入り記事は本人が管理画面から投稿する。公開・検証まで完了。
