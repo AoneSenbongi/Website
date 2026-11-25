@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "jose": "^6.1.0",
+    "katex": "0.19.1",
     "markdown-it": "15.0.3"
   },
   "devDependencies": {

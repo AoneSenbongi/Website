@@ -159,6 +159,13 @@ body:has(.admin-shell) {
   font-size: 1rem;
   line-height: 2.1;
 }
+.article-body .katex {
+  font-size: 1.05em;
+}
+.article-body .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 .article-body p {
   margin-bottom: 1.8rem;
 }

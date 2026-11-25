@@ -40,6 +40,15 @@ for (const name of await readdir(path.join(root, "blog-ui"))) {
     path.join(root, "dist", "blog-ui", name),
   );
 }
+const katexDist = path.join(root, "node_modules/katex/dist");
+if (!existsSync(katexDist)) throw Error("KaTeX assets are missing; run npm install");
+const katexAssets = path.join(root, "dist/blog-ui/katex");
+await mkdir(path.join(katexAssets, "fonts"), { recursive: true });
+await copyFile(path.join(katexDist, "katex.min.css"), path.join(katexAssets, "katex.min.css"));
+for (const name of await readdir(path.join(katexDist, "fonts"))) {
+  if (!/\.woff2?$/.test(name)) continue;
+  await copyFile(path.join(katexDist, "fonts", name), path.join(katexAssets, "fonts", name));
+}
 console.log(`Built ${allowed.length} public files and Blog UI assets.`);
 await build({
   entryPoints: [path.join(root, "worker/pages-entry.mjs")],

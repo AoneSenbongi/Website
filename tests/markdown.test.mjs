@@ -42,3 +42,23 @@ test("Spaced bold preserves code, escaped markers, and HTML safety", () => {
   assert.ok(html.includes('<strong>&lt;script&gt;x&lt;/script&gt;</strong>'));
   assert.doesNotMatch(html, /<script>|href="javascript:/);
 });
+
+test("Backslash commands render as inline LaTeX math in Blog and diary", () => {
+  const body = "値は \\alpha + \\beta です。\\frac{1}{2} もあります。\\* はエスケープのまま。";
+  for (const preview of [false, true]) {
+    for (const html of [article({...post, body}, preview), diary({...post, body}, [], preview)]) {
+      assert.match(html, /class="katex"/);
+      assert.ok(html.includes("です。"), "Japanese text after the formula remains");
+      assert.ok(html.includes("もあります。"));
+      assert.ok(html.includes("はエスケープのまま。"));
+      assert.ok(html.includes("\\alpha + \\beta"), "MathML keeps the formula source");
+    }
+  }
+});
+
+test("LaTeX input cannot inject markup, scripts, or links", () => {
+  const body = "\\href{javascript:alert(1)}{x}\n\n\\text{<script>alert(1)</script>}\n\n\\alpha $5 & $&";
+  const html = article({...post, body}, true);
+  assert.doesNotMatch(html, /<script>|href="javascript:/i);
+  assert.ok(html.includes("$5 &amp; $&amp;"));
+});

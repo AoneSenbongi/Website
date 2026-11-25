@@ -315,3 +315,15 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - ローカル検証: `npm test` 72試験すべて成功。本番・投稿DBは変更していない。次は内容を提示し、push・本番反映の承認を得る。
 
 2026-11-17 JST、本人が「公開」と承認。`b2a99db` をmainへpush（`0bf6614..b2a99db`）。本番で `/diary/2026-11-02/` の og:image / twitter:image が `https://yamachikaseiya.com/images/diary-og-card.png` であることを確認。本番の投稿・DBは変更しておらず、本文写真を挿入した日記の共有カードも本文画像を使わない。
+
+## 現在の依頼（LaTeX のインライン描画、公開前）
+
+2026-11-26、本人が「BlogでLaTeX表記が使えるようにしてほしい。というか、`\` から始めたらLaTeXだと判定して組版してほしい」と依頼。判定単位は本人の選択で「コマンド単位でインライン」、作業範囲は「実装から本番公開まで」の事前承認を得た。
+
+- KaTeX 0.19.1 を依存へ追加。`worker/pages.mjs` に markdown-it のインラインルール `latex_math` を追加し、`\` と英字のコマンド名で始まる範囲を数式として描画する。日本語・改行・Markdown 記号（`$`, `*`, `<`, `>`, `[`, `]`, `!`, `&`, `#`）で打ち切るため日本語の文中に混ぜても安全で、`\*` などの既存エスケープは維持する。
+- `trust: false`, `strict: "ignore"`, `throwOnError: false` で描画し、`\href{javascript:...}` のような危険な入力は有効化しない。MathML も出力する。
+- `tools/build.mjs` が `node_modules/katex/dist` のCSSとフォント（woff/woff2）を `dist/blog-ui/katex/` へコピー。CSPの `font-src` は追加せず `default-src 'self'` のまま（同一オリジン）。
+- CSS版番号を20261126aへ更新。管理画面の本文欄placeholderに `\alpha で数式` を追記。
+- 新規試験2件を含む全74試験、`npm run check:worker`、npm audit 0件が成功。`tools/latex-browser-check.mjs` で隔離DB（4207、publish-check）の実ブラウザーにより、保存→プレビュー→公開で `\alpha + \beta` / `\frac{1}{2}` / `\sqrt{x^2}` が描画され、日本語と `\*` エスケープが残り、KaTeX CSS 200・フォント適用・390px/1280px で横溢れなし・公開ページとプレビューの本文HTMLが一致することを確認。画像 `.local/review/latex-{desktop,mobile}.png`。
+
+未反映。次はmainへpushし、本番でCSS/フォントの配信と既存ページの表示を確認する。本番への試験投稿は行わない。
