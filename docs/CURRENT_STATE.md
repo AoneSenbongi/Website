@@ -327,3 +327,9 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - 新規試験2件を含む全74試験、`npm run check:worker`、npm audit 0件が成功。`tools/latex-browser-check.mjs` で隔離DB（4207、publish-check）の実ブラウザーにより、保存→プレビュー→公開で `\alpha + \beta` / `\frac{1}{2}` / `\sqrt{x^2}` が描画され、日本語と `\*` エスケープが残り、KaTeX CSS 200・フォント適用・390px/1280px で横溢れなし・公開ページとプレビューの本文HTMLが一致することを確認。画像 `.local/review/latex-{desktop,mobile}.png`。
 
 2026-11-26 JST、本人の事前承認に従い `1d3049f` をmainへpush（`5f0f380..1d3049f`）。Pages自動デプロイ後、本番 `/blog/` が `blog.css?v=20261126a` と `katex.min.css?v=20261126a` を参照し、CSS（24,793 bytes）とフォント（KaTeX_Main-Regular.woff2、26,272 bytes、font/woff2）が200で配信されることを確認。`/blog/`、`/diary/`、既存公開記事は200でCSPは変更なし（`font-src` 追加不要）。本番の投稿・DBは変更しておらず、実際の数式入り記事は本人が管理画面から投稿する。公開・検証まで完了。
+
+## 現在の修正（数式の下付き・上付きのズレ、本番反映済み）
+
+2026-11-26、本人が添付画像で下付き文字のズレを指摘。原因は2点。`page()` がテンプレートのインライン style を消す処理を差し込んだ本文にも適用し KaTeX の位置指定（`style="top:-3.063em"` など）を削除していたことと、CSP の `style-src 'self'` が残った style 属性をブラウザでブロックしていたこと。本人の選択で CSP は `style-src-attr 'unsafe-inline'` のみ追加し、`style-src 'self'` と外部CSSは維持した（KaTeX の見た目を維持）。style 除去はテンプレート側・本文差し込み前へ移動。
+
+新規試験2件（KaTeX の style 保持、CSP の範囲）を含む全76試験・ビルド成功。2026-11-26 JST、`2a76c21` をmainへpush。本番でCSP違反コンソールが消え、KaTeX の `top` 指定がブラウザで有効になることを確認。本番の投稿・DBは変更していない。
