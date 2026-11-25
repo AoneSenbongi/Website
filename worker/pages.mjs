@@ -130,6 +130,7 @@ export async function page(
     env.SITE_ORIGIN +
     (canonical || (slug ? `/blog/${slug}/` : new URL(request.url).pathname));
   let html = (await asset.text())
+    .replace(/ style="[^"]*"/g, "")
     .replace(/<main\b[^>]*>[\s\S]*?<\/main>/, () => main)
     .replace(
       /<title>[\s\S]*?<\/title>/,
@@ -151,8 +152,7 @@ export async function page(
     .replace(
       /<footer>[\s\S]*?<\/footer>/,
       '<footer class="journal-footer"><span>© 山近晴也</span><nav><a href="/contact/">Contact</a><a href="/blog/privacy/">データの扱い</a></nav></footer>',
-    )
-    .replace(/ style="[^"]*"/g, "");
+    );
   if (preview) {
     const version = crypto.randomUUID();
     html = html.replace(/(<link\b[^>]*rel="stylesheet"[^>]*href=")([^"]+)(")/g,

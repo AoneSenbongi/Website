@@ -1176,3 +1176,11 @@ test("日記への返信メールは日記のURLを案内し、偽造認証で�
   assert.ok(mail[1].text.includes("/diary/2026-10-22/#comment-"));
   assert.ok(!mail[1].text.includes("/blog/diary-"));
 });
+
+test("Content-Security-Policy permits KaTeX style attributes only", async () => {
+  const response = await request("/blog/");
+  const csp = response.headers.get("Content-Security-Policy");
+  assert.match(csp, /style-src 'self'/);
+  assert.match(csp, /style-src-attr 'unsafe-inline'/);
+  assert.doesNotMatch(csp, /style-src 'self' 'unsafe-inline'/);
+});

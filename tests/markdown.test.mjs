@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { article, diary } from "../worker/pages.mjs";
+import { readFile } from "node:fs/promises";
+import { article, diary, page } from "../worker/pages.mjs";
 
 const post = { id: "test", kind: "blog", slug: "markdown", title: "表示例", entry_date: "2026-11-02", body: "## 小見出し\n\n**太字**と*斜体*\n\n- 項目\n\n> 引用\n\n`code`\n\n[リンク](https://example.com)" };
 for (const preview of [false, true]) {
@@ -61,4 +62,15 @@ test("LaTeX input cannot inject markup, scripts, or links", () => {
   const html = article({...post, body}, true);
   assert.doesNotMatch(html, /<script>|href="javascript:/i);
   assert.ok(html.includes("$5 &amp; $&amp;"));
+});
+
+test("KaTeX positioning styles survive the page template cleanup", async () => {
+  const template = await readFile(new URL("../blog/index.html", import.meta.url), "utf8");
+  const env = { SITE_ORIGIN: "https://yamachikaseiya.com", ASSETS: { fetch: async () => new Response(template) } };
+  const body = "下付き \\alpha_1 と上付き \\alpha^2。";
+  for (const preview of [false, true]) {
+    const html = await (await page(env, new Request("https://yamachikaseiya.com/blog/example/"), article({...post, body}, preview), { preview })).text();
+    assert.match(html, /class="msupsub"/);
+    assert.match(html, /style="top:-/);
+  }
 });
