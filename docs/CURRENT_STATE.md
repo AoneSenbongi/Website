@@ -369,3 +369,13 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - `.article-body` の `line-height` を `2.1` → `1.6`（25.6px/行）、`.diary-words` を `2.15` → `1.6`（24.32px/行）に変更。
 - CSS版・JS版を `20261126e` へ更新。全84試験、`npm run check:worker` が成功。隔離プレビュー（4196）の実ブラウザーで Blog 25.6px／日記 24.32px、390px/1280px で横溢れなしを確認。
 - 2026-11-26 JST、本人が「公開していい」と承認。`ec82bd8` をmainへpush（`1ca834e..ec82bd8`）。Pages自動デプロイ（Production／`ec82bd8`）後、本番 `/blog/` が `blog.css?v=20261126e` を参照し、配信CSS（23,311 bytes）と `dist/blog-ui/blog.css` が空白を除き一致、`.article-body` と `.diary-words` の両方で `line-height:1.6` を確認。`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更していない。公開・検証まで完了。
+
+## 現在の依頼（数式の上下余白とnoteカード下の空白、公開完了）
+
+2026-11-26、本人が数式の行の下に残る空白と、noteカードの下に「カードと同じくらいの大きさの空白」ができることを指摘。実測で原因を特定した。
+
+- note: 埋め込みカードの実寸は幅494pxで197px、390px/360pxで176px。iframeの `height` は400px固定だったため、カード下に約203pxの空白が残っていた。`markdownBody()` で要求高さを `Math.min(requested, 200)` に制限し、`height="200"` / `style="height:200px"` にそろえた（属性の許可範囲120〜2000は維持）。
+- 数式: 数式を含む段落だけ `line-height: 1.6`、`margin-bottom: 0` にし、インライン数式（`p > .katex`）を `display: inline-block` + `margin-top: 0.1em` にして上下の余白をそろえた。表示数式（`.katex-display`）には適用しない。
+- 行間は本人が「これいいね」と承認した `.article-body` 2.1 / `.diary-words` 2.15、段落 margin 1.8rem、`.note-embed-frame` の `margin: 0 auto 1.25rem` を維持。
+- CSS版・JS版を `20261126m` へ更新。全84試験、`npm run check:worker` が成功。隔離プレビュー（4196）の実ブラウザーで、note iframe 200px／カード197px、数式の上下間隔がほぼ均等、390px/1280pxで横溢れなしを確認。
+- 2026-11-26 JST、本人が「いいです！！！ 公開してください！！！」と承認。`06c44c6` をmainへpush（`707ec80..06c44c6`）。Pages自動デプロイ（Production／`06c44c6`、デプロイID `590a3aa6-b8a4-4cac-90f0-45ac61e53d06`）後、本番 `/blog/` が `blog.css?v=20261126m` を参照し、配信CSSと `dist/blog-ui/blog.css` が空白を除き一致。`.article-body` の `line-height: 2.1`、`p > .katex` の `display:inline-block`／`margin-top:0.1em`、`p:has(> .katex)` の `line-height:1.6`／`margin-bottom:0`、`.note-embed-frame` の `margin: 0 auto 1.25rem` を確認。`/blog/`、`/diary/`、既存公開記事、`/blog/privacy/` は200。本番の投稿・DBは変更していない。公開・検証まで完了。
