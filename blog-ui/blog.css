@@ -157,7 +157,7 @@ body:has(.admin-shell) {
 }
 .article-body {
   font-size: 1rem;
-  line-height: 2.1;
+  line-height: 1.6;
 }
 :is(.article-body, .diary-words) .katex {
   font-size: 1.05em;
@@ -633,7 +633,7 @@ summary {
   margin-block: 1.25rem;
   max-width: 32rem;
   font-size: 0.95rem;
-  line-height: 2.15;
+  line-height: 1.6;
 }
 .diary-words p {
   margin: 0;
