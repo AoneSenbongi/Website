@@ -198,7 +198,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126c"></head>',
+      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126d"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -213,7 +213,7 @@ export async function page(
   if (script)
     html = html.replace(
       "</body>",
-      `<script type="module" src="/blog-ui/${script}.js?v=20261126c"></script></body>`,
+      `<script type="module" src="/blog-ui/${script}.js?v=20261126d"></script></body>`,
     );
   const cards = {
     "og:type": type,

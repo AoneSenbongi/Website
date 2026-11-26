@@ -169,7 +169,7 @@ body:has(.admin-shell) {
 }
 :is(.article-body, .diary-words) .note-embed-frame {
   width: min(494px, 100%);
-  margin: 0 auto 1.25rem;
+  margin: 0 auto 1rem;
 }
 :is(.article-body, .diary-words) iframe.note-embed {
   display: block;
@@ -183,7 +183,7 @@ body:has(.admin-shell) {
   margin-bottom: 0.75rem;
 }
 .article-body p {
-  margin-bottom: 1.8rem;
+  margin-bottom: 1rem;
 }
 .article-body figure {
   margin: 0 0 2.5rem;
