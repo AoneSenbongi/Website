@@ -61,10 +61,9 @@ function noteEmbed(attributes) {
     /^https:\/\/note\.com\/embed\/notes\/([a-z0-9]+)\/?$/i.exec(attrs.src || "")?.[1];
   if (!id) return null;
   const height = Number.parseInt(attrs.height ?? "", 10);
-  return {
-    id,
-    height: Number.isInteger(height) && height >= 120 && height <= 2000 ? height : 400,
-  };
+  const requested = Number.isInteger(height) && height >= 120 && height <= 2000 ? height : 400;
+  // note's card is about 200px tall; a fixed 400px iframe leaves a card-sized gap below it.
+  return { id, height: Math.min(requested, 200) };
 }
 export function markdownBody(body, mediaKey = null) {
   const embeds = [];
@@ -198,7 +197,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126e"></head>',
+      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126m"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -213,7 +212,7 @@ export async function page(
   if (script)
     html = html.replace(
       "</body>",
-      `<script type="module" src="/blog-ui/${script}.js?v=20261126e"></script></body>`,
+      `<script type="module" src="/blog-ui/${script}.js?v=20261126m"></script></body>`,
     );
   const cards = {
     "og:type": type,

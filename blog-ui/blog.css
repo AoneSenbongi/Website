@@ -157,11 +157,19 @@ body:has(.admin-shell) {
 }
 .article-body {
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 2.1;
 }
 :is(.article-body, .diary-words) .katex {
   font-size: 1.05em;
-  vertical-align: -0.1em;
+  vertical-align: -0.25em;
+}
+:is(.article-body, .diary-words) p > .katex {
+  display: inline-block;
+  margin-top: 0.1em;
+}
+:is(.article-body, .diary-words) p:has(> .katex) {
+  line-height: 1.6;
+  margin-bottom: 0;
 }
 .article-body .katex-display {
   overflow-x: auto;
@@ -169,7 +177,7 @@ body:has(.admin-shell) {
 }
 :is(.article-body, .diary-words) .note-embed-frame {
   width: min(494px, 100%);
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.25rem;
 }
 :is(.article-body, .diary-words) iframe.note-embed {
   display: block;
@@ -183,7 +191,7 @@ body:has(.admin-shell) {
   margin-bottom: 0.75rem;
 }
 .article-body p {
-  margin-bottom: 1rem;
+  margin-bottom: 1.8rem;
 }
 .article-body figure {
   margin: 0 0 2.5rem;
@@ -633,7 +641,7 @@ summary {
   margin-block: 1.25rem;
   max-width: 32rem;
   font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 2.15;
 }
 .diary-words p {
   margin: 0;

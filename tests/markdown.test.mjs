@@ -68,7 +68,7 @@ test("Pasted note iframes render while the helper script stays inactive", () => 
   const body = `前の文。\n\n<iframe class="note-embed" src="https://note.com/embed/notes/n87f9ce040450" style="border: 0; display: block; max-width: 99%; width: 494px; padding: 0px; margin: 10px 0px; position: static; visibility: visible;" height="400"></iframe>\n<script async src="https://note.com/scripts/embed.js" charset="utf-8"></script>\n\n後の文。`;
   for (const preview of [false, true]) {
     for (const html of [article({...post, body}, preview), diary({...post, body}, [], preview)]) {
-      assert.match(html, /<iframe class="note-embed" src="https:\/\/note\.com\/embed\/notes\/n87f9ce040450" height="400" style="height:400px"/);
+      assert.match(html, /<iframe class="note-embed" src="https:\/\/note\.com\/embed\/notes\/n87f9ce040450" height="200" style="height:200px"/);
       assert.doesNotMatch(html, /note\.com\/scripts\/embed\.js|<script|onerror=/i);
       assert.ok(html.includes("前の文。"));
       assert.ok(html.includes("後の文。"));
