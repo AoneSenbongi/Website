@@ -361,3 +361,11 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - `.note-embed-frame` の `margin-bottom` を `1.25rem`（20px）から `1rem`（16px）へ変更。直前段落の `0.75rem`（12px）、iframe の `margin: 0`、`.katex` の `vertical-align: -0.1em` は維持。
 - CSS版・JS版を `20261126d` へ更新。全84試験、`npm run check:worker` が成功。ルート差し替えを外した隔離プレビュー（4196）の実ブラウザーで、段落 margin 16px、note 前 12px／後 16px、数式下 3.9px、390px/1280px で横溢れなしを確認。
 2026-11-26 JST、本人が「公開していい」と承認。`ffb66c7` をmainへpush（`b347236..ffb66c7`）。Pages自動デプロイ（Production／`ffb66c7`）後、本番 `/blog/` が `blog.css?v=20261126d` を参照し、配信CSS（23,311 bytes）と `dist/blog-ui/blog.css` が空白を除き一致、`margin-bottom: 1rem`／`margin: 0 auto 1rem`／`vertical-align: -0.1em` を確認。`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更していない。公開・検証まで完了。
+
+## 現在の依頼（行間を1.6へ、公開完了）
+
+2026-11-26、本人が「だめだね。なんでだと思う？」と指摘。調査の結果、空きの主因は段落 margin ではなく `.article-body` の `line-height: 2.1`（16px × 2.1 = 33.6px/行）だった。ローカルで「マシ」に見えていたのは検証スクリプトの `route.fulfill()` で CSS が 1 枚も読まれず、line-height がブラウザ既定（normal）になっていたため。本人の選択で Blog・日記の両方を 1.6 に変更。
+
+- `.article-body` の `line-height` を `2.1` → `1.6`（25.6px/行）、`.diary-words` を `2.15` → `1.6`（24.32px/行）に変更。
+- CSS版・JS版を `20261126e` へ更新。全84試験、`npm run check:worker` が成功。隔離プレビュー（4196）の実ブラウザーで Blog 25.6px／日記 24.32px、390px/1280px で横溢れなしを確認。
+- 2026-11-26 JST、本人が「公開していい」と承認。`ec82bd8` をmainへpush（`1ca834e..ec82bd8`）。Pages自動デプロイ（Production／`ec82bd8`）後、本番 `/blog/` が `blog.css?v=20261126e` を参照し、配信CSS（23,311 bytes）と `dist/blog-ui/blog.css` が空白を除き一致、`.article-body` と `.diary-words` の両方で `line-height:1.6` を確認。`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更していない。公開・検証まで完了。
