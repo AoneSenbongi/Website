@@ -352,3 +352,12 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - note iframe が `<p>` で包まれ、段落 margin（1.8rem）と iframe 自身の margin（上下1.5rem/2rem）が重なって前後に約50〜60px空いていた。単独行のiframeは `markdownBody()` で `<div class="note-embed-frame">` に包み、iframeのmarginを0、直前段落のmargin-bottomを0.75rem、frameのmargin-bottomを1.25remに変更。文章中のiframeは従来どおり`<p>`内に置く。
 - CSS版・JS版を20261126cへ更新。全84試験、`npm run check:worker`、npm audit 0件が成功。隔離DB（4207）の実ブラウザーで、数式入り文章＋note iframe＋後続文章のプレビューにて、iframe前後の余白が前後とも16pxに収まること、390px/1280pxで横溢れなし、CSP違反なしを確認。画像 `.local/review/spacing-preview-{1280,390}.png`。
 2026-11-26 JST、本人が隔離プレビューを確認して「いいね。これで公開しちゃって」と承認。`0b731a1` をmainへpush（`47353aa..0b731a1`）。Pages自動デプロイ後、本番 `/blog/` が `blog.css?v=20261126c` を参照し、配信CSS（23,322 bytes）に `note-embed-frame` と `vertical-align:-.1em` があることを確認。CSPは `frame-src ... https://note.com` と `style-src-attr 'unsafe-inline'` を維持。`admin.js?v=20261126c` は200（18,018 bytes）、`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更していない。公開・検証まで完了。
+
+## 現在の依頼（余白を本来の半分へ、公開前）
+
+2026-11-26、本人が「余白がおそらく本来の倍ある」「ローカル環境の状態のほうがマシ」と指摘。調査の結果、ローカルの検証スクリプトが `note.com` を `route.fulfill()` で差し替えていたため、管理画面プレビュー（`window.open()` + `document.write()`）で CSS が 1 枚も読まれず、ブラウザ既定の 16px 余白に見えていたことが判明。本番とローカルの配信ソース自体は一致（Pages デプロイ `b347236`／コード本体 `0b731a1`、配信 CSS と `dist/blog-ui/blog.css` が空白を除き一致）。
+
+- `.article-body p` の `margin-bottom` を `1.8rem`（28.8px）から `1rem`（16px）へ変更。日記 `.diary-words p + p` は既に `1em` のため変更なし。
+- `.note-embed-frame` の `margin-bottom` を `1.25rem`（20px）から `1rem`（16px）へ変更。直前段落の `0.75rem`（12px）、iframe の `margin: 0`、`.katex` の `vertical-align: -0.1em` は維持。
+- CSS版・JS版を `20261126d` へ更新。全84試験、`npm run check:worker` が成功。ルート差し替えを外した隔離プレビュー（4196）の実ブラウザーで、段落 margin 16px、note 前 12px／後 16px、数式下 3.9px、390px/1280px で横溢れなしを確認。
+2026-11-26 JST、本人が「公開していい」と承認。`ffb66c7` をmainへpush（`b347236..ffb66c7`）。Pages自動デプロイ（Production／`ffb66c7`）後、本番 `/blog/` が `blog.css?v=20261126d` を参照し、配信CSS（23,311 bytes）と `dist/blog-ui/blog.css` が空白を除き一致、`margin-bottom: 1rem`／`margin: 0 auto 1rem`／`vertical-align: -0.1em` を確認。`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更していない。公開・検証まで完了。
