@@ -351,4 +351,4 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - 計測すると数式行の段落高さは通常文と同じで、下余白は約5〜6px。KaTeXのボックスが行内で上寄りに配置されるため、`vertical-align: -0.1em` を `:is(.article-body, .diary-words) .katex` に追加して下の隙間を約1px詰めた。
 - note iframe が `<p>` で包まれ、段落 margin（1.8rem）と iframe 自身の margin（上下1.5rem/2rem）が重なって前後に約50〜60px空いていた。単独行のiframeは `markdownBody()` で `<div class="note-embed-frame">` に包み、iframeのmarginを0、直前段落のmargin-bottomを0.75rem、frameのmargin-bottomを1.25remに変更。文章中のiframeは従来どおり`<p>`内に置く。
 - CSS版・JS版を20261126cへ更新。全84試験、`npm run check:worker`、npm audit 0件が成功。隔離DB（4207）の実ブラウザーで、数式入り文章＋note iframe＋後続文章のプレビューにて、iframe前後の余白が前後とも16pxに収まること、390px/1280pxで横溢れなし、CSP違反なしを確認。画像 `.local/review/spacing-preview-{1280,390}.png`。
-- 本人が隔離プレビューを確認して「いいね」と承認。未push。次はmainへpushし、本番でCSS版20261126cの配信と既存ページ200を確認する。
+2026-11-26 JST、本人が隔離プレビューを確認して「いいね。これで公開しちゃって」と承認。`0b731a1` をmainへpush（`47353aa..0b731a1`）。Pages自動デプロイ後、本番 `/blog/` が `blog.css?v=20261126c` を参照し、配信CSS（23,322 bytes）に `note-embed-frame` と `vertical-align:-.1em` があることを確認。CSPは `frame-src ... https://note.com` と `style-src-attr 'unsafe-inline'` を維持。`admin.js?v=20261126c` は200（18,018 bytes）、`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更していない。公開・検証まで完了。
