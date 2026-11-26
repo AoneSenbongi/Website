@@ -159,20 +159,28 @@ body:has(.admin-shell) {
   font-size: 1rem;
   line-height: 2.1;
 }
-.article-body .katex {
+:is(.article-body, .diary-words) .katex {
   font-size: 1.05em;
+  vertical-align: -0.1em;
 }
 .article-body .katex-display {
   overflow-x: auto;
   overflow-y: hidden;
 }
+:is(.article-body, .diary-words) .note-embed-frame {
+  width: min(494px, 100%);
+  margin: 0 auto 1.25rem;
+}
 :is(.article-body, .diary-words) iframe.note-embed {
   display: block;
-  width: min(494px, 100%);
+  width: 100%;
   max-width: 100%;
   border: 0;
-  margin: 1.5rem auto 2rem;
+  margin: 0;
   background: #fff;
+}
+:is(.article-body, .diary-words) p:has(+ .note-embed-frame) {
+  margin-bottom: 0.75rem;
 }
 .article-body p {
   margin-bottom: 1.8rem;

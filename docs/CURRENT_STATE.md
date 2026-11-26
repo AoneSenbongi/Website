@@ -343,3 +343,12 @@ tools/admin-auth-recovery-check.mjsで認証失効を再現し、修正前に復
 - Blogの下書きは `/blog/<slug>/?key=<トークン>` で共有可能にした。日記と同じくnoindex、単票表示、反応・コメント・日記リンク・記事スクリプトなし、写真と本文画像はキー付き、誤キー404、再作成で旧リンク無効化、公開記事には作成不可。管理画面の共有欄を記事・日記共通で表示し、URLをkindに応じて生成する。共有カードの画像にもキーを付けるよう `shareMetadata()` を拡張し、日記側にも適用。
 - 新規試験8件を含む全84試験、`npm run check:worker`、npm audit 0件が成功。`tools/note-share-browser-check.mjs` を追加し、隔離DB（4207、publish-check）の実ブラウザーで、保存→プレビューのnoteiframe描画・helper script未読込・CSP違反なし・390px横溢れなし→管理画面で共有リンク作成→別コンテキストで共有ページ表示（noindex、反応なし、iframeあり）→無効化で404まで確認。画像 `.local/review/note-share-{preview-desktop,preview-mobile,admin,public}.png`。
 2026-11-26 JST、本人の事前承認に従い `86f9725` をmainへpush（`2f4036a..86f9725`）。Pages自動デプロイ後、本番 `/blog/` が `blog.css?v=20261126b` を参照し、配信CSS（23,106 bytes）に `iframe.note-embed` 規則があることを確認。CSPは `frame-src` に `https://note.com` を含み、`style-src-attr 'unsafe-inline'` も維持。`admin.js?v=20261126b` は200（18,018 bytes、Blog用共有URL生成コード入り）、`/blog/`、`/diary/`、既存公開記事は200。本番の投稿・DBは変更しておらず、実際のnote埋め込み入り記事や共有リンクは本人が管理画面から作成する。公開・検証まで完了。
+
+## 現在の依頼（数式下の余白とnote前後の改行、公開前）
+
+2026-11-26、本人が「LaTeXで表記したら下側が空いちゃう」「Noteの埋め込みしたあとの場所も大幅に改行がなされている」と依頼。余白の箇所は本人の選択で「文章中で数式の行の下」。
+
+- 計測すると数式行の段落高さは通常文と同じで、下余白は約5〜6px。KaTeXのボックスが行内で上寄りに配置されるため、`vertical-align: -0.1em` を `:is(.article-body, .diary-words) .katex` に追加して下の隙間を約1px詰めた。
+- note iframe が `<p>` で包まれ、段落 margin（1.8rem）と iframe 自身の margin（上下1.5rem/2rem）が重なって前後に約50〜60px空いていた。単独行のiframeは `markdownBody()` で `<div class="note-embed-frame">` に包み、iframeのmarginを0、直前段落のmargin-bottomを0.75rem、frameのmargin-bottomを1.25remに変更。文章中のiframeは従来どおり`<p>`内に置く。
+- CSS版・JS版を20261126cへ更新。全84試験、`npm run check:worker`、npm audit 0件が成功。隔離DB（4207）の実ブラウザーで、数式入り文章＋note iframe＋後続文章のプレビューにて、iframe前後の余白が前後とも16pxに収まること、390px/1280pxで横溢れなし、CSP違反なしを確認。画像 `.local/review/spacing-preview-{1280,390}.png`。
+- 本人が隔離プレビューを確認して「いいね」と承認。未push。次はmainへpushし、本番でCSS版20261126cの配信と既存ページ200を確認する。

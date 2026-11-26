@@ -50,6 +50,7 @@ markdown.inline.ruler.before("escape", "latex_math", (state, silent) => {
 const noteScriptPattern =
   /<script\b[^>]*\bsrc\s*=\s*["']https:\/\/note\.com\/scripts\/embed\.js["'][^>]*>\s*<\/script>/gi;
 const noteIframePattern = /<iframe\b([^>]*)>\s*<\/iframe>/gi;
+const noteIframeLinePattern = /^[ \t]*<iframe\b([^>]*)>\s*<\/iframe>[ \t]*$/gim;
 function noteEmbed(attributes) {
   const attrs = {};
   for (const match of attributes.matchAll(
@@ -67,20 +68,30 @@ function noteEmbed(attributes) {
 }
 export function markdownBody(body, mediaKey = null) {
   const embeds = [];
+  const store = (attributes, block) => {
+    const embed = noteEmbed(attributes);
+    if (!embed) return null;
+    const token = `noteembed${crypto.randomUUID().replaceAll("-", "")}${embeds.length}end`;
+    embeds.push({
+      token,
+      block,
+      html: `<iframe class="note-embed" src="https://note.com/embed/notes/${embed.id}" height="${embed.height}" style="height:${embed.height}px" loading="lazy" title="noteの埋め込み"></iframe>`,
+    });
+    return token;
+  };
   const prepared = String(body ?? "")
     .replace(noteScriptPattern, "")
-    .replace(noteIframePattern, (whole, attributes) => {
-      const embed = noteEmbed(attributes);
-      if (!embed) return whole;
-      const token = `noteembed${crypto.randomUUID().replaceAll("-", "")}${embeds.length}end`;
-      embeds.push({
-        token,
-        html: `<iframe class="note-embed" src="https://note.com/embed/notes/${embed.id}" height="${embed.height}" style="height:${embed.height}px" loading="lazy" title="noteの埋め込み"></iframe>`,
-      });
-      return token;
-    });
+    .replace(noteIframeLinePattern, (whole, attributes) => {
+      const token = store(attributes, true);
+      return token ? `\n\n${token}\n\n` : whole;
+    })
+    .replace(noteIframePattern, (whole, attributes) => store(attributes, false) ?? whole);
   let html = markdown.render(prepared);
-  for (const embed of embeds) html = html.split(embed.token).join(embed.html);
+  for (const embed of embeds) {
+    if (embed.block)
+      html = html.split(`<p>${embed.token}</p>`).join(`<div class="note-embed-frame">${embed.html}</div>`);
+    html = html.split(embed.token).join(embed.html);
+  }
   return mediaKey
     ? html.replace(/\/media\/([a-f0-9]{32}\.(?:jpg|png|webp))/g, "/media/$1?key=" + mediaKey)
     : html;
@@ -187,7 +198,7 @@ export async function page(
     )
     .replace(
       "</head>",
-      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126b"></head>',
+      '<link rel="stylesheet" href="/blog-ui/katex/katex.min.css?v=20261126a"><link rel="stylesheet" href="/blog-ui/blog.css?v=20261126c"></head>',
     )
     .replace(/<p class="diary-link"[\s\S]*?<\/p>/, "")
     .replace(
@@ -202,7 +213,7 @@ export async function page(
   if (script)
     html = html.replace(
       "</body>",
-      `<script type="module" src="/blog-ui/${script}.js?v=20261126b"></script></body>`,
+      `<script type="module" src="/blog-ui/${script}.js?v=20261126c"></script></body>`,
     );
   const cards = {
     "og:type": type,
